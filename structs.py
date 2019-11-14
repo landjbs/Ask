@@ -16,7 +16,6 @@ class Document(object):
         self.questionIdx = questionIdx
 
 
-
 class SearchTable(object):
     ''' Wide column hashtable of Document objects for searching '''
     def __init__(self):
