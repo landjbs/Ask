@@ -11,4 +11,4 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
         title = category['title']
         for document in category['paragraphs']:
             text = document['context']
-            print(len(document['qas']))
+            questions = document['qas']
