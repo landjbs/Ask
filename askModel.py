@@ -6,3 +6,7 @@ STEPS:
       to selected span. Inverse model will take
     - Use
 '''
+
+import keras
+
+class SpanSelectionModel
