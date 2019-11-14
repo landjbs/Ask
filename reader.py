@@ -3,7 +3,7 @@ To read datasets into structs
 '''
 
 import json
-from structs import SearchTable
+from structs import Document, SearchTable
 
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
     data = json.load(squadFile)
