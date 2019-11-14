@@ -6,6 +6,7 @@ class Question(object):
         self.span = span
         self.is_impossible = is_impossible
 
+
 class Document(object):
     ''' Single document from any QA dataset '''
     def __init__(self, docId, category, text, questionIdx):
@@ -15,8 +16,8 @@ class Document(object):
         self.questionIdx = questionIdx
 
 
+
 class SearchTable(object):
     ''' Wide column hashtable of Document objects for searching '''
-
     def __init__(self):
         self.topicIdx = {}
