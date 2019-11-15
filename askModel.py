@@ -8,5 +8,3 @@ STEPS:
 '''
 
 import keras
-
-class SpanSelectionModel
