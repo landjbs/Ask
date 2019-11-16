@@ -15,7 +15,7 @@ class Document(object):
         self.text = text
         self.questionIdx = questionIdx
 
-    def get_questions(self,):
+    def get_questions(self):
         ''' Gets list of questions pertaining to document '''
         return self.questionIdx.values()
 
