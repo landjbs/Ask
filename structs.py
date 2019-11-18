@@ -40,10 +40,15 @@ class SearchTable(object):
     def save(self, savePath):
         assert self.initialized, 'SearchTable must be initialized before save.'
         u.safe_make_folder(savePath)
-        u.save_obj(self.categoryIdx, )
+        u.save_obj(self.categoryIdx, f'{savePath}/categoryIdx.sav')
+        return True
 
     def load(self, loadPath):
-        return None
+        assert not self.initialized, 'Cannot load into initialized SearchTable.'
+        assert u.path_exists(loadPath), f'Cannot find path "{loadPath}".'
+        self.categoryIdx = u.load_obj(f'{loadPath}/categoryIdx.sav')
+        self.initialized = True
+        return True
 
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
