@@ -44,7 +44,8 @@ def document_generator(category):
             textWords = tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
-                            in enumerate(question_generator(questions, textWords))}
+                            in enumerate(question_generator(questions,
+                                                            textWords))}
             yield Document(docId, title, text, questionIdx)
 
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
