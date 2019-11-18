@@ -33,6 +33,9 @@ class SearchTable(object):
         else:
             self.categoryIdx = {}
 
+    def save(self, savePath):
+        
+
     def load(self, loadPath):
         return None
 
