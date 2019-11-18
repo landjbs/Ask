@@ -51,7 +51,7 @@ class SearchTable(object):
         return True
 
     def _tokenize(text):
-        ''' returns tokenized text. to improve '''
+        ''' returns tokenized text; to improve '''
         return text.lower().split()
 
     def _question_generator(questions, textWords):
@@ -70,7 +70,7 @@ class SearchTable(object):
             # focuses only on the first answer of answer list
             answer = answerList[0]
             answerText = answer['text']
-            answerWords = tokenize(answerText)
+            answerWords =_tokenize(answerText)
             answerStart = answerWords[0]
             answerLen = len(answerWords)
             span = None
@@ -88,7 +88,7 @@ class SearchTable(object):
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
             text = document['context']
-            textWords = tokenize(text)
+            textWords =_tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
                             in enumerate(question_generator(questions,
