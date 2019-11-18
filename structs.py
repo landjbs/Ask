@@ -50,7 +50,8 @@ class SearchTable(object):
         self.initialized = True
         return True
 
-    def question_generator(questions, textWords):
+    def _question_generator(questions, textWords):
+        ''' Helper to find question in table building '''
         for q in questions:
             if q['is_impossible']:
                 continue
@@ -77,18 +78,18 @@ class SearchTable(object):
             if not span:
                 continue
             yield Question(q['id'], q['question'], answerText, span)
-    #
-    def document_generator(category):
-            title = category['title']
-            for docId, document in enumerate(category['paragraphs']):
-                text = document['context']
-                textWords = tokenize(text)
-                questions = document['qas']
-                questionIdx = {i : qObj for i, qObj
-                                in enumerate(question_generator(questions,
-                                                                textWords))}
-                yield Document(docId, title, text, questionIdx)
 
+    def _document_generator(category):
+        ''' Helper to find documents in table building '''
+        title = category['title']
+        for docId, document in enumerate(category['paragraphs']):
+            text = document['context']
+            textWords = tokenize(text)
+            questions = document['qas']
+            questionIdx = {i : qObj for i, qObj
+                            in enumerate(question_generator(questions,
+                                                            textWords))}
+            yield Document(docId, title, text, questionIdx)
 
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
