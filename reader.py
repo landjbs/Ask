@@ -14,5 +14,5 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
             questions = document['qas']
             for q in questions:
                 print(q['answers'])
-                # qObj = Question(q['id'], q['question'],
-                #                 , q['is_impossible'])
+                qObj = Question(q['id'], q['question'],
+                                q['is_impossible'])
