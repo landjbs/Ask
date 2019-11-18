@@ -32,11 +32,15 @@ class SearchTable(object):
     def __init__(self, loadPath=None):
         if self.loadPath:
             self.categoryIdx = self.load(loadPath)
+            self.initialized = True
         else:
             self.categoryIdx = {}
+            self.initialized = False
 
     def save(self, savePath):
-
+        assert self.initialized, 'SearchTable must be initialized before save.'
+        u.safe_make_folder(savePath)
+        u.save_obj(self.categoryIdx, )
 
     def load(self, loadPath):
         return None

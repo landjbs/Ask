@@ -37,7 +37,6 @@ def delete_and_make_folder(folderPath):
     delete_folder(folderPath)
     os.mkdir(folderPath)
 
-
 def safe_make_folder(folderPath):
     """ Wraps delete_and_make_folder but checks with the user first """
     if os.path.exists(folderPath):
