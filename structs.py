@@ -54,7 +54,7 @@ class SearchTable(object):
         return True
 
     # TEXT MANIPULATION
-    def _tokenize(text):
+    def _tokenize(self, text):
         ''' returns tokenized text; to improve '''
         return text.lower().split()
 
@@ -96,8 +96,8 @@ class SearchTable(object):
             textWords = self._tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
-                            in enumerate(self.question_generator(questions,
-                                                                 textWords))}
+                            in enumerate(self._question_generator(questions,
+                                                                  textWords))}
             yield Document(docId, title, text, questionIdx)
 
     def build(self, squadPath):
