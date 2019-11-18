@@ -7,7 +7,7 @@ class Question(object):
         self.aSpan = aSpan
 
     def __str__(self):
-        print(f'<QuestionObj | {self.text}>')
+        return f"<QuestionObj | '{self.qText}' : '{self.aText}'>"
 
 class Document(object):
     ''' Single document from any QA dataset '''
