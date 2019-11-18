@@ -9,7 +9,7 @@ def tokenize(text):
     ''' returns tokenized text. to improve '''
     return text.lower().split()
 
-def generate_question(questions, textWords):
+def question_generator(questions, textWords):
     for q in questions:
         if q['is_impossible']:
             continue
@@ -36,17 +36,27 @@ def generate_question(questions, textWords):
         if not span:
             continue
         yield Question(q['id'], q['question'], answerText, span)
-
+# 
+# def document_generator(cateogry):
+#         title = category['title']
+#         for document in category['paragraphs']:
+#             text = document['context']
+#             textWords = tokenize(text)
+#             questions = document['qas']
+#             questionIdx = {i : qObj for i, qObj
+#                             in enumerate(get_qs(questions, textWords))}
+#             yield Document()
 
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
     data = json.load(squadFile)
     for category in data['data']:
-        title = category['title']
         for document in category['paragraphs']:
             text = document['context']
             textWords = tokenize(text)
             questions = document['qas']
-            questionIdx = {i : qObj for i, qObj in enumerate(get_qs())}
+            questionIdx = {i : qObj for i, qObj
+                            in enumerate(get_qs(questions, textWords))}
+
 
                 #
                 # qObj = Question(q['id'], q['question'])
