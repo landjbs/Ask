@@ -27,18 +27,23 @@ class Document(object):
 
 class SearchTable(object):
     ''' Wide column hashtable of Document objects for searching '''
-    def __init__(self, categoryIdx):
-        self.categoryIdx = categoryIdx
+    def __init__(self, loadPath=None):
+        if self.loadPath:
+            self.categoryIdx = self.load(loadPath)
+        else:
+            self.categoryIdx = {}
 
-    def build(self, squalPath):
+    def load(self, loadPath):
+        return None
+
+    def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
-        with open('data/inData/dev-v2.0.json', 'r') as squadFile:
+        with open(squadPath, 'r') as squadFile:
             data = json.load(squadFile)
             categoryIdx = {category['title'] : list(document_generator(category))
                             for category in data['data']}
-            print(categoryIdx)
             database = SearchTable(categoryIdx)
-            print(database)
+
 
     def __str__(self):
         outStr = 'SearchTableObj\n'
