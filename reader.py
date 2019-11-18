@@ -5,12 +5,18 @@ To read datasets into structs
 import json
 from structs import Question, Document, SearchTable
 
+def tokenize(text):
+    ''' returns tokenized text. to improve '''
+    return text.split()
+
+
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
     data = json.load(squadFile)
     for category in data['data']:
         title = category['title']
         for document in category['paragraphs']:
             text = document['context']
+            textWord = text.split()
             questions = document['qas']
             for q in questions:
                 if q['is_impossible']:
@@ -26,7 +32,7 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
                 # focuses only on the first answer of answer list
                 answer = answerList[0]
                 answerText = answer['text']
-
+                answerWords = answerText.split()
 
 
                 #
