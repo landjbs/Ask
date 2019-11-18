@@ -37,26 +37,22 @@ def question_generator(questions, textWords):
             continue
         yield Question(q['id'], q['question'], answerText, span)
 #
-def document_generator(cateogry):
+def document_generator(category):
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
             text = document['context']
             textWords = tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
-                            in enumerate(get_qs(questions, textWords))}
+                            in enumerate(question_generator(questions, textWords))}
             yield Document(docId, title, text, questionIdx)
 
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
     data = json.load(squadFile)
-    for category in data['data']:
-        for i, document in enumerate(category['paragraphs']):
-            text = document['context']
-            textWords = tokenize(text)
-            questions = document['qas']
-            questionIdx = {i : qObj for i, qObj
-                            in enumerate(question_generator(questions, textWords))}
-            print(document.keys())
+    categoryIdx = {category['title'] : document_generator(category)
+                    for category in data['data']}
+    database = SearchTable(categoryIdx)
+    print(database)
 
 
                 #

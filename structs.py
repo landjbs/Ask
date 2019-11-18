@@ -17,6 +17,9 @@ class Document(object):
         self.text = text
         self.questionIdx = questionIdx
 
+    def __str__(self):
+        return f'<DocumentObj | id={self.docId}, category={self.category}>'
+
     def get_questions(self):
         ''' Gets list of questions pertaining to document '''
         return self.questionIdx.values()
@@ -24,5 +27,11 @@ class Document(object):
 
 class SearchTable(object):
     ''' Wide column hashtable of Document objects for searching '''
-    def __init__(self):
-        self.topicIdx = {}
+    def __init__(self, categoryIdx):
+        self.categoryIdx = categoryIdx
+
+    def __str__(self):
+        outStr = 'SearchTableObj\n'
+        for category, contents in self.categoryIdx.items():
+            outStr += f'\t{category}' + "\n\t\t".join(contents)
+        return outStr
