@@ -33,12 +33,11 @@ class Document(object):
 class SearchTable(object):
     ''' Wide column hashtable of Document objects for searching '''
     def __init__(self, loadPath=None):
+        self.initialized = False
         if loadPath:
-            self.categoryIdx = self.load(loadPath)
-            self.initialized = True
+            self.load(loadPath)
         else:
             self.categoryIdx = {}
-            self.initialized = False
 
     def save(self, savePath):
         assert self.initialized, 'SearchTable must be initialized before save.'
@@ -48,10 +47,9 @@ class SearchTable(object):
 
     def load(self, loadPath):
         assert not self.initialized, 'Cannot load into initialized SearchTable.'
-        assert u.path_exists(loadPath), f'Cannot find path "{loadPath}".'
+        u.path_exists(loadPath)
         self.categoryIdx = u.load_obj(f'{loadPath}/categoryIdx.sav')
         self.initialized = True
-        return True
 
     # TEXT MANIPULATION
     def _tokenize(self, text):
@@ -112,6 +110,7 @@ class SearchTable(object):
 
     def __str__(self):
         outStr = 'SearchTableObj\n'
+        print(self.categoryIdx)
         for category, contents in self.categoryIdx.items():
             outStr += f'\t{category} : {len(contents)}\n'
         return outStr
