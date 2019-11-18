@@ -1,5 +1,5 @@
 import json
-from colored import colored
+from termcolor import colored
 
 import utils as u
 
@@ -33,7 +33,7 @@ class Document(object):
 class SearchTable(object):
     ''' Wide column hashtable of Document objects for searching '''
     def __init__(self, loadPath=None):
-        if self.loadPath:
+        if loadPath:
             self.categoryIdx = self.load(loadPath)
             self.initialized = True
         else:
@@ -102,7 +102,7 @@ class SearchTable(object):
 
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
-        print('BUILDING SEARCH TABLE')
+        print(colored('BUILDING SEARCH TABLE', 'red'))
         with open(squadPath, 'r') as squadFile:
             self.categoryIdx = {category['title'] :
                                 list(_document_generator(category))
