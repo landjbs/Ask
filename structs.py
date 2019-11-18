@@ -1,3 +1,6 @@
+import json
+from colored import colored
+
 import utils as u
 
 class Question(object):
@@ -99,11 +102,11 @@ class SearchTable(object):
 
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
+        print('BUILDING SEARCH TABLE')
         with open(squadPath, 'r') as squadFile:
-            data = json.load(squadFile)
             self.categoryIdx = {category['title'] :
                                 list(_document_generator(category))
-                                for category in data['data']}
+                                for category in json.load(squadFile)['data']}
         self.initialized = True
         return True
 

@@ -2,5 +2,8 @@
 To read datasets into structs
 '''
 
-import json
-from structs import Question, Document, SearchTable
+from structs import SearchTable
+
+
+x = SearchTable()
+x.build('data/inData/train-v2.0.json')
