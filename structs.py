@@ -1,9 +1,13 @@
 class Question(object):
     ''' Single question about a doc stores '''
-    def __init__(self, questionId, text, span):
+    def __init__(self, questionId, qText, aText, aSpan):
         self.questionId = questionId
-        self.text = text
-        self.span = span
+        self.qText = qText
+        self.aText = aText
+        self.aSpan = aSpan
+
+    def __str__(self):
+        print(f'<QuestionObj | {self.text}>')
 
 class Document(object):
     ''' Single document from any QA dataset '''
