@@ -33,5 +33,5 @@ class SearchTable(object):
     def __str__(self):
         outStr = 'SearchTableObj\n'
         for category, contents in self.categoryIdx.items():
-            outStr += f'\t{category}' + "\n\t\t".join(contents)
+            outStr += f'\t{category} : {len(contents)}\n'
         return outStr

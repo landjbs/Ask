@@ -49,8 +49,9 @@ def document_generator(category):
 
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
     data = json.load(squadFile)
-    categoryIdx = {category['title'] : document_generator(category)
+    categoryIdx = {category['title'] : list(document_generator(category))
                     for category in data['data']}
+    print(categoryIdx)
     database = SearchTable(categoryIdx)
     print(database)
 
