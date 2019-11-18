@@ -50,6 +50,10 @@ class SearchTable(object):
         self.initialized = True
         return True
 
+    def _tokenize(text):
+        ''' returns tokenized text. to improve '''
+        return text.lower().split()
+
     def _question_generator(questions, textWords):
         ''' Helper to find question in table building '''
         for q in questions:
