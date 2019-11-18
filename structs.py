@@ -95,9 +95,9 @@ class SearchTable(object):
         ''' Builds SearchTable from squad file under squadPath'''
         with open(squadPath, 'r') as squadFile:
             data = json.load(squadFile)
-            categoryIdx = {category['title'] : list(document_generator(category))
-                            for category in data['data']}
-            self.categoryIdx = SearchTable(categoryIdx)
+            self.categoryIdx = {category['title'] :
+                                list(_document_generator(category))
+                                for category in data['data']}
         self.initialized = True
         return True
 
