@@ -13,10 +13,20 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
             text = document['context']
             questions = document['qas']
             for q in questions:
+                if q['is_impossible']:
+                    continue
                 try:
                     answerList = q['answers']
-                except:
+                except KeyError:
+                    answerList = []
+                if (answerList == []):
                     answerList = q['plausible_answers']
+                    if (answerList == []):
+                        continue
+                # focuses only on the first answer of answer list
+                answer = answerList[0]
+                answerText = answer['text']
+
 
 
                 #
