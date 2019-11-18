@@ -7,7 +7,7 @@ from structs import Question, Document, SearchTable
 
 def tokenize(text):
     ''' returns tokenized text. to improve '''
-    return text.split()
+    return text.split().lower()
 
 
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
@@ -16,7 +16,7 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
         title = category['title']
         for document in category['paragraphs']:
             text = document['context']
-            textWord = text.split()
+            textWords = tokenize(text)
             questions = document['qas']
             for q in questions:
                 if q['is_impossible']:
@@ -32,7 +32,13 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
                 # focuses only on the first answer of answer list
                 answer = answerList[0]
                 answerText = answer['text']
-                answerWords = answerText.split()
+                answerWords = tokenize(answerText)
+                answerStart = answerWords[0]
+                answerLen = len(answerWords)
+                for loc, textWord in enumerate(textWords):
+                    if (textWord==answerStart):
+                        if (textWords[loc:(loc+answerLen)] == answerWords):
+                            span = (loc, loc+answerLen)
 
 
                 #
