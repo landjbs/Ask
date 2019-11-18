@@ -59,7 +59,7 @@ class SearchTable(object):
         return text.lower().split()
 
     # DATA ANALYSIS
-    def _question_generator(questions, textWords):
+    def _question_generator(self, questions, textWords):
         ''' Helper to find question in table building '''
         for q in questions:
             if q['is_impossible']:
@@ -75,7 +75,7 @@ class SearchTable(object):
             # focuses only on the first answer of answer list
             answer = answerList[0]
             answerText = answer['text']
-            answerWords =_tokenize(answerText)
+            answerWords = self._tokenize(answerText)
             answerStart = answerWords[0]
             answerLen = len(answerWords)
             span = None
@@ -88,12 +88,12 @@ class SearchTable(object):
                 continue
             yield Question(q['id'], q['question'], answerText, span)
 
-    def _document_generator(category):
+    def _document_generator(self, category):
         ''' Helper to find documents in table building '''
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
             text = document['context']
-            textWords =_tokenize(text)
+            textWords = self._tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
                             in enumerate(self.question_generator(questions,
