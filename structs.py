@@ -1,3 +1,5 @@
+import utils as u
+
 class Question(object):
     ''' Single question about a doc stores '''
     def __init__(self, questionId, qText, aText, aSpan):
@@ -34,7 +36,7 @@ class SearchTable(object):
             self.categoryIdx = {}
 
     def save(self, savePath):
-        
+
 
     def load(self, loadPath):
         return None
