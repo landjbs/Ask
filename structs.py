@@ -56,8 +56,9 @@ class SearchTable(object):
             data = json.load(squadFile)
             categoryIdx = {category['title'] : list(document_generator(category))
                             for category in data['data']}
-            database = SearchTable(categoryIdx)
-
+            self.categoryIdx = SearchTable(categoryIdx)
+        self.initialized = True
+        return True
 
     def __str__(self):
         outStr = 'SearchTableObj\n'
