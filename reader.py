@@ -13,6 +13,37 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
             text = document['context']
             questions = document['qas']
             for q in questions:
-                print(q['answers'])
                 qObj = Question(q['id'], q['question'],
                                 q['is_impossible'])
+
+                if question['is_impossible']:
+                        startTargets.append([0 for _ in range(maxContextLen)])
+                        endTargets.append([0 for _ in range(maxContextLen)])
+                    else:
+                        # supports answers and plausible_answers interchangably
+                        try:
+                            answerList = question['answers']
+                        except KeyError:
+                            answerList = question['plausible_answers']
+                        assert (len(answerList) == 1), f'{len(answerList)}'
+                        answerText = answerList[0]['text']
+                        answerTokens = tokenizer.tokenize(answerText)
+                        answerIds = tokenizer.convert_tokens_to_ids(answerTokens)
+                        #find span of answerText in paragraph
+                        spanLen = len(answerIds)
+                        found = False
+                        for idLoc, firstId in enumerate(paragraphIds):
+                            if (firstId == answerIds[0]):
+                                endLoc = idLoc + spanLen
+                                if (paragraphIds[idLoc : endLoc] == answerIds) and (not found):
+                                    startVec = np.zeros(shape=maxContextLen)
+                                    endVec = np.zeros(shape=maxContextLen)
+                                    startVec[idLoc] = 1
+                                    endVec[endLoc] = 1
+                                    startTargets.append(startVec)
+                                    endTargets.append(endVec)
+                                    found = True
+                                    break
+                        if not found:
+                            startTargets.append([0 for _ in range(maxContextLen)])
+                            endTargets.append([0 for _ in range(maxContextLen)])
