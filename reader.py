@@ -35,7 +35,7 @@ def generate_question(questions, textWords):
                     break
         if not span:
             continue
-        qObj = Question(q['id'], q['question'], answerText, span)
+        yield Question(q['id'], q['question'], answerText, span)
 
 
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
@@ -46,6 +46,7 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
             text = document['context']
             textWords = tokenize(text)
             questions = document['qas']
+            questionIdx = {i : qObj for i, qObj in enumerate(get_qs())}
 
                 #
                 # qObj = Question(q['id'], q['question'])
