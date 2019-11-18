@@ -96,8 +96,8 @@ class SearchTable(object):
             textWords =_tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
-                            in enumerate(question_generator(questions,
-                                                            textWords))}
+                            in enumerate(self.question_generator(questions,
+                                                                 textWords))}
             yield Document(docId, title, text, questionIdx)
 
     def build(self, squadPath):
@@ -105,7 +105,7 @@ class SearchTable(object):
         print(colored('BUILDING SEARCH TABLE', 'red'))
         with open(squadPath, 'r') as squadFile:
             self.categoryIdx = {category['title'] :
-                                list(_document_generator(category))
+                                list(self._document_generator(category))
                                 for category in json.load(squadFile)['data']}
         self.initialized = True
         return True
