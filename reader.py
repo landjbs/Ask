@@ -9,6 +9,34 @@ def tokenize(text):
     ''' returns tokenized text. to improve '''
     return text.lower().split()
 
+def generate_question(questions, textWords):
+    for q in questions:
+        if q['is_impossible']:
+            continue
+        try:
+            answerList = q['answers']
+        except KeyError:
+            answerList = []
+        if (answerList == []):
+            answerList = q['plausible_answers']
+            if (answerList == []):
+                continue
+        # focuses only on the first answer of answer list
+        answer = answerList[0]
+        answerText = answer['text']
+        answerWords = tokenize(answerText)
+        answerStart = answerWords[0]
+        answerLen = len(answerWords)
+        span = None
+        for loc, textWord in enumerate(textWords):
+            if (textWord==answerStart):
+                if (textWords[loc:(loc+answerLen)] == answerWords):
+                    span = (loc, loc+answerLen)
+                    break
+        if not span:
+            continue
+        qObj = Question(q['id'], q['question'], answerText, span)
+
 
 with open('data/inData/dev-v2.0.json', 'r') as squadFile:
     data = json.load(squadFile)
@@ -18,33 +46,6 @@ with open('data/inData/dev-v2.0.json', 'r') as squadFile:
             text = document['context']
             textWords = tokenize(text)
             questions = document['qas']
-            for q in questions:
-                if q['is_impossible']:
-                    continue
-                try:
-                    answerList = q['answers']
-                except KeyError:
-                    answerList = []
-                if (answerList == []):
-                    answerList = q['plausible_answers']
-                    if (answerList == []):
-                        continue
-                # focuses only on the first answer of answer list
-                answer = answerList[0]
-                answerText = answer['text']
-                answerWords = tokenize(answerText)
-                answerStart = answerWords[0]
-                answerLen = len(answerWords)
-                span = None
-                for loc, textWord in enumerate(textWords):
-                    if (textWord==answerStart):
-                        if (textWords[loc:(loc+answerLen)] == answerWords):
-                            span = (loc, loc+answerLen)
-                            break
-                if not span:
-                    continue
-                qObj = Question(q['id'], q['question'], answerText, span)
-                print(qObj)
 
                 #
                 # qObj = Question(q['id'], q['question'])
