@@ -27,11 +27,15 @@ position_embeddings = model.transformer.wpe.weight  # Word Position Embeddings
 tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
 
 while True:
+    print(tokenizer.encode(input('t: '), add_prefix_space=True))
+
+
+while True:
     t1 = input('t1: ')
     t2 = input('t2: ')
     t1_id = tokenizer.encode(t1, add_prefix_space=True)
     t2_id = tokenizer.encode(t2, add_prefix_space=True)
-    v1 = model.transformer.wte.weight[t1_id,:]
-    v2 = model.transformer.wte.weight[t2_id,:]
+    v1 = model.transformer.wte.weight[t1_id,:].detach().numpy()
+    v2 = model.transformer.wte.weight[t2_id,:].detach().numpy()
     print(v1, v2)
     print(euclidean(v1, v2))

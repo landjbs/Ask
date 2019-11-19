@@ -1,0 +1,3 @@
+'''
+The pooling model
+'''
