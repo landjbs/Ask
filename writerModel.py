@@ -3,9 +3,7 @@ Decodes latent vector into raw text. Trained before application to question
 generation.
 '''
 
-import torch
-import numpy as np
-from torch import nn
-import matplotlib.pyplot as plt
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-class Encoder()
+model = GPT2LMHeadModel.from_pretrained('gpt2')
+tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
