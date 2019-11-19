@@ -7,5 +7,6 @@ of GPT-2 embeddings (to accomodate negative values) to output embedding vector
 approxmation of question relating to span.
 '''
 
+from structs import SearchTable
 
-class Encdoer
+x = SearchTable(loadPath='SearchTable')

@@ -117,7 +117,6 @@ class SearchTable(object):
 
     def __str__(self):
         outStr = 'SearchTableObj\n'
-        print(self.categoryIdx)
         for category, contents in self.categoryIdx.items():
             outStr += f'\t{category} : {len(contents)}\n'
         return outStr
