@@ -47,16 +47,19 @@ def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')
         logits[indices_to_remove] = filter_value
     return logits
 
-def generate(model, length, context, num_samples=1, temperature=1, top_k=0, top_p=0.0, repetition_penalty=1.0,
-             is_xlnet=False, is_xlm_mlm=False, xlm_mask_token=None, xlm_lang=None, device='cpu'):
+def generate(model, length, context, num_samples=1, temperature=1, top_k=0,
+             top_p=0.0, repetition_penalty=0.001, device='cpu'):
     context = torch.tensor(context, dtype=torch.long, device=device)
     context = context.unsqueeze(0).repeat(num_samples, 1)
     generated = context
     with torch.no_grad():
-        for _ in trange(length):
+        for _ in trange(length, leave=False):
             inputs = {'input_ids': generated}
             outputs = model(**inputs)
             next_token_logits = outputs[0][:, -1, :] / (temperature if temperature > 0 else 1.)
+            for i in range(num_samples):
+                for _ in set(generated[i].tolist()):
+                    next_token_logits[i, _] /= repetition_penalty
             filtered_logits = top_k_top_p_filtering(next_token_logits, top_k=top_k, top_p=top_p)
             if temperature == 0: # greedy sampling:
                 next_token = torch.argmax(filtered_logits, dim=-1).unsqueeze(-1)
@@ -65,13 +68,10 @@ def generate(model, length, context, num_samples=1, temperature=1, top_k=0, top_
             generated = torch.cat((generated, next_token), dim=1)
     return generated
 
-text = 'the man runs' # input('text: ')
-context_tokens = tokenizer.encode(text, add_special_tokens=False)
-out = (generate(model, 10, context_tokens))
-out = out[:, len(context_tokens):].tolist()
-print(out)
-for o in out:
-            text = tokenizer.decode(o, clean_up_tokenization_spaces=True)
-            text = text[: text.find(args.stop_token) if args.stop_token else None]
-
-            print(text)
+while True:
+    text = input('text: ')
+    context_tokens = tokenizer.encode(text, add_special_tokens=False)
+    out = (generate(model, 20, context_tokens))
+    out = out[:, len(context_tokens):].tolist()
+    outText = text.strip() + ' '.join(tokenizer.decode(o, clean_up_tokenization_spaces=True) for o in out)
+    print(f'{outText}\n{"-"*80}')
