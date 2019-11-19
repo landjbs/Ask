@@ -1,4 +1,5 @@
 import json
+from tqdm import tqdm
 from termcolor import colored
 
 import utils as u
@@ -32,23 +33,25 @@ class Document(object):
 
 class SearchTable(object):
     ''' Wide column hashtable of Document objects for searching '''
-    def __init__(self, loadPath=None):
+    def __init__(self, squadPath=None, loadPath=None):
         self.initialized = False
         if loadPath:
             self.load(loadPath)
+        elif squadPath:
+            self.build(squadPath)
         else:
             self.categoryIdx = {}
 
     def save(self, savePath):
         assert self.initialized, 'SearchTable must be initialized before save.'
         u.safe_make_folder(savePath)
-        u.save_obj(self.categoryIdx, f'{savePath}/categoryIdx.sav')
+        u.save_obj(self.categoryIdx, f'{savePath}/categoryIdx')
         return True
 
     def load(self, loadPath):
         assert not self.initialized, 'Cannot load into initialized SearchTable.'
         u.path_exists(loadPath)
-        self.categoryIdx = u.load_obj(f'{loadPath}/categoryIdx.sav')
+        self.categoryIdx = u.load_obj(f'{loadPath}/categoryIdx')
         self.initialized = True
 
     # TEXT MANIPULATION
@@ -100,12 +103,16 @@ class SearchTable(object):
 
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
-        print(colored('BUILDING SEARCH TABLE', 'red'))
+        print(colored('BUILDING SEARCH TABLE', 'yellow'))
+        print(colored('Analyzing files:', 'red'))
         with open(squadPath, 'r') as squadFile:
+            data = json.load(squadFile)['data']
             self.categoryIdx = {category['title'] :
                                 list(self._document_generator(category))
-                                for category in json.load(squadFile)['data']}
+                                for category in tqdm(data)}
+        print(colored('Indexing files:', 'red'))
         self.initialized = True
+        print(colored('SEARCH TABLE BUILT', 'green'))
         return True
 
     def __str__(self):
