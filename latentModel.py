@@ -12,11 +12,17 @@ import torch.nn as nn
 from torch import optim
 import torch.nn.functional as F
 
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+
 from structs import SearchTable
 
 x = SearchTable(loadPath='SearchTable')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-class AttnRNN(object):
-    def __init__(self,)
+model = GPT2LMHeadModel.from_pretrained('gpt2')  # or any other checkpoint
+word_embeddings = model.transformer.wte.weight  # Word Token Embeddings
+position_embeddings = model.transformer.wpe.weight  # Word Position Embeddings 
+tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+text_index = tokenizer.encode('man',add_prefix_space=True)
+vector = model.transformer.wte.weight[text_index,:]
+print(vector)
