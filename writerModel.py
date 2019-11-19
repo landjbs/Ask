@@ -57,7 +57,21 @@ def generate(model, length, context, num_samples=1, temperature=1, top_k=0, top_
             inputs = {'input_ids': generated}
             outputs = model(**inputs)
             next_token_logits = outputs[0][:, -1, :] / (temperature if temperature > 0 else 1.)
+            filtered_logits = top_k_top_p_filtering(next_token_logits, top_k=top_k, top_p=top_p)
+            if temperature == 0: # greedy sampling:
+                next_token = torch.argmax(filtered_logits, dim=-1).unsqueeze(-1)
+            else:
+                next_token = torch.multinomial(F.softmax(filtered_logits, dim=-1), num_samples=1)
+            generated = torch.cat((generated, next_token), dim=1)
+    return generated
 
 text = 'the man runs' # input('text: ')
 context_tokens = tokenizer.encode(text, add_special_tokens=False)
-generate(model, 10, context_tokens)
+out = (generate(model, 10, context_tokens))
+out = out[:, len(context_tokens):].tolist()
+print(out)
+for o in out:
+            text = tokenizer.decode(o, clean_up_tokenization_spaces=True)
+            text = text[: text.find(args.stop_token) if args.stop_token else None]
+
+            print(text)
