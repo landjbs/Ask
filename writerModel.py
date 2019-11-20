@@ -47,7 +47,7 @@ def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')
         logits[indices_to_remove] = filter_value
     return logits
 
-def generate(model, length, context, num_samples=1, temperature=1, top_k=0,
+def generate(model, length, context, num_samples=1, temperature=1.5, top_k=0,
              top_p=0.0, repetition_penalty=1, device='cpu'):
     context = torch.tensor(context, dtype=torch.long, device=device)
     context = context.unsqueeze(0).repeat(num_samples, 1)
@@ -68,12 +68,14 @@ def generate(model, length, context, num_samples=1, temperature=1, top_k=0,
             generated = torch.cat((generated, next_token), dim=1)
     return generated
 
-while True:
-    preText = 'It was a cold winter in Russia, and the consumption hung low in the air. He buttoned his coat and disappeared into the snow.'
-    initText = input('text: ')
-    text = preText + initText
-    context_tokens = tokenizer.encode(text, add_special_tokens=False)
-    out = (generate(model, 20, context_tokens))
-    out = out[:, len(context_tokens):].tolist()
-    outText = initText.strip() + ' '.join(tokenizer.decode(o, clean_up_tokenization_spaces=True) for o in out)
-    print(f'{outText}\n{"-"*80}')
+
+
+# while True:
+    # preText = 'It was a cold winter in Russia, and the consumption hung low in the air. He buttoned his coat and disappeared into the snow.'
+    # initText = input('text: ')
+    # text = preText + initText
+    # context_tokens = tokenizer.encode(text, add_special_tokens=False)
+    # out = (generate(model, 20, context_tokens))
+    # out = out[:, len(context_tokens):].tolist()
+    # outText = initText.strip() + ' '.join(tokenizer.decode(o, clean_up_tokenization_spaces=True) for o in out)
+    # print(f'{outText}\n{"-"*80}')
