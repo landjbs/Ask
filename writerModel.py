@@ -48,7 +48,7 @@ def top_k_top_p_filtering(logits, top_k=0, top_p=0.0, filter_value=-float('Inf')
     return logits
 
 def generate(model, length, context, num_samples=1, temperature=1, top_k=0,
-             top_p=0.0, repetition_penalty=0.001, device='cpu'):
+             top_p=0.0, repetition_penalty=1, device='cpu'):
     context = torch.tensor(context, dtype=torch.long, device=device)
     context = context.unsqueeze(0).repeat(num_samples, 1)
     generated = context
