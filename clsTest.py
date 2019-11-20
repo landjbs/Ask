@@ -15,4 +15,5 @@ cls_token_location = [tokens.index(tokenizer.cls_token_id) for tokens in encoded
 input_ids = torch.tensor(encoded_choices).unsqueeze(0)  # Batch size: 1, number of choices: 2
 mc_token_ids = torch.tensor([cls_token_location])  # Batch size: 1
 outputs = model(input_ids, mc_token_ids=mc_token_ids)
+print(outputs)
 lm_prediction_scores, mc_prediction_scores = outputs[:2]
