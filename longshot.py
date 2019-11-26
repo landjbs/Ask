@@ -17,10 +17,11 @@ import matplotlib.pyplot as plt
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Encoder(nn.Module):
-    def __init__(self, batcherObj, layerNum):
+    def __init__(self, hiddenDim, layerNum, lr):
         super(Encoder, self).__init__()
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
+        self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
         # TODO: Implement GPT embeddings
         # self.embedding = nn.Embedding(batcherObj.vocabSize, hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
@@ -46,12 +47,13 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, batcherObj, hiddenDim, layerNum):
+    def __init__(self, hiddenDim, layerNum, lr):
         # INHERIT
         super(Decoder, self).__init__()
         # PARAMS
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
+        self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
         # LAYERS
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=EMBEDDING_SIZE,
@@ -76,8 +78,8 @@ class Decoder(nn.Module):
 class LongShot(object):
     ''' The LongShot model which aggregates the Encoder and Decoder '''
     def __init__(self):
-        self.encoder = Encoder(batcherObj, hiddenDim, layerNum)
-        self.decoder = Decoder(batcherObj, hiddenDim, layerNum)
+        self.encoder = Encoder(hiddenDim, layerNum, lr)
+        self.decoder = Decoder(hiddenDim, layerNum, lr)
 
     def categorical_loss(self, predVec, targetId):
         """ Custom loss function to play with """
@@ -106,4 +108,6 @@ class LongShot(object):
         Returns:
             Loss across all decoder predictions on current question
         '''
-        
+        # clear optimizer gradients
+        self.encoder.optimizer.zero_grad()
+        self.decoder.optimizer.zero_grad()
