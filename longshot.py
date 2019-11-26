@@ -71,3 +71,6 @@ class Decoder(nn.Module):
         denseOut = self.dense(rnnOut[0])
         outSeq = self.softmax(denseOut)
         return outSeq, hidden
+
+
+class 
