@@ -1,6 +1,7 @@
 import json
 from tqdm import tqdm
 from termcolor import colored
+from itertools import izip
 
 import utils as u
 
@@ -62,11 +63,11 @@ class SearchTable(object):
 
     def __iter__(self):
         return [(category, contents) for category, contents
-                in self.categoryIdx.values()]
+                in self.categoryIdx.items()]
 
     def iter_docs(self):
         ''' Iterate over documents, ignoring category '''
-        for 
+        for doc in izip(self.categoryIdx.values())
 
     # TEXT MANIPULATION
     def _tokenize(self, text):
