@@ -96,7 +96,7 @@ class LongShot(object):
         """ Evaluates accuracy of prediciton """
         return 1 if (predVec.max(1)[1] == targetId.max()) else 0
 
-    def train_on_sample(self, contextVecs, span, questionText):
+    def train_step(self, contextVecs, span, questionText):
         '''
         Trains model on context/question pair. Runs single pass over vector
         embeddings of context paragraph after adding question-specific
@@ -151,3 +151,5 @@ class LongShot(object):
             numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
             if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
                 break
+
+        def train
