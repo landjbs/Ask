@@ -5,5 +5,6 @@ To read datasets into structs
 from structs import SearchTable
 
 
-x = SearchTable('data/inData/train-v2.0.json')
-x.save('SearchTable')
+x = SearchTable('data/inData/dev-v2.0.json')
+for z in x.iter_docs():
+    print(z)
