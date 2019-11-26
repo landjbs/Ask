@@ -84,3 +84,7 @@ class LongShot(object):
         predCorrect = predVec[0, targetId]
         predLog = torch.log(predCorrect)
         return -(predLog)
+
+    def eval_accuracy(self, predVec, targetId):
+        """ Evaluates accuracy of prediciton """
+        return 1 if (predVec.max(1)[1] == targetId.max()) else 0
