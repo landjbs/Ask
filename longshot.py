@@ -111,7 +111,16 @@ class LongShot(object):
         # clear optimizer gradients
         self.encoder.optimizer.zero_grad()
         self.decoder.optimizer.zero_grad()
-        
+
         # zeros matrix to store encoder outputs
         encoderOuts = torch.zeros((seqLen+2), self.encoder.hiddenDim,
                                   device=self.device)
+        # accumulator for loss and accuracy across data
+        loss, numCorrect = 0, 0
+        # generate initial hidden state for encoder rnn
+        encoderHidden = self.encoder.initialize_hidden(self.device)
+        # run encoder across samples
+        for encoderStep in range(seqLen):
+            (encoderOut,
+             encoderHidden) = self.encoder(features[encoderStep], encoderHidden)
+            encoderOuts[encoderStep] = encoderOut[0, 0]
