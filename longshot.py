@@ -78,3 +78,9 @@ class LongShot(object):
     def __init__(self):
         self.encoder = Encoder(batcherObj, hiddenDim, layerNum)
         self.decoder = Decoder(batcherObj, hiddenDim, layerNum)
+
+    def categorical_loss(self, predVec, targetId):
+        """ Custom loss function to play with """
+        predCorrect = predVec[0, targetId]
+        predLog = torch.log(predCorrect)
+        return -(predLog)
