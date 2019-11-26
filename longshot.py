@@ -17,7 +17,10 @@ DECODER_MAX = 500
 import torch
 import numpy as np
 from torch import nn
+from tqdm import tqdm, trange
 import matplotlib.pyplot as plt
+
+from stucts import SearchTable
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -152,7 +155,7 @@ class LongShot(object):
             if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
                 break
 
-        def train(self, searchTable, iterations, plot=False):
+        def train(self, searchTable, epochs, plot=False):
             '''
             Trains both encoder and decoder on SearchTable for iterations.
             Uses only questions with answers. Handles all GPT and character
@@ -160,11 +163,14 @@ class LongShot(object):
             initialization.
             Args:
                 searchTable:    Initialized SearchTable object to train on
-                iterations:     Number of iterations for which to train
+                epochs:         Number of passes to make over ALL data in table
                 plot (opt):     Whether to generate plots of training progress
             Returns:
                 Tuple of form (trained_encoder, trained_decoder)
             '''
             # initialize vecs to store loss over time
             lossVec, accVec, testLossVec, testAccVec = [], [], [], []
-            # generate large batch to iterate over to save some time
+
+            # train over data for epochs
+            for epoch in trange(epochs):
+                for
