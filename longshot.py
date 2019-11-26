@@ -73,4 +73,8 @@ class Decoder(nn.Module):
         return outSeq, hidden
 
 
-class 
+class LongShot(object):
+    ''' The LongShot model which aggregates the Encoder and Decoder '''
+    def __init__(self):
+        self.encoder = Encoder(batcherObj, hiddenDim, layerNum)
+        self.decoder = Decoder(batcherObj, hiddenDim, layerNum)
