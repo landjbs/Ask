@@ -174,6 +174,12 @@ class LongShot(object):
             print(colored('Loading GPT2 Models', 'red'), end='\r')
             embeddingModel = GPT2LMHeadModel.from_pretrained('gpt2')
             tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+            model.eval()
+
+            def embed_text(text):
+                ''' Helper embeds cleaned text with GPT tokenizer and model '''
+                
+
             print(colored('Complete: Loading GPT2 Models', 'cyan'))
 
             # initialize vecs to store loss over time
