@@ -120,7 +120,7 @@ class LongShot(object):
         # generate initial hidden state for encoder rnn
         encoderHidden = self.encoder.initialize_hidden(self.device)
         # run encoder across samples
-        for encoderStep in range(seqLen):
+        for encoderStep, wordEmbedding in enumerate(contextVecs):
             (encoderOut,
-             encoderHidden) = self.encoder(features[encoderStep], encoderHidden)
+             encoderHidden) = self.encoder(wordEmbedding, encoderHidden)
             encoderOuts[encoderStep] = encoderOut[0, 0]
