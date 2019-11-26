@@ -7,7 +7,8 @@ of the question to which the spanned text pertains
 
 # first term is length of word embeddings; second is span dim
 EMBEDDING_SIZE = 784 + 1
-
+# number of dimensions for categorical outputs (letters, numbers, stopchar, etc)
+OUT_SIZE = 26 + 1
 
 import torch
 import numpy as np
