@@ -175,6 +175,11 @@ class LongShot(object):
             gptModel = GPT2LMHeadModel.from_pretrained('gpt2')
             gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
             model.eval()
+            print(colored('Complete: Loading GPT2 Models', 'cyan'))
+
+            print(colored('Initalizing Methods', 'red'), end='\r')
+            # initialize vecs to store loss over time
+            lossVec, accVec, testLossVec, testAccVec = [], [], [], []
 
             def embed_text(text):
                 '''
@@ -191,12 +196,6 @@ class LongShot(object):
                         outputs = model(**inputs)
                 # TODO: reshape outputs and pull only embeddings
                 return None
-
-
-            print(colored('Complete: Loading GPT2 Models', 'cyan'))
-
-            # initialize vecs to store loss over time
-            lossVec, accVec, testLossVec, testAccVec = [], [], [], []
 
             # train over data for epochs
             for epoch in trange(epochs):
