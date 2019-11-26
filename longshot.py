@@ -85,7 +85,7 @@ class LongShot(object):
         predLog = torch.log(predCorrect)
         return -(predLog)
 
-    def eval_accuracy(self, predVec, targetId):
+    def eval_accuracy(self, predVec, targetId, teacherForce=True):
         """ Evaluates accuracy of prediciton """
         return 1 if (predVec.max(1)[1] == targetId.max()) else 0
 
@@ -101,4 +101,9 @@ class LongShot(object):
             span:               Tuple of span start and end loc for adding
                                     spannotations to contextVecs
             questionText:       String of question text with which to eval model
+            teacherForce:       Bool indicating whether to use teacher forcing
+                                    in decoder text-generation
+        Returns:
+            Loss across all decoder predictions on current question
         '''
+        
