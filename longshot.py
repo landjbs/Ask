@@ -91,6 +91,7 @@ class LongShot(object):
 
     def train_on_sample(self):
         '''
-        Trains model on single pass 
-
+        Trains model on context/question pair. Runs single pass over vector
+        embeddings of context paragraph after adding question-specific
+        spannotations (haha). Uses 
         '''
