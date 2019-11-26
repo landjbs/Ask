@@ -61,7 +61,8 @@ class SearchTable(object):
         return outStr
 
     def __iter__(self):
-        
+        return [(category, contents) for category, contents
+                in self.categoryIdx.values()]
 
     # TEXT MANIPULATION
     def _tokenize(self, text):
