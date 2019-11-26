@@ -152,4 +152,7 @@ class LongShot(object):
             if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
                 break
 
-        def train
+        def train(self, iterations, ):
+            # initialize vecs to store loss over time
+            lossVec, accVec, testLossVec, testAccVec = [], [], [], []
+            # generate large batch to iterate over to save some time
