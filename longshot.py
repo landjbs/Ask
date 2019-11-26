@@ -153,6 +153,12 @@ class LongShot(object):
                 break
 
         def train(self, iterations, ):
+            '''
+            Trains both encoder and decoder on SearchTable for iterations.
+            Uses only questions with answers. Handles all GPT and character
+            embeddings. SearchTable is immediately ready for training after
+            
+            '''
             # initialize vecs to store loss over time
             lossVec, accVec, testLossVec, testAccVec = [], [], [], []
             # generate large batch to iterate over to save some time
