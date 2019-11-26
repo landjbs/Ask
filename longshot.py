@@ -89,9 +89,16 @@ class LongShot(object):
         """ Evaluates accuracy of prediciton """
         return 1 if (predVec.max(1)[1] == targetId.max()) else 0
 
-    def train_on_sample(self):
+    def train_on_sample(self, contextVecs, span, questionText):
         '''
         Trains model on context/question pair. Runs single pass over vector
         embeddings of context paragraph after adding question-specific
-        spannotations (haha). Uses 
+        spannotations (haha). Passes cell state of encoder rnn to decoder rnn
+        for character-level question approximation. Evaluated against question
+        and backpropped.
+        Args:
+            contextVecs:        Vectors of GPT-embedded context (no annotations)
+            span:               Tuple of span start and end loc for adding
+                                    spannotations to contextVecs
+            questionText:       String of question text with which to eval model
         '''
