@@ -89,4 +89,8 @@ class LongShot(object):
         """ Evaluates accuracy of prediciton """
         return 1 if (predVec.max(1)[1] == targetId.max()) else 0
 
-    def train_on_sample(self, )
+    def train_on_sample(self):
+        '''
+        Trains model on single pass 
+
+        '''
