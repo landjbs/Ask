@@ -9,6 +9,10 @@ of the question to which the spanned text pertains
 EMBEDDING_SIZE = 784 + 1
 # number of dims for categorical outputs (letters, numbers, stopchars, etc)
 OUT_SIZE = 26 + 1
+# stop token tells the decoder to stop running
+STOP_TOKEN = '*'
+# maximum number of characters the decoder is allowed to generate per run
+DECODER_MAX = 500
 
 import torch
 import numpy as np
@@ -112,10 +116,6 @@ class LongShot(object):
         # clear optimizer gradients
         self.encoder.optimizer.zero_grad()
         self.decoder.optimizer.zero_grad()
-
-        # zeros matrix to store encoder outputs
-        encoderOuts = torch.zeros((seqLen+2), self.encoder.hiddenDim,
-                                  device=self.device)
         # accumulator for loss and accuracy across data
         loss, numCorrect = 0, 0
         # generate initial hidden state for encoder rnn
@@ -124,12 +124,13 @@ class LongShot(object):
         for encoderStep, wordEmbedding in enumerate(contextVecs):
             (encoderOut,
              encoderHidden) = self.encoder(wordEmbedding, encoderHidden)
-            encoderOuts[encoderStep] = encoderOut[0, 0]
+             # TODO: decide what to do with encoder outs
+            _ = encoderOut[0, 0]
         # TODO: Get embedding of start char to kick-off decoder
         decoderInput = None
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
         # run decoder across encoderOuts, initializing with encoderHidden
-        for decoderStep in range(seqLen - 1):
+        while (decoderInput != '*'):
             (decoderOut,
-             decoderHidden) = self.decoder(decoderInput, decoderHidden) 
+             decoderHidden) = self.decoder(decoderInput, decoderHidden)
