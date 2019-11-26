@@ -111,3 +111,7 @@ class LongShot(object):
         # clear optimizer gradients
         self.encoder.optimizer.zero_grad()
         self.decoder.optimizer.zero_grad()
+        
+        # zeros matrix to store encoder outputs
+        encoderOuts = torch.zeros((seqLen+2), self.encoder.hiddenDim,
+                                  device=self.device)
