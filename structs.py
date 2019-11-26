@@ -67,7 +67,8 @@ class SearchTable(object):
 
     def iter_docs(self):
         ''' Iterate over documents, ignoring category '''
-        for doc in izip(self.categoryIdx.values())
+        for doc in izip(self.categoryIdx.values()):
+            yield doc
 
     # TEXT MANIPULATION
     def _tokenize(self, text):
