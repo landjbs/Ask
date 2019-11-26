@@ -152,13 +152,14 @@ class LongShot(object):
             if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
                 break
 
-        def train(self, iterations, plot=False):
+        def train(self, searchTable, iterations, plot=False):
             '''
             Trains both encoder and decoder on SearchTable for iterations.
             Uses only questions with answers. Handles all GPT and character
             embeddings. SearchTable is immediately ready for training after
             initialization.
             Args:
+                searchTable:    Initialized SearchTable object to train on
                 iterations:     Number of iterations for which to train
                 plot (opt):     Whether to generate plots of training progress
             Returns:

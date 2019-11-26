@@ -54,6 +54,15 @@ class SearchTable(object):
         self.categoryIdx = u.load_obj(f'{loadPath}/categoryIdx')
         self.initialized = True
 
+    def __str__(self):
+        outStr = 'SearchTableObj\n'
+        for category, contents in self.categoryIdx.items():
+            outStr += f'\t{category} : {len(contents)}\n'
+        return outStr
+
+    def __iter__(self):
+        
+
     # TEXT MANIPULATION
     def _tokenize(self, text):
         ''' returns tokenized text; to improve '''
@@ -114,9 +123,3 @@ class SearchTable(object):
         self.initialized = True
         print(colored('SEARCH TABLE BUILT', 'green'))
         return True
-
-    def __str__(self):
-        outStr = 'SearchTableObj\n'
-        for category, contents in self.categoryIdx.items():
-            outStr += f'\t{category} : {len(contents)}\n'
-        return outStr
