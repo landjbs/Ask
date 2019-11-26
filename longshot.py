@@ -132,6 +132,7 @@ class LongShot(object):
         # TODO: Get embedding of start char to kick-off decoder
         decoderInput = None
         # initial decoder hidden state is final encoder hidden state
+        # REVIEW: does encoder hidden need to be saved
         decoderHidden = encoderHidden
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(DECODER_MAX):
