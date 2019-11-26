@@ -64,13 +64,17 @@ class SearchTable(object):
         return [(category, contents) for category, contents
                 in self.categoryIdx.values()]
 
+    def iter_docs(self):
+        ''' Iterate over documents, ignoring category '''
+        for 
+
     # TEXT MANIPULATION
     def _tokenize(self, text):
         ''' returns tokenized text; to improve '''
         return text.lower().split()
 
     # DATA ANALYSIS
-    def _question_generator(self, questions, textWords):
+    def _question_extractor(self, questions, textWords):
         ''' Helper to find question in table building '''
         for q in questions:
             if q['is_impossible']:
@@ -99,7 +103,7 @@ class SearchTable(object):
                 continue
             yield Question(q['id'], q['question'], answerText, span)
 
-    def _document_generator(self, category):
+    def _document_extractor(self, category):
         ''' Helper to find documents in table building '''
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
@@ -107,7 +111,7 @@ class SearchTable(object):
             textWords = self._tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
-                            in enumerate(self._question_generator(questions,
+                            in enumerate(self._question_extractor(questions,
                                                                   textWords))}
             yield Document(docId, title, text, questionIdx)
 
@@ -118,7 +122,7 @@ class SearchTable(object):
         with open(squadPath, 'r') as squadFile:
             data = json.load(squadFile)['data']
             self.categoryIdx = {category['title'] :
-                                list(self._document_generator(category))
+                                list(self._document_extractor(category))
                                 for category in tqdm(data)}
         print(colored('Indexing files:', 'red'))
         self.initialized = True

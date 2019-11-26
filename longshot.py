@@ -173,4 +173,4 @@ class LongShot(object):
 
             # train over data for epochs
             for epoch in trange(epochs):
-                for
+                for 
