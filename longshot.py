@@ -131,6 +131,14 @@ class LongShot(object):
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
         # run decoder across encoderOuts, initializing with encoderHidden
-        while (decoderInput != '*'):
+        for decoderStep in range(DECODER_MAX):
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
+            # fetch most recent decoder pred for next step input
+            _, topi = decoderOut.topk(1)
+            decoderInput = topi.squeeze().detach()
+            # update loss and check if decoder has ouput END char
+            loss += self.custom_loss(decoderOut, targets[decoderStep])
+            numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
+            if decoderInput.item() == (self.batcher.openCharNum + 2):
+                break
