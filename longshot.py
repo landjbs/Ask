@@ -126,6 +126,8 @@ class LongShot(object):
              encoderHidden) = self.encoder(wordEmbedding, encoderHidden)
              # TODO: decide what to do with encoder outs
             _ = encoderOut[0, 0]
+        # TODO: Get targets by running splitting function from object methods
+        targets = [c for c in questionText]
         # TODO: Get embedding of start char to kick-off decoder
         decoderInput = None
         # initial decoder hidden state is final encoder hidden state
@@ -138,7 +140,7 @@ class LongShot(object):
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
             # update loss and check if decoder has ouput END char
-            loss += self.custom_loss(decoderOut, targets[decoderStep])
+            loss += self.categorical_loss(decoderOut, targets[decoderStep])
             numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
             if decoderInput.item() == (self.batcher.openCharNum + 2):
                 break
