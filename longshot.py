@@ -156,6 +156,7 @@ class LongShot(object):
             numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
             if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
                 break
+        return (loss.item() / decoderStep), (numCorrect / decoderStep))
 
         def train(self, searchTable, epochs, plot=False):
             '''
@@ -213,3 +214,5 @@ class LongShot(object):
                         if not span:
                             break
                         questionChars = char_tokenize(question)
+                        # TODO: Get proper span selection and append to docEmbeddings
+                        loss, acc = self.train_step(contextVecs, questionChars)
