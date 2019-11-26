@@ -9,7 +9,9 @@ import torch
 import numpy as np
 from torch import nn
 from tqdm import tqdm, trange
+from termcolor import colored
 import matplotlib.pyplot as plt
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 from stucts import SearchTable
 
@@ -168,6 +170,12 @@ class LongShot(object):
             Returns:
                 Tuple of form (trained_encoder, trained_decoder)
             '''
+            # import and initialize gpt models for embedding
+            print(colored('Loading GPT2 Models', 'red'), end='\r')
+            embeddingModel = GPT2LMHeadModel.from_pretrained('gpt2')
+            tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+            print(colored('Complete: Loading GPT2 Models', 'cyan'))
+
             # initialize vecs to store loss over time
             lossVec, accVec, testLossVec, testAccVec = [], [], [], []
 
