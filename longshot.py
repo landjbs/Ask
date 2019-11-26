@@ -181,6 +181,7 @@ class LongShot(object):
             # initialize vecs to store loss over time
             lossVec, accVec, testLossVec, testAccVec = [], [], [], []
 
+            # initialize methods for text modification
             def embed_text(text):
                 '''
                 Helper embeds cleaned text with GPT tokenizer and model
@@ -196,6 +197,12 @@ class LongShot(object):
                         outputs = model(**inputs)
                 # TODO: reshape outputs and pull only embeddings
                 return None
+
+
+            def char_tokenize(text):
+                ''' Tokenizes text at character level. Used for questions '''
+                # TODO: Implement
+                pass
 
             # train over data for epochs
             for epoch in trange(epochs):
