@@ -18,7 +18,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Encoder(nn.Module):
     def __init__(self, batcherObj, layerNum):
-        super(Encoder_RNN, self).__init__()
+        super(Encoder, self).__init__()
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
         # TODO: Implement GPT embeddings
@@ -45,10 +45,10 @@ class Encoder(nn.Module):
         return outSeq, hidden
 
 
-class Decoder_RNN(nn.Module):
+class Decoder(nn.Module):
     def __init__(self, batcherObj, hiddenDim, layerNum):
         # INHERIT
-        super(Decoder_RNN, self).__init__()
+        super(Decoder, self).__init__()
         # PARAMS
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
@@ -70,4 +70,4 @@ class Decoder_RNN(nn.Module):
         rnnOut, hidden = self.rnn(embedOut, hidden)
         denseOut = self.dense(rnnOut[0])
         outSeq = self.softmax(denseOut)
-        return outSeq, hidden 
+        return outSeq, hidden
