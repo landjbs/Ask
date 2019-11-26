@@ -148,5 +148,5 @@ class LongShot(object):
             # update loss and check if decoder has ouput END char
             loss += self.categorical_loss(decoderOut, targets[decoderStep])
             numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
-            if decoderInput.item() == (self.batcher.openCharNum + 2):
+            if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
                 break
