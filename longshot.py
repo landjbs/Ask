@@ -1,0 +1,62 @@
+'''
+Longshot is a model that generates task-specific CLS vectors by running
+RNN over GPT-encoded text annotated by span binary dim and attempts to generate
+latent dense vector that can be decoded by another LSTM to produce the text
+of the question to which the spanned text pertains
+'''
+
+# first term is length of word embeddings; second is span dim
+EMBEDDING_SIZE = 784 + 1
+
+
+import torch
+import numpy as np
+from torch import nn
+import matplotlib.pyplot as plt
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+class Encoder(nn.Module):
+    def __init__(self, batcherObj, layerNum):
+        super(Encoder_RNN, self).__init__()
+        self.hiddenDim = hiddenDim
+        self.layerNum = layerNum
+        # TODO: Implement GPT embeddings
+        # self.embedding = nn.Embedding(batcherObj.vocabSize, hiddenDim)
+        self.rnn = nn.GRU(input_size=hiddenDim,
+                          hidden_size=EMBEDDING_SIZE,
+                          num_layers=layerNum,
+                          batch_first=True)
+
+    def initialize_hidden(self, device):
+        """ Init hidden state passed to first RNN cell in time series """
+        # initTensor =  torch.zeros(1, 1, self.hiddenDim, device=device)
+        return nn.init.xavier_uniform_(initTensor).float()
+        return initTensor
+
+    def forward(self, curVec, hidden):
+        """
+        Forward pass over GPT2 embedding vectors updates rnn cell state for
+        later decoding
+        """
+        # TODO: check shaping of curVec
+        curVec = curVec.view(1, 1, -1)
+        outSeq, hidden = self.rnn(curVec, hidden)
+        return outSeq, hidden
+        
+
+class Decoder_RNN(nn.Module):
+    def __init__(self, batcherObj, hiddenDim, layerNum):
+        # INHERIT
+        super(Decoder_RNN, self).__init__()
+        # PARAMS
+        self.hiddenDim = hiddenDim
+        self.layerNum = layerNum
+        # LAYERS
+        self.rnn = nn.GRU(input_size=hiddenDim,
+                          hidden_size=EMBEDDING_SIZE,
+                          num_layers=layerNum,
+                          batch_first=True)
+        self.dense = nn.Linear(in_features=hiddenDim,
+                               out_features=batcherObj.vocabSize)
+        self.softmax = nn.Softmax(dim=1)
