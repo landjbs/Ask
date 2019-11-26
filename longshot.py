@@ -177,8 +177,11 @@ class LongShot(object):
             model.eval()
 
             def embed_text(text):
-                ''' Helper embeds cleaned text with GPT tokenizer and model '''
-                
+                '''
+                Helper embeds cleaned text with GPT tokenizer and model
+                Returns numpy array of shape (seqLen, EMBEDDING_SIZE)
+                '''
+
 
             print(colored('Complete: Loading GPT2 Models', 'cyan'))
 
