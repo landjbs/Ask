@@ -7,7 +7,7 @@ of the question to which the spanned text pertains
 
 # first term is length of word embeddings; second is span dim
 EMBEDDING_SIZE = 784 + 1
-# number of dimensions for categorical outputs (letters, numbers, stopchar, etc)
+# number of dims for categorical outputs (letters, numbers, stopchars, etc)
 OUT_SIZE = 26 + 1
 
 import torch
@@ -125,3 +125,11 @@ class LongShot(object):
             (encoderOut,
              encoderHidden) = self.encoder(wordEmbedding, encoderHidden)
             encoderOuts[encoderStep] = encoderOut[0, 0]
+        # TODO: Get embedding of start char to kick-off decoder
+        decoderInput = None
+        # initial decoder hidden state is final encoder hidden state
+        decoderHidden = encoderHidden
+        # run decoder across encoderOuts, initializing with encoderHidden
+        for decoderStep in range(seqLen - 1):
+            (decoderOut,
+             decoderHidden) = self.decoder(decoderInput, decoderHidden) 
