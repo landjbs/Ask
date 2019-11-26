@@ -5,6 +5,14 @@ latent dense vector that can be decoded by another LSTM to produce the text
 of the question to which the spanned text pertains
 '''
 
+import torch
+import numpy as np
+from torch import nn
+from tqdm import tqdm, trange
+import matplotlib.pyplot as plt
+
+from stucts import SearchTable
+
 # first term is length of word embeddings; second is span dim
 EMBEDDING_SIZE = 784 + 1
 # number of dims for categorical outputs (letters, numbers, stopchars, etc)
@@ -13,14 +21,6 @@ OUT_SIZE = 26 + 1
 STOP_TOKEN = '*'
 # maximum number of characters the decoder is allowed to generate per run
 DECODER_MAX = 500
-
-import torch
-import numpy as np
-from torch import nn
-from tqdm import tqdm, trange
-import matplotlib.pyplot as plt
-
-from stucts import SearchTable
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -174,4 +174,4 @@ class LongShot(object):
             # train over data for epochs
             for epoch in trange(epochs):
                 for doc in searchTable.iter_docs():
-                    
+                    docEmbedding =
