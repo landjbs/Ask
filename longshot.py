@@ -198,13 +198,16 @@ class LongShot(object):
                 # TODO: reshape outputs and pull only embeddings
                 return None
 
-
             def char_tokenize(text):
                 ''' Tokenizes text at character level. Used for questions '''
                 # TODO: Implement
                 pass
+            print(colored('Complete: Initalizing Methods', 'red'), end='\r')
 
+            print(colored(f'Training for {epochs}', 'red'), end='\r')
             # train over data for epochs
             for epoch in trange(epochs):
                 for doc in searchTable.iter_docs():
-                    docEmbedding =
+                    docEmbeddings = embed_text(doc.text)
+                    for question, span in doc.iter_questions():
+                        
