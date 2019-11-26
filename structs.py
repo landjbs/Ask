@@ -27,9 +27,10 @@ class Document(object):
     def __str__(self):
         return f'<DocumentObj | id={self.docId}, category={self.category}>'
 
-    def get_questions(self):
-        ''' Gets list of questions pertaining to document '''
-        return self.questionIdx.values()
+    def iter_questions(self):
+        ''' Iterates over questions in doc, yielding tuple (text, span) '''
+        for question in self.questionIdx.values():
+            yield (question.qText, question.aSpan)
 
 
 class SearchTable(object):

@@ -6,5 +6,5 @@ from structs import SearchTable
 
 
 x = SearchTable('data/inData/dev-v2.0.json')
-for z in x.iter_docs():
-    print(z)
+# for z in x.iter_docs():
+print(x.iter_docs())
