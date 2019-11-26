@@ -101,7 +101,7 @@ class LongShot(object):
         """ Evaluates accuracy of prediciton """
         return 1 if (predVec.max(1)[1] == targetId.max()) else 0
 
-    def train_step(self, contextVecs, span, questionText):
+    def train_step(self, contextVecs, span, questionChars):
         '''
         Trains model on context/question pair. Runs single pass over vector
         embeddings of context paragraph after adding question-specific
@@ -112,7 +112,7 @@ class LongShot(object):
             contextVecs:        Vectors of GPT-embedded context (no annotations)
             span:               Tuple of span start and end loc for adding
                                     spannotations to contextVecs
-            questionText:       String of question text with which to eval model
+            questionChars:      Ordered iterable of chars in question
             teacherForce:       Bool indicating whether to use teacher forcing
                                     in decoder text-generation
         Returns:
@@ -210,4 +210,6 @@ class LongShot(object):
                 for doc in searchTable.iter_docs():
                     docEmbeddings = embed_text(doc.text)
                     for question, span in doc.iter_questions():
-                        
+                        if not span:
+                            break
+                        questionChars = char_tokenize(question)

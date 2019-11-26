@@ -103,8 +103,6 @@ class SearchTable(object):
                     if (textWords[loc:(loc+answerLen)] == answerWords):
                         span = (loc, loc+answerLen)
                         break
-            if not span:
-                continue
             yield Question(q['id'], q['question'], answerText, span)
 
     def _document_extractor(self, category):
