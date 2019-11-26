@@ -172,8 +172,8 @@ class LongShot(object):
             '''
             # import and initialize gpt models for embedding
             print(colored('Loading GPT2 Models', 'red'), end='\r')
-            embeddingModel = GPT2LMHeadModel.from_pretrained('gpt2')
-            tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+            gptModel = GPT2LMHeadModel.from_pretrained('gpt2')
+            gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
             model.eval()
 
             def embed_text(text):
@@ -181,6 +181,16 @@ class LongShot(object):
                 Helper embeds cleaned text with GPT tokenizer and model
                 Returns numpy array of shape (seqLen, EMBEDDING_SIZE)
                 '''
+                # WARNING: DOES NOT YET WORK
+                wordIds = gptTokenizer.encode(text, add_special_tokens=False)
+                context = torch.tensor(wordIds, dtype=torch.long, device=device)
+                context = context.unsqueeze(0).repeat(1, 1)
+                with torch.no_grad():
+                    for _ in trange(length, leave=False):
+                        inputs = {'input_ids': generated}
+                        outputs = model(**inputs)
+                # TODO: reshape outputs and pull only embeddings
+                return None
 
 
             print(colored('Complete: Loading GPT2 Models', 'cyan'))
