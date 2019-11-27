@@ -107,12 +107,16 @@ class LongShot(object):
                                 database
             decoderMax:         Max length of decoder char-level generations
         '''
+        # assert
         assert searchTable.initialize, 'SearchTable must be initialized.'
         u.assert_type(decoderMax, 'decoderMax', int)
+        # initialize models
         hiddenDim = searchTable.wordEmbeddingSize + 1
         outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum, lr)
         self.decoder = Decoder(hiddenDim, layerNum, lr)
+        # define vars
+        self.decoderMax = decoderMax
 
     def categorical_loss(self, predVec, targetId):
         """ Custom loss function to play with """
