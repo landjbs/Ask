@@ -44,9 +44,9 @@ class SearchTable(object):
         self.gptModel.eval()
         # store dict for char embeddings
         charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789']
-        self.startToken = ['`']
-        self.endToken = ['#']
-        charList += self.startToken + self.endToken
+        self.startToken = '`'
+        self.endToken = '#'
+        charList += [self.startToken] + [self.endToken]
         charIdx = {c : i for i, c in enumerate(charList)}
         self.char_to_id = lambda c : charIdx[c]
         self.charMatcher = re.compile("|".join(charList))
@@ -132,7 +132,7 @@ class SearchTable(object):
                         span = (loc, loc+answerLen)
                         break
             # character-tokenize question text
-            qTokenIds = self.char_tokenize(q['question'])
+            qTokenIds = self.char_tokenize(q['question'] + self.endToken)
             yield Question(q['id'], qTokenIds, span)
 
     def _document_extractor(self, category):
