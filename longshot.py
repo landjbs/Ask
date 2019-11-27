@@ -87,7 +87,9 @@ class Decoder(nn.Module):
 
 class LongShot(object):
     ''' The LongShot model which aggregates the Encoder and Decoder '''
-    def __init__(self):
+    def __init__(self, searchTable):
+        hiddenDim = searchTable.wordEmbeddingSize + 1
+        outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum, lr)
         self.decoder = Decoder(hiddenDim, layerNum, lr)
 

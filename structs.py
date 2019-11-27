@@ -50,6 +50,9 @@ class SearchTable(object):
         charIdx = {c : i for i, c in enumerate(charList)}
         self.char_to_id = lambda c : charIdx[c]
         self.charMatcher = re.compile("|".join(charList))
+        # define global vars
+        self.wordEmbeddingSize = 768
+        self.charEmbeddingSize = len(self.charList)
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
