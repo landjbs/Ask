@@ -43,13 +43,13 @@ class SearchTable(object):
         self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.gptModel.eval()
         # store dict for char embeddings
-        # OPTIMIZE: char idx creation and calls
         charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789?!;:']
         self.startToken = '[S]'
         self.endToken = '[E]'
         charList += self.startToken + self.endToken
-        self.charMatcher = re.compile('[' + '|'.join(charList) + ']')
-        self.charIdx = {i: c for i, c in enumerate(charList)}
+        charIdx = {i: c for i, c in enumerate(charList)}
+        charMatcher = re.compile('|'.join(charList))
+        char_to_id = lambda c : charIdx[c]
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
@@ -93,7 +93,8 @@ class SearchTable(object):
 
     def char_tokenize(self, text):
         ''' Returns char-tokenized text using charIdx '''
-        return [self.charIdx[char] for char in text if char in self.charIdx]
+        return [self.charIdx[char] for char
+                in re.findall(self.charMatchertext.lower())]
 
     def embed(self, wordIds):
         ''' Embeds list of wordIds tokenized by gptTokenizer with gpt2Model '''
