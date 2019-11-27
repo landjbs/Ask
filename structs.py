@@ -49,7 +49,9 @@ class SearchTable(object):
         self.endToken = '#'
         charList += [self.startToken] + [self.endToken]
         charIdx = {c : i for i, c in enumerate(charList)}
+        revCharIdx = {i : c for i, c in enumerate(charList)}
         self.char_to_id = lambda c : charIdx[c]
+        self.id_to_char = lambda i : revCharIdx[i]
         self.charMatcher = re.compile("|".join(charList))
         # define global vars
         self.wordEmbeddingSize = 768
@@ -111,6 +113,10 @@ class SearchTable(object):
     def char_encode(self, tokenList):
         ''' Returns id-encoded list from char-tokens using charIdx '''
         return list(map(self.char_to_id, tokenList))
+
+    def char_decode(self, idList):
+        ''' Returns string of decoded char id list '''
+        return ''.join(map(self.id_to_char, idList))
 
     # DATA ANALYSIS
     def _question_extractor(self, questions, textTokens):

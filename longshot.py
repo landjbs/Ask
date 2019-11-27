@@ -164,10 +164,12 @@ class LongShot(object):
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
             # find what the decoder is supposed to ouput
-            if (decoderStep <= targetLen):
-                curTarget = targets[decoderStep]
-            else:
-                curTarget = None
+            print(decoderOut)
+            print(self.searchTable.char_decode(decoderOut))
+            # if (decoderStep <= targetLen):
+            #     curTarget = questionTargets[decoderStep]
+            # else:
+            #     curTarget = None
             # update loss and check if decoder has ouput END char
             loss += self.categorical_loss(decoderOut, targets[decoderStep])
             # numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
