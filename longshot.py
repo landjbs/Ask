@@ -13,6 +13,7 @@ from termcolor import colored
 import matplotlib.pyplot as plt
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
+import utils as u
 from stucts import SearchTable
 
 # maximum number of characters the decoder is allowed to generate per run
@@ -97,15 +98,17 @@ class Decoder(nn.Module):
 
 
 class LongShot(object):
-    def __init__(self, searchTable):
+    def __init__(self, searchTable, decoderMax=500):
         '''
         The LongShot Model aggregates the Encoder and Decoder to transform
         spannoated context into text prediction of pertinant question.
         Args:
             searchTable:        SearchTable object initialized with training
                                 database
+            decoderMax:         Max length of decoder char-level generations
         '''
         assert searchTable.initialize, 'SearchTable must be initialized.'
+        u.type
         hiddenDim = searchTable.wordEmbeddingSize + 1
         outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum, lr)
@@ -121,7 +124,7 @@ class LongShot(object):
         """ Evaluates accuracy of prediciton """
         return 1 if (predVec.max(1)[1] == targetId.max()) else 0
 
-    def train_step(self, contextVecs, span, questionChars):
+    def train_step(self, contextVecs, span, questionTargets):
         '''
         Trains model on context/question pair. Runs single pass over vector
         embeddings of context paragraph after adding question-specific
@@ -132,7 +135,7 @@ class LongShot(object):
             contextVecs:        Vectors of GPT-embedded context (no annotations)
             span:               Tuple of span start and end loc for adding
                                     spannotations to contextVecs
-            questionChars:      Ordered iterable of chars in question
+            questionTargets:    Ordered iterable of char ids in question
             teacherForce:       Bool indicating whether to use teacher forcing
                                     in decoder text-generation
         Returns:
@@ -149,13 +152,10 @@ class LongShot(object):
         for encoderStep, wordEmbedding in enumerate(contextVecs):
             (encoderOut,
              encoderHidden) = self.encoder(wordEmbedding, encoderHidden)
-             # TODO: decide what to do with encoder outs
             _ = encoderOut[0, 0]
-        # TODO: Get targets by running splitting function from object methods
-        targets = [c for c in questionText]
-        targetLen = len(targets)
-        # TODO: Get embedding of start char to kick-off decoder
-        decoderInput = None
+        targetLen = len(questionTargets)
+        # get embedding of start char to kick-off decoder
+        decoderInput = self.searchTable.char_encode()
         # initial decoder hidden state is final encoder hidden state
         # REVIEW: does encoder hidden need to be saved
         decoderHidden = encoderHidden

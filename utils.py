@@ -19,6 +19,11 @@ def path_exists(path):
     """ Asserts path existance """
     assert os.path.exists(path), f'Folder {path} cannot be found.'
 
+def assert_type(obj, name, t):
+    ''' Asserts obj with name has type t '''
+    assert isinstance(obj, t), (f'{name} expected type {name}, ',
+                                f'but found type {t}.')
+
 def delete_folder(folderPath):
     """ Recursively eletes folderPath and contents """
     if os.path.exists(folderPath):
