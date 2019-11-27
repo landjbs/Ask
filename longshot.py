@@ -57,7 +57,7 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, hiddenDim, layerNum, lr, outDim):
+    def __init__(self, hiddenDim, outDim, layerNum, lr):
         '''
         The Decoder Model uses the cell state of the Encoder Model run across
         the word embeddings of the spannotated context to produce step-by-step
@@ -65,9 +65,9 @@ class Decoder(nn.Module):
         relating to the current context and span.
         Args:
             hiddenDim:      The size of the hidden vector passed from Encoder
+            outDim:         The dimensionality of the character-level space
             layerNum:       The number of layers used by the RNN
             lr:             The learning rate of the decoder model
-            outDim:         The dimensionality of the character-level space
         '''
         # INHERIT
         super(Decoder, self).__init__()
@@ -77,11 +77,11 @@ class Decoder(nn.Module):
         self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
         # LAYERS
         self.rnn = nn.GRU(input_size=hiddenDim,
-                          hidden_size=EMBEDDING_SIZE,
+                          hidden_size=hiddenDim,
                           num_layers=layerNum,
                           batch_first=True)
         self.dense = nn.Linear(in_features=hiddenDim,
-                               out_features=batcherObj.vocabSize)
+                               out_features=outDim)
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, prevId, hidden):
