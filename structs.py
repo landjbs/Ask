@@ -95,6 +95,10 @@ class SearchTable(object):
         ''' Returns id-encoded list from word-tokens using gptTokenizer '''
         return self.gptTokenizer.convert_tokens_to_ids(tokenList)
 
+    def word_embed(self, idList):
+        ''' Returns list of embedding vectors for ids !USES LOOKUP: BAD! '''
+        return [self.gptModel.transformer.wte.weight[id] for id in idList]
+
     def char_tokenize(self, text):
         ''' Returns char-tokenized text using charMatcher '''
         return self.charMatcher.findall(text.lower().strip())
