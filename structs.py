@@ -43,7 +43,9 @@ class SearchTable(object):
         self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.gptModel.eval()
         # store dict for char embeddings
-        self.charStr = 'abcdefghijklmnoqrstuvwxyz0123456789?!;:'
+        charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789?!;:']
+        self.startToken = 'S_1'
+        self.endToken = 'S_2'
         self.charIdx = {i: c for i, c in enumerate(self.charStr)}
         # determine whether to load data
         if loadPath:
