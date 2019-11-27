@@ -47,8 +47,8 @@ class SearchTable(object):
         self.startToken = '[S]'
         self.endToken = '[E]'
         charList += self.startToken + self.endToken
+        self.charMatcher = re.compile('|'.join(charList))
         charIdx = {i: c for i, c in enumerate(charList)}
-        charMatcher = re.compile('|'.join(charList))
         char_to_id = lambda c : charIdx[c]
         # determine whether to load data
         if loadPath:
