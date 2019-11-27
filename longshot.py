@@ -31,6 +31,7 @@ class Encoder(nn.Module):
             lr:             The learning rate of the model
         '''
         super(Encoder, self).__init__()
+        self.hiddenDim = hiddenDim
         self.layerNum = layerNum
         self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
         self.rnn = nn.GRU(input_size=hiddenDim,
@@ -40,7 +41,7 @@ class Encoder(nn.Module):
 
     def initialize_hidden(self, device):
         """ Init hidden state passed to first RNN cell in time series """
-        # initTensor =  torch.zeros(1, 1, self.hiddenDim, device=device)
+        initTensor =  torch.zeros(1, 1, self.hiddenDim, device=device)
         return nn.init.xavier_uniform_(initTensor).float()
 
     def forward(self, curVec, hidden):
