@@ -130,19 +130,15 @@ class SearchTable(object):
                     continue
             # focuses only on the first answer of answer list
             answer = answerList[0]
-            answerIds = self.word_tokenize(answer['text'])
-            answerStart = answerIds[0]
-            answerLen = len(answerIds)
+            answerTokens = self.word_tokenize(answer['text'])
+            answerStart = answerTokens[0]
+            answerLen = len(answerTokens)
             span = None
-            # print(f'{"-"*80}\nANSWER: {answerIds}')
-
-            # for loc, wordId in enumerate(textIds):
-            #     if (wordId==answerStart):
-            #         print(f'\t{textIds[loc:(loc+answerLen)]} | {textIds[loc:(loc+answerLen)] == answerIds}')
-            #         if (textIds[loc:(loc+answerLen)] == answerIds):
-            #             span = (loc, loc+answerLen)
-            #             break
-            # print(f'\n{"-"*80}')
+            for loc, word in enumerate(textTokens):
+                if (word==answerStart):
+                    if (textTokens[loc:(loc+answerLen)] == answerTokens):
+                        span = (loc, loc+answerLen)
+                        break
             # character-tokenize question text
             qTokenIds = self.char_tokenize(q['question'] + self.endToken)
             yield Question(q['id'], qTokenIds, span)
