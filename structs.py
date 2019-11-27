@@ -122,15 +122,24 @@ class SearchTable(object):
                     continue
             # focuses only on the first answer of answer list
             answer = answerList[0]
-            answerIds = self.word_tokenize(answer['text'])
+            answerIds = self.word_tokenize(answer['text'].lower().strip())
             answerStart = answerIds[0]
             answerLen = len(answerIds)
             span = None
-            for loc, wordId in enumerate(textIds):
-                if (wordId==answerStart):
-                    if (textIds[loc:(loc+answerLen)] == answerIds):
-                        span = (loc, loc+answerLen)
-                        break
+            # print(f'{"-"*80}\nANSWER: {answerIds}')
+
+            if answerStart in  textIds:
+                print(True)
+            else:
+                print(False)
+
+            # for loc, wordId in enumerate(textIds):
+            #     if (wordId==answerStart):
+            #         print(f'\t{textIds[loc:(loc+answerLen)]} | {textIds[loc:(loc+answerLen)] == answerIds}')
+            #         if (textIds[loc:(loc+answerLen)] == answerIds):
+            #             span = (loc, loc+answerLen)
+            #             break
+            # print(f'\n{"-"*80}')
             # character-tokenize question text
             qTokenIds = self.char_tokenize(q['question'] + self.endToken)
             yield Question(q['id'], qTokenIds, span)
@@ -140,7 +149,7 @@ class SearchTable(object):
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
             text = document['context']
-            textIds = self.word_tokenize(text)
+            textIds = self.word_tokenize(text.lower().strip())
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
                            in enumerate(self._question_extractor(questions,
@@ -156,10 +165,10 @@ class SearchTable(object):
             self.categoryIdx = {category['title'] :
                                 list(self._document_extractor(category))
                                 for category in tqdm(data, leave=False)}
-        print(colored('Complete: Analyzing files:', 'cyan'))
+        print(colored('Complete: Analyzing files', 'cyan'))
         print(colored('Indexing files:', 'red'), end='\r')
         # TODO: build inverted index
-        print(colored('Complete: Indexing files:', 'cyan'))
+        print(colored('Complete: Indexing files', 'cyan'))
         self.initialized = True
         print(colored('SEARCH TABLE BUILT', 'green'))
         return True
