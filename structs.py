@@ -45,9 +45,10 @@ class SearchTable(object):
         # store dict for char embeddings
         # OPTIMIZE: char idx creation and calls
         charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789?!;:']
-        self.startToken = 'S_1'
-        self.endToken = 'S_2'
+        self.startToken = '[S]'
+        self.endToken = '[E]'
         charList += self.startToken + self.endToken
+        self.charMatcher = re.compile('[' + '|'.join(charList) + ']')
         self.charIdx = {i: c for i, c in enumerate(charList)}
         # determine whether to load data
         if loadPath:
