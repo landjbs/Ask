@@ -145,13 +145,8 @@ class LongShot(object):
         Returns:
             Loss across all decoder predictions on current question
         '''
-        # add annotations to contextVecs using span
-        # OPTIMIZE: add spannotations dim to context vecs before train_step
-        for i, vec in enumerate(contextVecs):
-            if i in range(span[0], span[1]+1):
-                vec.append(1)
-            else:
-                vec.append(0)
+        # add annotations to contextVecs using current span
+
         # clear optimizer gradients
         self.encoder.optimizer.zero_grad()
         self.decoder.optimizer.zero_grad()
@@ -211,11 +206,10 @@ class LongShot(object):
             # train over data for epochs
             for epoch in trange(epochs):
                 for doc in searchTable.iter_docs():
-                    # embed doc ids with GPT2 and add empty spannotation dim
-                    contextVecs = self.searchTable.word_embed(doc.text)
-                    for vec in contextVecs:
-                        vec.append(0)
-                    for question, span in doc.iter_questions():
+                    # embed doc ids with GPT2 and add empty annotation dim
+                    contextVecs = np.array(self.searchTable.word_embed(doc.text))
+                    spanDim = np.zeros(shape=(contextVecs.shape[0], ))
+                    contextVecs = np.concatenate(contextVecs, spanDim)
                         if not span:
                             break
                         loss, acc = self.train_step(contextVecs, question)
