@@ -92,6 +92,7 @@ class SearchTable(object):
         ''' Helper to find question in table building '''
         for q in questions:
             if q['is_impossible']:
+                yield Question(q['id'], q['question'], None, None)
                 continue
             try:
                 answerList = q['answers']
@@ -104,15 +105,13 @@ class SearchTable(object):
             # focuses only on the first answer of answer list
             answer = answerList[0]
             answerText = answer['text']
-
-
             answerIds = self.tokenize(answerText)
-            answerStart = answerWords[0]
-            answerLen = len(answerWords)
+            answerStart = answerIds[0]
+            answerLen = len(answerIds)
             span = None
-            for loc, textWord in enumerate(textWords):
-                if (textWord==answerStart):
-                    if (textWords[loc:(loc+answerLen)] == answerWords):
+            for loc, wordId in enumerate(textIds):
+                if (wordId==answerStart):
+                    if (textIds[loc:(loc+answerLen)] == answerIds):
                         span = (loc, loc+answerLen)
                         break
             yield Question(q['id'], q['question'], answerText, span)
