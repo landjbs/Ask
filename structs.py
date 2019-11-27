@@ -50,6 +50,8 @@ class SearchTable(object):
         charList += self.startToken + self.endToken
         self.charMatcher = KeywordProcessor()
         self.charMatcher.add_keywords_from_list(charList)
+        charIdx = {c : i for i, c in enumerate(charList)}
+        self.char_to_id = lambda c : charIdx[c]
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
