@@ -12,7 +12,6 @@ from tqdm import tqdm, trange
 from termcolor import colored
 import matplotlib.pyplot as plt
 from torch.cuda import is_available as gpu_available
-from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 import utils as u
 
@@ -203,8 +202,9 @@ class LongShot(object):
                 wordIds = doc.text
                 # embed doc ids with GPT2 and add empty annotation dim
                 contextVecs = np.array(self.searchTable.word_embed(wordIds))
+                print(contextVecs)
                 spanDim = np.zeros(shape=(1, contextVecs.shape[0]))
-                contextVecs = np.concatenate([contextVecs, spanDim], axis=1)
+                contextVecs = np.concatenate([contextVecs, spanDim], axis=0)
                 print(contextVecs.shape)
                 print(contextVecs[0].shape)
                 for question, span in doc.iter_questions():

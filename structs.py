@@ -1,5 +1,6 @@
 import re
 import json
+import numpy as np
 from tqdm import tqdm
 from termcolor import colored
 from itertools import chain
@@ -101,7 +102,8 @@ class SearchTable(object):
 
     def word_embed(self, idList):
         ''' Returns list of embedding vectors for ids !USES LOOKUP: BAD! '''
-        return [self.gptModel.transformer.wte.weight[id] for id in idList]
+        return [self.gptModel.transformer.wte.weight[id][0].detach().numpy()
+                for id in idList]
 
     def char_tokenize(self, text):
         ''' Returns char-tokenized text using charMatcher '''
