@@ -17,7 +17,7 @@ from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import utils as u
 
 class Encoder(nn.Module):
-    def __init__(self, hiddenDim, layerNum, lr):
+    def __init__(self, hiddenDim, layerNum):
         '''
         The Encoder Model runs an RNN over GPT2 fixed embeddings of byte-pair
         encoded spannotated context to produce a cell state used by the Decoder
@@ -26,7 +26,6 @@ class Encoder(nn.Module):
         Args:
             hiddenDim:      The dimensionality of the cell state
             layerNum:       The number of layers employed by the RNN
-            lr:             The learning rate of the model
         '''
         super(Encoder, self).__init__()
         self.hiddenDim = hiddenDim
@@ -52,7 +51,7 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, hiddenDim, outDim, layerNum, lr):
+    def __init__(self, hiddenDim, outDim, layerNum):
         '''
         The Decoder Model uses the cell state of the Encoder Model run across
         the word embeddings of the spannotated context to produce step-by-step
@@ -62,14 +61,12 @@ class Decoder(nn.Module):
             hiddenDim:      The size of the hidden vector passed from Encoder
             outDim:         The dimensionality of the character-level space
             layerNum:       The number of layers used by the RNN
-            lr:             The learning rate of the decoder model
         '''
         # INHERIT
         super(Decoder, self).__init__()
         # PARAMS
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         # LAYERS
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
