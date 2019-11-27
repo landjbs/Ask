@@ -102,7 +102,7 @@ class SearchTable(object):
 
     def word_embed(self, idList):
         ''' Returns list of embedding vectors for ids !USES LOOKUP: BAD! '''
-        return [self.gptModel.transformer.wte.weight[id][0].detach().numpy()
+        return [self.gptModel.transformer.wte.weight[id].detach().numpy()
                 for id in idList]
 
     def char_tokenize(self, text):
