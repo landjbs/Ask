@@ -3,7 +3,6 @@ import json
 from tqdm import tqdm
 from termcolor import colored
 from itertools import chain
-from flashtext import KeywordProcessor
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 import utils as u
@@ -45,13 +44,12 @@ class SearchTable(object):
         self.gptModel.eval()
         # store dict for char embeddings
         charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789?!;:$']
-        self.startToken = ['*S*']
-        self.endToken = ['*E*']
+        self.startToken = ['@']
+        self.endToken = ['*']
         charList += self.startToken + self.endToken
-        self.charMatcher = KeywordProcessor()
-        self.charMatcher.add_keywords_from_list(charList)
         charIdx = {c : i for i, c in enumerate(charList)}
         self.char_to_id = lambda c : charIdx[c]
+        self.charMatcher = re.compile(f"{'|'.join(charList)}")
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
@@ -95,7 +93,8 @@ class SearchTable(object):
 
     def char_tokenize(self, text):
         ''' Returns char-tokenized text using charIdx '''
-        return self.charMatcher.extract_keywords(text.lower())
+        return list(map(self.char_to_id,
+                        self.charMatcher.findall(text.lower())))
 
     def embed(self, wordIds):
         ''' Embeds list of wordIds tokenized by gptTokenizer with gpt2Model '''
