@@ -105,7 +105,7 @@ class LongShot(object):
         hiddenDim = searchTable.wordEmbeddingSize + 1
         outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum=1)
-        self.decoder = Decoder(hiddenDim, layerNum=1)
+        self.decoder = Decoder(hiddenDim, outDim, layerNum=1)
         self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=1)
         self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=1)
         # define vars
@@ -178,38 +178,38 @@ class LongShot(object):
         decoderOptim.step()
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
-        def train(self, epochs, plot=False):
-            '''
-            Trains both encoder and decoder on SearchTable for iterations.
-            Uses only questions with answers. Handles all GPT and character
-            embeddings. SearchTable is immediately ready for training after
-            initialization.
-            Args:
-                epochs:         Number of passes to make over ALL data in table
-                plot (opt):     Whether to generate plots of training progress
-            Returns:
-                Tuple of form (trained_encoder, trained_decoder)
-            '''
+    def train(self, epochs, plot=False):
+        '''
+        Trains both encoder and decoder on SearchTable for iterations.
+        Uses only questions with answers. Handles all GPT and character
+        embeddings. SearchTable is immediately ready for training after
+        initialization.
+        Args:
+            epochs:         Number of passes to make over ALL data in table
+            plot (opt):     Whether to generate plots of training progress
+        Returns:
+            Tuple of form (trained_encoder, trained_decoder)
+        '''
 
-            # initialize vecs to store loss over time
-            lossVec, accVec, testLossVec, testAccVec = [], [], [], []
+        # initialize vecs to store loss over time
+        lossVec, accVec, testLossVec, testAccVec = [], [], [], []
 
 
-            print(colored(f'Training for {epochs}', 'red'), end='\r')
-            # train over data for epochs
-            for epoch in trange(epochs):
-                for doc in self.searchTable.iter_docs():
-                    wordIds = doc.text
-                    # embed doc ids with GPT2 and add empty annotation dim
-                    contextVecs = np.array(self.searchTable.word_embed(wordIds))
-                    spanDim = np.zeros(shape=(contextVecs.shape[0], ))
-                    contextVecs = np.concatenate(contextVecs, spanDim)
-                    for question, span in doc.iter_questions():
-                        if not span:
-                            break
-                        # edit span dimension for current question
-                        contextVecs[span[0] : span[1]+1, -1] = 1
-                        # train for one step on context vecs
-                        loss, acc = self.train_step(contextVecs, question)
-                        # reset annotation dimension
-                        contextVecs[:, -1] = 0
+        print(colored(f'Training for {epochs}', 'red'), end='\r')
+        # train over data for epochs
+        for epoch in trange(epochs):
+            for doc in self.searchTable.iter_docs():
+                wordIds = doc.text
+                # embed doc ids with GPT2 and add empty annotation dim
+                contextVecs = np.array(self.searchTable.word_embed(wordIds))
+                spanDim = np.zeros(shape=(contextVecs.shape[0], ))
+                contextVecs = np.concatenate(contextVecs, spanDim)
+                for question, span in doc.iter_questions():
+                    if not span:
+                        break
+                    # edit span dimension for current question
+                    contextVecs[span[0] : span[1]+1, -1] = 1
+                    # train for one step on context vecs
+                    loss, acc = self.train_step(contextVecs, question)
+                    # reset annotation dimension
+                    contextVecs[:, -1] = 0
