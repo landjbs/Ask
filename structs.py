@@ -130,16 +130,11 @@ class SearchTable(object):
                     continue
             # focuses only on the first answer of answer list
             answer = answerList[0]
-            answerIds = self.word_tokenize(answer['text'].lower().strip())
+            answerIds = self.word_tokenize(answer['text'])
             answerStart = answerIds[0]
             answerLen = len(answerIds)
             span = None
             # print(f'{"-"*80}\nANSWER: {answerIds}')
-
-            if answerStart in  textIds:
-                print(True)
-            else:
-                print(False)
 
             # for loc, wordId in enumerate(textIds):
             #     if (wordId==answerStart):
@@ -157,11 +152,12 @@ class SearchTable(object):
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
             text = document['context']
-            textTokens = self.gptTokenizer._tokenize(text.lower().strip())
+            textTokens = self.word_tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
                            in enumerate(self._question_extractor(questions,
-                                                                 textIds))}
+                                                                 textTokens))}
+            textIds = self.word_encode(textTokens)
             yield Document(docId, title, textIds, questionIdx)
 
     def build(self, squadPath):
