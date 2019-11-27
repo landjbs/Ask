@@ -89,7 +89,12 @@ class SearchTable(object):
     # TEXT MANIPULATION
     def word_tokenize(self, text):
         ''' Returns word-tokenized text using gptTokenizer '''
-        return self.gptTokenizer.encode(text.lower(), add_special_tokens=False)
+        return self.gptTokenizer._tokenize(text.lower().strip(),
+                                           add_special_tokens=False)
+
+    def word_encode(self, tokenList):
+        ''' Returns id-encoded list from word-tokens using gptTokenizer '''
+        return self.gptTokenizer.convert_tokens_to_ids(tokenList)
 
     def char_tokenize(self, text):
         ''' Returns char-tokenized text using charIdx '''
@@ -149,7 +154,7 @@ class SearchTable(object):
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
             text = document['context']
-            textIds = self.word_tokenize(text.lower().strip())
+            textTokens = self.gptTokenizer._tokenize(text.lower().strip())
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
                            in enumerate(self._question_extractor(questions,
