@@ -97,8 +97,15 @@ class Decoder(nn.Module):
 
 
 class LongShot(object):
-    ''' The LongShot model which aggregates the Encoder and Decoder '''
     def __init__(self, searchTable):
+        '''
+        The LongShot Model aggregates the Encoder and Decoder to transform
+        spannoated context into text prediction of pertinant question.
+        Args:
+            searchTable:        SearchTable object initialized with training
+                                database
+        '''
+        assert searchTable.initialize, 'SearchTable must be initialized.'
         hiddenDim = searchTable.wordEmbeddingSize + 1
         outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum, lr)
