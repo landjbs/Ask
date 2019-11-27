@@ -3,6 +3,7 @@ import json
 from tqdm import tqdm
 from termcolor import colored
 from itertools import chain
+from flashtext import KeywordProcessor
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 import utils as u
@@ -43,13 +44,12 @@ class SearchTable(object):
         self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.gptModel.eval()
         # store dict for char embeddings
-        charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789?!;:']
-        self.startToken = '[S]'
-        self.endToken = '[E]'
+        charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789?!;:$']
+        self.startToken = ['*S*']
+        self.endToken = ['*E*']
         charList += self.startToken + self.endToken
-        self.charMatcher = re.compile('|'.join(charList))
-        charIdx = {i: c for i, c in enumerate(charList)}
-        char_to_id = lambda c : charIdx[c]
+        self.charMatcher = KeywordProcessor()
+        self.charMatcher.add_from_list(charList)
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
@@ -143,9 +143,9 @@ class SearchTable(object):
             textIds = self.tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
-                            in enumerate(self._question_extractor(questions,
-                                                                  textIds))}
-            yield Document(docId, title, text, questionIdx)
+                           in enumerate(self._question_extractor(questions,
+                                                                 textIds))}
+            yield Document(docId, title, textIds, questionIdx)
 
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
