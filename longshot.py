@@ -130,17 +130,14 @@ class LongShot(object):
         """ Evaluates accuracy of prediciton """
         return 1 if (predVec.max(1)[1] == targetId.max()) else 0
 
-    def train_step(self, contextVecs, span, questionTargets):
+    def train_step(self, contextVecs, questionTargets):
         '''
-        Trains model on context/question pair. Runs single pass over vector
-        embeddings of context paragraph after adding question-specific
-        spannotations. Passes cell state of encoder rnn to decoder rnn
-        for character-level question approximation. Evaluated against question
-        and backpropped.
+        Trains model on context/question pair. Runs single pass over spannotated
+        GPT static embeddings of context paragraph. Passes cell state of encoder
+        rnn to decoder rnn for character-level question approximation.
+        Evaluated against real question ids and backpropped.
         Args:
             contextVecs:        Vectors of GPT-embedded context (no annotations)
-            span:               Tuple of span start and end loc for adding
-                                    spannotations to contextVecs
             questionTargets:    Ordered iterable of char ids in question
         Returns:
             Loss across all decoder predictions on current question
@@ -206,10 +203,17 @@ class LongShot(object):
             # train over data for epochs
             for epoch in trange(epochs):
                 for doc in searchTable.iter_docs():
+                    wordIds = doc.text
                     # embed doc ids with GPT2 and add empty annotation dim
-                    contextVecs = np.array(self.searchTable.word_embed(doc.text))
+                    contextVecs = np.array(self.searchTable.word_embed(wordIds))
                     spanDim = np.zeros(shape=(contextVecs.shape[0], ))
                     contextVecs = np.concatenate(contextVecs, spanDim)
+                    for question, span in doc.iter_questions():
                         if not span:
                             break
+                        # edit span dimension for current question
+                        contextVecs[span[0] : span[1]+1, -1] = 1
+                        # train for one step on context vecs
                         loss, acc = self.train_step(contextVecs, question)
+                        # reset annotation dimension
+                        contextVecs[:, -1] = 0
