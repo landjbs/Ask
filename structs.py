@@ -43,13 +43,13 @@ class SearchTable(object):
         self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.gptModel.eval()
         # store dict for char embeddings
-        charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789?!;:$']
-        self.startToken = ['@']
-        self.endToken = ['*']
+        charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789']
+        self.startToken = ['`']
+        self.endToken = ['#']
         charList += self.startToken + self.endToken
         charIdx = {c : i for i, c in enumerate(charList)}
         self.char_to_id = lambda c : charIdx[c]
-        self.charMatcher = re.compile(f"{'|'.join(charList)}")
+        self.charMatcher = re.compile("|".join(charList))
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
