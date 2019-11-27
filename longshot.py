@@ -26,18 +26,17 @@ class Encoder(nn.Module):
         The Encoder Model runs an RNN over GPT2 fixed embeddings of byte-pair
         encoded spannotated context to produce a cell state used by the Decoder
         to predict the pertinant question.
-        NOTE: RNN might soon be replaced by attention mechanism.
+        NOTE: Might benefit by replacing RNN with attention mechanism.
         Args:
             hiddenDim:      The dimensionality of the cell state
             layerNum:       The number of layers employed by the RNN
             lr:             The learning rate of the model
         '''
         super(Encoder, self).__init__()
-        self.hiddenDim = hiddenDim
         self.layerNum = layerNum
         self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
         self.rnn = nn.GRU(input_size=hiddenDim,
-                          hidden_size=EMBEDDING_SIZE,
+                          hidden_size=hiddenDim,
                           num_layers=layerNum,
                           batch_first=True)
 
@@ -45,7 +44,6 @@ class Encoder(nn.Module):
         """ Init hidden state passed to first RNN cell in time series """
         # initTensor =  torch.zeros(1, 1, self.hiddenDim, device=device)
         return nn.init.xavier_uniform_(initTensor).float()
-        return initTensor
 
     def forward(self, curVec, hidden):
         """
