@@ -140,10 +140,8 @@ class SearchTable(object):
                         break
                     else:
                         span = (loc, loc)
-            if not span:
-                print(self.gptTokenizer.convert_tokens_to_string(answerTokens))
-                print(self.gptTokenizer.convert_tokens_to_string(textTokens))
-                print("-"*80)
+            print(span)
+
             # character-tokenize question text
             qTokenIds = self.char_tokenize(q['question'] + self.endToken)
             yield Question(q['id'], qTokenIds, span)
