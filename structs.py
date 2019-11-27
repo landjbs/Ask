@@ -89,8 +89,7 @@ class SearchTable(object):
     # TEXT MANIPULATION
     def word_tokenize(self, text):
         ''' Returns word-tokenized text using gptTokenizer '''
-        return self.gptTokenizer._tokenize(text.lower().strip(),
-                                           add_special_tokens=False)
+        return self.gptTokenizer._tokenize(text.lower().strip())
 
     def word_encode(self, tokenList):
         ''' Returns id-encoded list from word-tokens using gptTokenizer '''
@@ -114,7 +113,7 @@ class SearchTable(object):
         return outputs
 
     # DATA ANALYSIS
-    def _question_extractor(self, questions, textIds):
+    def _question_extractor(self, questions, textTokens):
         ''' Helper to find question in table building '''
         for q in questions:
             if q['is_impossible']:
@@ -134,11 +133,22 @@ class SearchTable(object):
             answerStart = answerTokens[0]
             answerLen = len(answerTokens)
             span = None
+            # print(answerTokens)
             for loc, word in enumerate(textTokens):
                 if (word==answerStart):
-                    if (textTokens[loc:(loc+answerLen)] == answerTokens):
+                    # print(textTokens[loc:(loc+answerLen)], end=' | ')
+                    # print(textTokens[loc:(loc+answerLen)] == answerTokens)
+                    # uses the first appearance of the token in text if len=1
+                    if ((textTokens[loc:(loc+answerLen)] == answerTokens)
+                        and answerLen > 1):
                         span = (loc, loc+answerLen)
                         break
+                    else:
+                        span = (loc, loc)
+            if not span:
+                print(self.gptTokenizer.convert_tokens_to_string(answerTokens))
+                print(self.gptTokenizer.convert_tokens_to_string(textTokens))
+                print("-"*80)
             # character-tokenize question text
             qTokenIds = self.char_tokenize(q['question'] + self.endToken)
             yield Question(q['id'], qTokenIds, span)
