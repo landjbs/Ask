@@ -108,7 +108,7 @@ class LongShot(object):
             decoderMax:         Max length of decoder char-level generations
         '''
         assert searchTable.initialize, 'SearchTable must be initialized.'
-        u.type
+        u.assert_type(decoderMax, 'decoderMax', int)
         hiddenDim = searchTable.wordEmbeddingSize + 1
         outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum, lr)
