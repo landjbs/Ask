@@ -11,15 +11,12 @@ from torch import nn
 from tqdm import tqdm, trange
 from termcolor import colored
 import matplotlib.pyplot as plt
+from torch.cuda import is_available as gpu_available
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 import utils as u
 from stucts import SearchTable
 
-# maximum number of characters the decoder is allowed to generate per run
-DECODER_MAX = 500
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Encoder(nn.Module):
     def __init__(self, hiddenDim, layerNum, lr):
@@ -121,6 +118,7 @@ class LongShot(object):
         endId = searchTable.char_encode([searchTable.endToken])
         self.startVec = np.zeros(outDim)
         self.startVec[startId] = 1
+        self.device = torch.device("cuda" if gpu_available() else "cpu")
 
     def categorical_loss(self, predVec, targetId):
         """ Custom loss function to play with """
@@ -136,7 +134,7 @@ class LongShot(object):
         '''
         Trains model on context/question pair. Runs single pass over vector
         embeddings of context paragraph after adding question-specific
-        spannotations (haha). Passes cell state of encoder rnn to decoder rnn
+        spannotations. Passes cell state of encoder rnn to decoder rnn
         for character-level question approximation. Evaluated against question
         and backpropped.
         Args:
@@ -144,11 +142,16 @@ class LongShot(object):
             span:               Tuple of span start and end loc for adding
                                     spannotations to contextVecs
             questionTargets:    Ordered iterable of char ids in question
-            teacherForce:       Bool indicating whether to use teacher forcing
-                                    in decoder text-generation
         Returns:
             Loss across all decoder predictions on current question
         '''
+        # add annotations to contextVecs using span
+        # OPTIMIZE: add spannotations dim to context vecs before train_step
+        for i, vec in enumerate(contextVecs):
+            if i in range(span[0], span[1]+1):
+                vec.append(1)
+            else:
+                vec.append(0)
         # clear optimizer gradients
         self.encoder.optimizer.zero_grad()
         self.decoder.optimizer.zero_grad()
@@ -199,48 +202,20 @@ class LongShot(object):
             Returns:
                 Tuple of form (trained_encoder, trained_decoder)
             '''
-            # import and initialize gpt models for embedding
-            print(colored('Loading GPT2 Models', 'red'), end='\r')
-            gptModel = GPT2LMHeadModel.from_pretrained('gpt2')
-            gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
-            model.eval()
-            print(colored('Complete: Loading GPT2 Models', 'cyan'))
 
-            print(colored('Initalizing Methods', 'red'), end='\r')
             # initialize vecs to store loss over time
             lossVec, accVec, testLossVec, testAccVec = [], [], [], []
 
-            # initialize methods for text modification
-            def embed_text(text):
-                '''
-                Helper embeds cleaned text with GPT tokenizer and model
-                Returns numpy array of shape (seqLen, EMBEDDING_SIZE)
-                '''
-                # WARNING: DOES NOT YET WORK
-                wordIds = gptTokenizer.encode(text, add_special_tokens=False)
-                context = torch.tensor(wordIds, dtype=torch.long, device=device)
-                context = context.unsqueeze(0).repeat(1, 1)
-                with torch.no_grad():
-                    for _ in trange(length, leave=False):
-                        inputs = {'input_ids': generated}
-                        outputs = model(**inputs)
-                # TODO: reshape outputs and pull only embeddings
-                return None
-
-            def char_tokenize(text):
-                ''' Tokenizes text at character level. Used for questions '''
-                # TODO: Implement
-                pass
-            print(colored('Complete: Initalizing Methods', 'red'), end='\r')
 
             print(colored(f'Training for {epochs}', 'red'), end='\r')
             # train over data for epochs
             for epoch in trange(epochs):
                 for doc in searchTable.iter_docs():
-                    docEmbeddings = embed_text(doc.text)
+                    # embed doc ids with GPT2 and add empty spannotation dim
+                    contextVecs = self.searchTable.word_embed(doc.text)
+                    for vec in contextVecs:
+                        vec.append(0)
                     for question, span in doc.iter_questions():
                         if not span:
                             break
-                        questionChars = char_tokenize(question)
-                        # TODO: Get proper span selection and append to docEmbeddings
-                        loss, acc = self.train_step(contextVecs, questionChars)
+                        loss, acc = self.train_step(contextVecs, question)
