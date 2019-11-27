@@ -49,7 +49,7 @@ class SearchTable(object):
         self.endToken = ['*E*']
         charList += self.startToken + self.endToken
         self.charMatcher = KeywordProcessor()
-        self.charMatcher.add_from_list(charList)
+        self.charMatcher.add_keywords_from_list(charList)
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
@@ -121,7 +121,7 @@ class SearchTable(object):
                     continue
             # focuses only on the first answer of answer list
             answer = answerList[0]
-            answerIds = self.tokenize(answer['text'])
+            answerIds = self.word_tokenize(answer['text'])
             answerStart = answerIds[0]
             answerLen = len(answerIds)
             span = None
@@ -139,7 +139,7 @@ class SearchTable(object):
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
             text = document['context']
-            textIds = self.tokenize(text)
+            textIds = self.word_tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
                            in enumerate(self._question_extractor(questions,
