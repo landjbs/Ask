@@ -39,17 +39,16 @@ class SearchTable(object):
     def __init__(self, squadPath=None, loadPath=None):
         self.initialized = False
         # load gpt2 models
-        self.gptModel =GPT2LMHeadModel.from_pretrained('gpt2')
+        self.gptModel = GPT2LMHeadModel.from_pretrained('gpt2')
         self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.gptModel.eval()
-
+        # determine whether to load data
         if loadPath:
             self.load(loadPath)
         elif squadPath:
             self.build(squadPath)
         else:
             self.categoryIdx = {}
-
 
     def save(self, savePath):
         assert self.initialized, 'SearchTable must be initialized before save.'
@@ -80,12 +79,16 @@ class SearchTable(object):
                 yield doc
 
     # TEXT MANIPULATION
-    def _tokenize(self, text):
-        ''' returns tokenized text; to improve '''
-        return text.lower().split()
+    def word_tokenize(self, text):
+        ''' Returns word-tokenized text using gptTokenizer '''
+        return self.gptTokenizer.encode(text.lower(), add_special_tokens=False)
+
+    def char_tokenize(self, text):
+        ''' Returns char-tokenized text using charIdx '''
+        return text.lower()
 
     # DATA ANALYSIS
-    def _question_extractor(self, questions, textWords):
+    def _question_extractor(self, questions, textIds):
         ''' Helper to find question in table building '''
         for q in questions:
             if q['is_impossible']:
@@ -101,12 +104,12 @@ class SearchTable(object):
             # focuses only on the first answer of answer list
             answer = answerList[0]
             answerText = answer['text']
-            answerWords = self._tokenize(answerText)
+
+
+            answerIds = self.tokenize(answerText)
             answerStart = answerWords[0]
             answerLen = len(answerWords)
             span = None
-
-
             for loc, textWord in enumerate(textWords):
                 if (textWord==answerStart):
                     if (textWords[loc:(loc+answerLen)] == answerWords):
@@ -119,21 +122,16 @@ class SearchTable(object):
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
             text = document['context']
-            textWords = self._tokenize(text)
+            textIds = self.tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
                             in enumerate(self._question_extractor(questions,
-                                                                  textWords))}
+                                                                  textIds))}
             yield Document(docId, title, text, questionIdx)
 
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
         print(colored('BUILDING SEARCH TABLE', 'yellow'))
-
-        print(colored('Loading GPT2 Models', 'red'), end='\r')
-
-        print(colored('Complete: Loading GPT2 Models', 'cyan'))
-
         print(colored('Analyzing files:', 'red'), end='\r')
         with open(squadPath, 'r') as squadFile:
             data = json.load(squadFile)['data']
