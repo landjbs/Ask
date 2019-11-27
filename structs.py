@@ -131,7 +131,9 @@ class SearchTable(object):
                     if (textIds[loc:(loc+answerLen)] == answerIds):
                         span = (loc, loc+answerLen)
                         break
-            yield Question(q['id'], q['question'], span)
+            # character-tokenize question text
+            qTokenIds = self.char_tokenize(q['question'])
+            yield Question(q['id'], qTokenIds, span)
 
     def _document_extractor(self, category):
         ''' Helper to find documents in table building '''
