@@ -117,6 +117,10 @@ class LongShot(object):
         self.decoder = Decoder(hiddenDim, layerNum, lr)
         # define vars
         self.decoderMax = decoderMax
+        startId = searchTable.char_encode([searchTable.startToken])
+        endId = searchTable.char_encode([searchTable.endToken])
+        self.startVec = np.zeros(outDim)
+        self.startVec[startId] = 1
 
     def categorical_loss(self, predVec, targetId):
         """ Custom loss function to play with """
