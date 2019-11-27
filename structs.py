@@ -93,8 +93,7 @@ class SearchTable(object):
 
     def char_tokenize(self, text):
         ''' Returns char-tokenized text using charIdx '''
-        return list(map(self.char_to_id,
-                        re.findall(self.charMatchertext.lower())))
+        return self.charMatcher.extract_keywords(text.lower())
 
     def embed(self, wordIds):
         ''' Embeds list of wordIds tokenized by gptTokenizer with gpt2Model '''
