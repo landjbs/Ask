@@ -97,7 +97,7 @@ class SearchTable(object):
         return self.gptTokenizer.convert_tokens_to_ids(tokenList)
 
     def char_tokenize(self, text):
-        ''' Returns char-tokenized text using charIdx '''
+        ''' Returns char-tokenized text using charMatcher '''
         return self.charMatcher.findall(text.lower().strip())
 
     def char_encode(self, tokenList):
