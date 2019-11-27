@@ -32,8 +32,6 @@ class Encoder(nn.Module):
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
         self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
-        # TODO: Implement GPT embeddings
-        # self.embedding = nn.Embedding(batcherObj.vocabSize, hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=EMBEDDING_SIZE,
                           num_layers=layerNum,
@@ -57,7 +55,18 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, hiddenDim, layerNum, lr):
+    def __init__(self, hiddenDim, layerNum, lr, outDim):
+        '''
+        The Decoder Model uses the cell state of the Encoder Model run across
+        the word embeddings of the spannotated context to produce step-by-step
+        categorical predictions of the character-level encoding of the question
+        relating to the current context and span.
+        Args:
+            hiddenDim:      The size of the hidden vector passed from Encoder
+            layerNum:       The number of layers used by the RNN
+            lr:             The learning rate of the decoder model
+            outDim:         The dimensionality of the character-level space
+        '''
         # INHERIT
         super(Decoder, self).__init__()
         # PARAMS
