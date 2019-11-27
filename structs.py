@@ -86,6 +86,12 @@ class SearchTable(object):
         ''' Returns char-tokenized text using charIdx '''
         return text.lower()
 
+    def embed(self, wordIds):
+        ''' Embeds list of wordIds tokenized by gptTokenizer with gpt2Model '''
+        context = torch.tensor(wordIds, dtype=torch.long, device=device)
+        context = context.unsqueeze(0).repeat(1, 1)
+        
+
     # DATA ANALYSIS
     def _question_extractor(self, questions, textIds):
         ''' Helper to find question in table building '''
