@@ -1,3 +1,4 @@
+import re
 import json
 from tqdm import tqdm
 from termcolor import colored
@@ -41,6 +42,9 @@ class SearchTable(object):
         self.gptModel = GPT2LMHeadModel.from_pretrained('gpt2')
         self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.gptModel.eval()
+        # store dict for char embeddings
+        self.charStr = 'abcdefghijklmnoqrstuvwxyz0123456789?!;:'
+        self.charIdx = {i: c for i, c in enumerate(self.charStr)}
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
