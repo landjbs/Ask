@@ -15,12 +15,6 @@ from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 from stucts import SearchTable
 
-# first term is length of word embeddings; second is span dim
-EMBEDDING_SIZE = 784 + 1
-# number of dims for categorical outputs (letters, numbers, stopchars, etc)
-OUT_SIZE = 26 + 1
-# stop token tells the decoder to stop running
-STOP_TOKEN = '*'
 # maximum number of characters the decoder is allowed to generate per run
 DECODER_MAX = 500
 
@@ -28,6 +22,16 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Encoder(nn.Module):
     def __init__(self, hiddenDim, layerNum, lr):
+        '''
+        The Encoder Model runs an RNN over GPT2 fixed embeddings of byte-pair
+        encoded spannotated context to produce a cell state used by the Decoder
+        to predict the pertinant question.
+        NOTE: RNN might soon be replaced by attention mechanism.
+        Args:
+            hiddenDim:      The dimensionality of the cell state
+            layerNum:       The number of layers employed by the RNN
+            lr:             The learning rate of the model
+        '''
         super(Encoder, self).__init__()
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
