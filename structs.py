@@ -8,10 +8,9 @@ import utils as u
 
 class Question(object):
     ''' Single question about a doc stores '''
-    def __init__(self, questionId, qText, aText, aSpan):
+    def __init__(self, questionId, qText, aSpan):
         self.questionId = questionId
         self.qText = qText
-        self.aText = aText
         self.aSpan = aSpan
 
     def __str__(self):
@@ -92,7 +91,7 @@ class SearchTable(object):
         ''' Helper to find question in table building '''
         for q in questions:
             if q['is_impossible']:
-                yield Question(q['id'], q['question'], None, None)
+                yield Question(q['id'], q['question'], None)
                 continue
             try:
                 answerList = q['answers']
@@ -104,8 +103,7 @@ class SearchTable(object):
                     continue
             # focuses only on the first answer of answer list
             answer = answerList[0]
-            answerText = answer['text']
-            answerIds = self.tokenize(answerText)
+            answerIds = self.tokenize(answer['text'])
             answerStart = answerIds[0]
             answerLen = len(answerIds)
             span = None
@@ -114,7 +112,7 @@ class SearchTable(object):
                     if (textIds[loc:(loc+answerLen)] == answerIds):
                         span = (loc, loc+answerLen)
                         break
-            yield Question(q['id'], q['question'], answerText, span)
+            yield Question(q['id'], q['question'], span)
 
     def _document_extractor(self, category):
         ''' Helper to find documents in table building '''
