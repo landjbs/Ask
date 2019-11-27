@@ -31,7 +31,6 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
@@ -108,8 +107,11 @@ class LongShot(object):
         # initialize models
         hiddenDim = searchTable.wordEmbeddingSize + 1
         outDim = searchTable.charEmbeddingSize
-        self.encoder = Encoder(hiddenDim, layerNum=1, lr=1)
-        self.decoder = Decoder(hiddenDim, layerNum=1, lr=1)
+        self.encoder = Encoder(hiddenDim, layerNum=1)
+        self.decoder = Decoder(hiddenDim, layerNum=1)
+        self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=1)
+        self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=1)
+
         # define vars
         self.decoderMax = decoderMax
         startId = searchTable.char_encode([searchTable.startToken])
