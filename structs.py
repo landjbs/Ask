@@ -46,7 +46,8 @@ class SearchTable(object):
         charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789?!;:']
         self.startToken = 'S_1'
         self.endToken = 'S_2'
-        self.charIdx = {i: c for i, c in enumerate(self.charStr)}
+        charList += self.startToken + self.endToken
+        self.charIdx = {i: c for i, c in enumerate(charList)}
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
