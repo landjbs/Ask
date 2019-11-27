@@ -170,7 +170,7 @@ class LongShot(object):
             # update loss and check if decoder has ouput END char
             loss += self.categorical_loss(decoderOut, targets[decoderStep])
             numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
-            if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
+            if decoderInput.item() == self.searchTable.endToken:
                 break
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
@@ -203,7 +203,7 @@ class LongShot(object):
                 # embed doc ids with GPT2 and add empty annotation dim
                 contextVecs = np.array(self.searchTable.word_embed(wordIds))
                 spanDim = np.zeros(shape=(contextVecs.shape[0], 1))
-                contextVecs = np.concatenate([contextVecs, spanDim], axis=1)
+                contextVecs = np.concatenate((contextVecs, spanDim), axis=1)
                 for question, span in doc.iter_questions():
                     if not span:
                         break
