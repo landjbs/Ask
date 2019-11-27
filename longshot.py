@@ -202,11 +202,8 @@ class LongShot(object):
                 wordIds = doc.text
                 # embed doc ids with GPT2 and add empty annotation dim
                 contextVecs = np.array(self.searchTable.word_embed(wordIds))
-                print(contextVecs.shape)
                 spanDim = np.zeros(shape=(contextVecs.shape[0], 1))
                 contextVecs = np.concatenate([contextVecs, spanDim], axis=1)
-                print(contextVecs.shape)
-                print(contextVecs[0].shape)
                 for question, span in doc.iter_questions():
                     if not span:
                         break
