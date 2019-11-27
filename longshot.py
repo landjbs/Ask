@@ -44,7 +44,7 @@ class Encoder(nn.Module):
         Forward pass over GPT2 embedding vectors updates rnn cell state for
         later decoding
         """
-        curVec = torch.tensor(curVec).long()
+        curVec = torch.tensor(curVec).float()
         curVec = curVec.view(1, 1, -1)
         outSeq, hidden = self.rnn(curVec, hidden)
         print(f'outSeq: {outSeq}')
@@ -69,6 +69,7 @@ class Decoder(nn.Module):
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
         # LAYERS
+        self.embedding = nn.Embedding(outDim, hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
@@ -111,10 +112,8 @@ class LongShot(object):
         self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=1)
         # define vars
         self.decoderMax = decoderMax
-        startId = searchTable.char_encode([searchTable.startToken])
-        endId = searchTable.char_encode([searchTable.endToken])
-        self.startVec = np.zeros(outDim)
-        self.startVec[startId] = 1
+        self.startId = searchTable.char_encode([searchTable.startToken])
+        self.endId = searchTable.char_encode([searchTable.endToken])
         self.searchTable = searchTable
         self.device = torch.device("cuda" if gpu_available() else "cpu")
 
@@ -154,7 +153,7 @@ class LongShot(object):
             _ = encoderOut[0, 0]
         targetLen = len(questionTargets)
         # get embedding of start char to kick-off decoder
-        decoderInput = self.searchTable.char_encode()
+        decoderInput = self.startVec
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
         # run decoder across encoderOuts, initializing with encoderHidden
@@ -171,7 +170,7 @@ class LongShot(object):
                 curTarget = None
             # update loss and check if decoder has ouput END char
             loss += self.categorical_loss(decoderOut, targets[decoderStep])
-            numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
+            # numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
             if decoderInput.item() == self.searchTable.endToken:
                 break
         # backprop loss, increment optimizers, and return loss across preds
