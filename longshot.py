@@ -15,8 +15,6 @@ from torch.cuda import is_available as gpu_available
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 import utils as u
-from stucts import SearchTable
-
 
 class Encoder(nn.Module):
     def __init__(self, hiddenDim, layerNum, lr):
@@ -49,7 +47,6 @@ class Encoder(nn.Module):
         Forward pass over GPT2 embedding vectors updates rnn cell state for
         later decoding
         """
-        # TODO: check shaping of curVec
         curVec = curVec.view(1, 1, -1)
         outSeq, hidden = self.rnn(curVec, hidden)
         return outSeq, hidden
@@ -106,13 +103,13 @@ class LongShot(object):
             decoderMax:         Max length of decoder char-level generations
         '''
         # assert
-        assert searchTable.initialize, 'SearchTable must be initialized.'
+        assert searchTable.initialized, 'SearchTable must be initialized.'
         u.assert_type(decoderMax, 'decoderMax', int)
         # initialize models
         hiddenDim = searchTable.wordEmbeddingSize + 1
         outDim = searchTable.charEmbeddingSize
-        self.encoder = Encoder(hiddenDim, layerNum, lr)
-        self.decoder = Decoder(hiddenDim, layerNum, lr)
+        self.encoder = Encoder(hiddenDim, layerNum=1, lr=1)
+        self.decoder = Decoder(hiddenDim, layerNum=1, lr=1)
         # define vars
         self.decoderMax = decoderMax
         startId = searchTable.char_encode([searchTable.startToken])
@@ -159,7 +156,6 @@ class LongShot(object):
         # get embedding of start char to kick-off decoder
         decoderInput = self.searchTable.char_encode()
         # initial decoder hidden state is final encoder hidden state
-        # REVIEW: does encoder hidden need to be saved
         decoderHidden = encoderHidden
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(DECODER_MAX):
@@ -178,16 +174,15 @@ class LongShot(object):
             numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
             if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
                 break
-        return (loss.item() / decoderStep), (numCorrect / decoderStep))
+        return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
-        def train(self, searchTable, epochs, plot=False):
+        def train(self, epochs, plot=False):
             '''
             Trains both encoder and decoder on SearchTable for iterations.
             Uses only questions with answers. Handles all GPT and character
             embeddings. SearchTable is immediately ready for training after
             initialization.
             Args:
-                searchTable:    Initialized SearchTable object to train on
                 epochs:         Number of passes to make over ALL data in table
                 plot (opt):     Whether to generate plots of training progress
             Returns:
@@ -201,7 +196,7 @@ class LongShot(object):
             print(colored(f'Training for {epochs}', 'red'), end='\r')
             # train over data for epochs
             for epoch in trange(epochs):
-                for doc in searchTable.iter_docs():
+                for doc in self.searchTable.iter_docs():
                     wordIds = doc.text
                     # embed doc ids with GPT2 and add empty annotation dim
                     contextVecs = np.array(self.searchTable.word_embed(wordIds))

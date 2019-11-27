@@ -9,5 +9,8 @@ To read datasets into structs
 # m.eval()
 
 from structs import SearchTable
+from longshot import LongShot
 
 x = SearchTable('data/inData/dev-v2.0.json')
+z = LongShot(x)
+z.train(10)

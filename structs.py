@@ -42,6 +42,7 @@ class SearchTable(object):
         self.gptModel = GPT2LMHeadModel.from_pretrained('gpt2')
         self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.gptModel.eval()
+        print('imported')
         # store dict for char embeddings
         charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789']
         self.startToken = '`'
@@ -52,7 +53,7 @@ class SearchTable(object):
         self.charMatcher = re.compile("|".join(charList))
         # define global vars
         self.wordEmbeddingSize = 768
-        self.charEmbeddingSize = len(self.charList)
+        self.charEmbeddingSize = len(charList)
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
@@ -143,8 +144,6 @@ class SearchTable(object):
                         break
                     else:
                         span = (loc, loc)
-            print(span)
-
             # character-tokenize question text
             qTokenIds = self.char_tokenize(q['question'] + self.endToken)
             yield Question(q['id'], qTokenIds, span)
