@@ -2,6 +2,7 @@ import json
 from tqdm import tqdm
 from termcolor import colored
 from itertools import chain
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 import utils as u
 
@@ -120,13 +121,16 @@ class SearchTable(object):
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
         print(colored('BUILDING SEARCH TABLE', 'yellow'))
-        print(colored('Analyzing files:', 'red'))
+        print(colored('Analyzing files:', 'red'), end='\r')
         with open(squadPath, 'r') as squadFile:
             data = json.load(squadFile)['data']
             self.categoryIdx = {category['title'] :
                                 list(self._document_extractor(category))
-                                for category in tqdm(data)}
-        print(colored('Indexing files:', 'red'))
+                                for category in tqdm(data, leave=False)}
+        print(colored('Complete: Analyzing files:', 'cyan'))
+        print(colored('Indexing files:', 'red'), end='\r')
+        # TODO: build inverted index
+        print(colored('Complete: Indexing files:', 'cyan'))
         self.initialized = True
         print(colored('SEARCH TABLE BUILT', 'green'))
         return True
