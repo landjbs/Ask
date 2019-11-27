@@ -114,6 +114,7 @@ class LongShot(object):
         endId = searchTable.char_encode([searchTable.endToken])
         self.startVec = np.zeros(outDim)
         self.startVec[startId] = 1
+        self.searchTable = searchTable
         self.device = torch.device("cuda" if gpu_available() else "cpu")
 
     def categorical_loss(self, predVec, targetId):
