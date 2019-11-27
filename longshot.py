@@ -142,8 +142,6 @@ class LongShot(object):
         Returns:
             Loss across all decoder predictions on current question
         '''
-        # add annotations to contextVecs using current span
-
         # clear optimizer gradients
         self.encoder.optimizer.zero_grad()
         self.decoder.optimizer.zero_grad()
