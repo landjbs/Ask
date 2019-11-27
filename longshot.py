@@ -31,7 +31,7 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
-        self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
@@ -70,7 +70,7 @@ class Decoder(nn.Module):
         # PARAMS
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
-        self.optimizer = torch.optim.Adam(self.encoder.parameters(), lr=lr)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         # LAYERS
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
