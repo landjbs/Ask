@@ -88,9 +88,12 @@ class SearchTable(object):
 
     def embed(self, wordIds):
         ''' Embeds list of wordIds tokenized by gptTokenizer with gpt2Model '''
-        context = torch.tensor(wordIds, dtype=torch.long, device=device)
-        context = context.unsqueeze(0).repeat(1, 1)
-        
+        # WARNING: DOES NOT YET WORK
+        wordIds = torch.tensor(wordIds, dtype=torch.long, device=device)
+        wordIds = wordIds.unsqueeze(0).repeat(1, 1)
+        with torch.no_grad():
+            outputs = self.gptModel(**inputs)
+        return outputs
 
     # DATA ANALYSIS
     def _question_extractor(self, questions, textIds):
