@@ -38,12 +38,18 @@ class SearchTable(object):
     ''' Wide column hashtable of Document objects for searching '''
     def __init__(self, squadPath=None, loadPath=None):
         self.initialized = False
+        # load gpt2 models
+        self.gptModel =GPT2LMHeadModel.from_pretrained('gpt2')
+        self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+        self.gptModel.eval()
+
         if loadPath:
             self.load(loadPath)
         elif squadPath:
             self.build(squadPath)
         else:
             self.categoryIdx = {}
+
 
     def save(self, savePath):
         assert self.initialized, 'SearchTable must be initialized before save.'
@@ -99,6 +105,8 @@ class SearchTable(object):
             answerStart = answerWords[0]
             answerLen = len(answerWords)
             span = None
+
+
             for loc, textWord in enumerate(textWords):
                 if (textWord==answerStart):
                     if (textWords[loc:(loc+answerLen)] == answerWords):
@@ -121,6 +129,11 @@ class SearchTable(object):
     def build(self, squadPath):
         ''' Builds SearchTable from squad file under squadPath'''
         print(colored('BUILDING SEARCH TABLE', 'yellow'))
+
+        print(colored('Loading GPT2 Models', 'red'), end='\r')
+
+        print(colored('Complete: Loading GPT2 Models', 'cyan'))
+
         print(colored('Analyzing files:', 'red'), end='\r')
         with open(squadPath, 'r') as squadFile:
             data = json.load(squadFile)['data']
