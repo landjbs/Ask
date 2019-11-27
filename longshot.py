@@ -108,7 +108,6 @@ class LongShot(object):
         self.decoder = Decoder(hiddenDim, layerNum=1)
         self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=1)
         self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=1)
-
         # define vars
         self.decoderMax = decoderMax
         startId = searchTable.char_encode([searchTable.startToken])
@@ -140,8 +139,8 @@ class LongShot(object):
             Loss across all decoder predictions on current question
         '''
         # clear optimizer gradients
-        self.encoder.optimizer.zero_grad()
-        self.decoder.optimizer.zero_grad()
+        self.encoderOptim.zero_grad()
+        self.decoderOptim.zero_grad()
         # accumulator for loss and accuracy across data
         loss, numCorrect = 0, 0
         # generate initial hidden state for encoder rnn
@@ -173,6 +172,10 @@ class LongShot(object):
             numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
             if decoderInput.item() == 'STOP_CHAR_NUM_TO_DO':
                 break
+        # backprop loss, increment optimizers, and return loss across preds
+        loss.backward()
+        encoderOptim.step()
+        decoderOptim.step()
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
         def train(self, epochs, plot=False):
