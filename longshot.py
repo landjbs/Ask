@@ -44,8 +44,10 @@ class Encoder(nn.Module):
         Forward pass over GPT2 embedding vectors updates rnn cell state for
         later decoding
         """
+        curVec = torch.tensor(curVec).long()
         curVec = curVec.view(1, 1, -1)
         outSeq, hidden = self.rnn(curVec, hidden)
+        print(f'outSeq: {outSeq}')
         return outSeq, hidden
 
 
@@ -156,7 +158,7 @@ class LongShot(object):
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
         # run decoder across encoderOuts, initializing with encoderHidden
-        for decoderStep in range(DECODER_MAX):
+        for decoderStep in range(self.decoderMax):
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
             # fetch most recent decoder pred for next step input

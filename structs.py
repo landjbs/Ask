@@ -43,7 +43,6 @@ class SearchTable(object):
         self.gptModel = GPT2LMHeadModel.from_pretrained('gpt2')
         self.gptTokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.gptModel.eval()
-        print('imported')
         # store dict for char embeddings
         charList = [c for c in 'abcdefghijklmnoqrstuvwxyz0123456789']
         self.startToken = '`'
