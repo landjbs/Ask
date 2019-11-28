@@ -21,7 +21,7 @@ class Encoder(nn.Module):
     def __init__(self, hiddenDim, layerNum):
         '''
         The Encoder Model runs an RNN over GPT2 fixed embeddings of byte-pair
-        encoded spannotated context to produce a cell state used by the Decoder
+        encoded, spannotated context to produce a cell state used by the Decoder
         to predict the pertinant question.
         NOTE: Might benefit by replacing RNN with attention mechanism.
         Args:
@@ -121,8 +121,9 @@ class LongShot(object):
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
         predCorrect = predVec[0, targetId] + ZERO_BOOSTER
+        print(predCorrect)
         predLog = torch.log(predCorrect)
-        return -(predLog)
+        return (predLog)
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -160,23 +161,27 @@ class LongShot(object):
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
             (decoderOut,
-             decoderHidden) = self.decoder(decoderInput, decoderHidden)
+             encoderHidden) = self.decoder(decoderInput, decoderHidden)
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
-            print(self.searchTable.char_decode([decoderInput.item()]))
+            # print(self.searchTable.char_decode([decoderInput.item()]))
+            print(decoderOut)
+            print([decoderInput.item()])
+            decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
             # update loss and check if decoder has ouput END char
-            print(f'TARGET: {questionTargets[decoderStep]}')
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
-            print(loss)
+            y = torch.zeros((self.searchTable.charEmbeddingSize, ))
+            y[questionTargets[decoderStep]] = 1
             numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
             if (decoderInput.item() == (self.endId)):
+                print('DONE')
                 break
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
         self.encoderOptim.step()
         self.decoderOptim.step()
-        print("")
+        print('')
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
     def train(self, epochs, plot=False):
@@ -193,7 +198,7 @@ class LongShot(object):
         '''
         # initialize vecs to store loss over time
         lossVec, accVec, testLossVec, testAccVec = [], [], [], []
-        print(colored(f'Training for {epochs}', 'red'), end='\r')
+        print(colored(f'Training for {epochs}', 'red'))
         # train over data for epochs
         for epoch in trange(epochs):
             for doc in self.searchTable.iter_docs():
