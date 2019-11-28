@@ -47,7 +47,6 @@ class Encoder(nn.Module):
         curVec = torch.tensor(curVec).float()
         curVec = curVec.view(1, 1, -1)
         outSeq, hidden = self.rnn(curVec, hidden)
-        print(f'outSeq: {outSeq}')
         return outSeq, hidden
 
 
