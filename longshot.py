@@ -116,15 +116,15 @@ class LongShot(object):
         self.searchTable = searchTable
         self.device = torch.device("cuda" if gpu_available() else "cpu")
 
-    def categorical_loss(self, predVec, targetId):
+    def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
         predCorrect = predVec[0, targetId]
         predLog = torch.log(predCorrect)
         return -(predLog)
 
-    def eval_accuracy(self, predVec, targetId, teacherForce=True):
+    def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
-        return 1 if (predVec.max(1)[1] == targetId) else 0
+        return 1 if (predVec.max(1)[1] == targetId.max()) else 0
 
     def train_step(self, contextVecs, questionTargets):
         '''
@@ -157,29 +157,34 @@ class LongShot(object):
         decoderHidden = encoderHidden
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(self.decoderMax):
+            print(decoderInput)
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
             preds = decoderOut.tolist()
-            maxPred = self.searchTable.char_decode([preds.index(max(preds))])
-            print(maxPred, end='')
+            maxPred = preds.index(max(preds))
+            confidence = max(preds)
+            # print(preds, end='\n')
             # find what the decoder is supposed to ouput
             if (decoderStep < targetLen):
                 curTarget = questionTargets[decoderStep]
             else:
-                # curTarget = None
                 break
+            # fetch most recent decoder pred for next step input
+            _, topi = decoderOut.topk(1)
+            decoderInput = topi.squeeze().detach()
             # update loss and check if decoder has ouput END char
-            loss += self.categorical_loss(decoderOut, curTarget)
-            numCorrect += self.eval_accuracy(decoderOut, curTarget)
-            if decoderInput.item() == self.searchTable.endToken:
+            loss += self.custom_loss(decoderOut, targets[decoderStep])
+            numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
+            if decoderInput.item() == (self.batcher.openCharNum + 2):
                 break
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
         self.encoderOptim.step()
         self.decoderOptim.step()
+        print('-'*80)
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
     def train(self, epochs, plot=False):

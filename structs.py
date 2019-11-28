@@ -154,6 +154,7 @@ class SearchTable(object):
             # character-tokenize question text
             qTokens = self.char_tokenize(q['question'] + self.endToken)
             qTokenIds = self.char_encode(qTokens)
+            print(qTokenIds)
             yield Question(q['id'], qTokenIds, span)
 
     def _document_extractor(self, category):
