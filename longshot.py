@@ -162,8 +162,10 @@ class LongShot(object):
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
+            print(self.searchTable.char_decode([decoderInput.item()]))
             # update loss and check if decoder has ouput END char
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
+            print(loss)
             numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
             if (decoderInput.item() == (self.endId)):
                 break
@@ -171,7 +173,7 @@ class LongShot(object):
         loss.backward()
         self.encoderOptim.step()
         self.decoderOptim.step()
-        # print("")
+        print("")
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
     def train(self, epochs, plot=False):
@@ -194,9 +196,7 @@ class LongShot(object):
         print(colored(f'Training for {epochs}', 'red'), end='\r')
         # train over data for epochs
         for epoch in trange(epochs):
-            for doc in tqdm(self.searchTable.iter_docs(),
-                            total=len(self.searchTable.categoryIdx.values()),
-                            leave=False):
+            for doc in self.searchTable.iter_docs():
                 wordIds = doc.text
                 # embed doc ids with GPT2 and add empty annotation dim
                 contextVecs = np.array(self.searchTable.word_embed(wordIds))
