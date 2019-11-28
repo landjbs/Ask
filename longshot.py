@@ -15,6 +15,8 @@ from torch.cuda import is_available as gpu_available
 
 import utils as u
 
+ZERO_BOOSTER = 0.000000001
+
 class Encoder(nn.Module):
     def __init__(self, hiddenDim, layerNum):
         '''
@@ -118,7 +120,7 @@ class LongShot(object):
 
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
-        predCorrect = predVec[0, targetId]
+        predCorrect = predVec[0, targetId] + ZERO_BOOSTER
         predLog = torch.log(predCorrect)
         return -(predLog)
 
@@ -164,6 +166,7 @@ class LongShot(object):
             decoderInput = topi.squeeze().detach()
             print(self.searchTable.char_decode([decoderInput.item()]))
             # update loss and check if decoder has ouput END char
+            print(f'TARGET: {questionTargets[decoderStep]}')
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
             print(loss)
             numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
@@ -188,11 +191,8 @@ class LongShot(object):
         Returns:
             Tuple of form (trained_encoder, trained_decoder)
         '''
-
         # initialize vecs to store loss over time
         lossVec, accVec, testLossVec, testAccVec = [], [], [], []
-
-
         print(colored(f'Training for {epochs}', 'red'), end='\r')
         # train over data for epochs
         for epoch in trange(epochs):
