@@ -11,6 +11,7 @@ from torch import nn
 from tqdm import tqdm, trange
 from termcolor import colored
 import matplotlib.pyplot as plt
+import torch.nn.functional as F
 from torch.cuda import is_available as gpu_available
 
 import utils as u
@@ -22,7 +23,7 @@ class Encoder(nn.Module):
         '''
         The Encoder Model runs an RNN over GPT2 fixed embeddings of byte-pair
         encoded, spannotated context to produce a cell state used by the Decoder
-        to predict the pertinant question.
+        to sequentially predict the pertinant question.
         NOTE: Might benefit by replacing RNN with attention mechanism.
         Args:
             hiddenDim:      The dimensionality of the cell state
@@ -85,6 +86,10 @@ class Decoder(nn.Module):
         of softmax categorical vectors across time series and hidden state
         """
         embedOut = self.embedding(torch.Tensor([prevId]).long()).view(1, 1, -1)
+        # embedOut = torch.zeros((37), dtype=torch.long)
+        # embedOut[prevId] = 1
+        # embedOut = embedOut.view(1, 1, -1)
+        embedOut = F.relu(embedOut)
         rnnOut, hidden = self.rnn(embedOut, hidden)
         denseOut = self.dense(rnnOut[0])
         outSeq = self.softmax(denseOut)
@@ -121,7 +126,6 @@ class LongShot(object):
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
         predCorrect = predVec[0, targetId] + ZERO_BOOSTER
-        print(predCorrect)
         predLog = torch.log(predCorrect)
         return (predLog)
 
@@ -161,13 +165,11 @@ class LongShot(object):
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
             (decoderOut,
-             encoderHidden) = self.decoder(decoderInput, decoderHidden)
+             decoderHidden) = self.decoder(decoderInput, decoderHidden)
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
-            # print(self.searchTable.char_decode([decoderInput.item()]))
-            print(decoderOut)
-            print([decoderInput.item()])
+            print(self.searchTable.char_decode([decoderInput.item()]), end='')
             decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
             # update loss and check if decoder has ouput END char
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
