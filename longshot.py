@@ -124,7 +124,7 @@ class LongShot(object):
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
-        return 1 if (predVec.max(1)[1] == targetId.max()) else 0
+        return 1 if (predVec.max(1)[1] == targetId) else 0
 
     def train_step(self, contextVecs, questionTargets):
         '''
@@ -157,34 +157,21 @@ class LongShot(object):
         decoderHidden = encoderHidden
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(self.decoderMax):
-            print(decoderInput)
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
-            preds = decoderOut.tolist()
-            maxPred = preds.index(max(preds))
-            confidence = max(preds)
-            # print(preds, end='\n')
-            # find what the decoder is supposed to ouput
-            if (decoderStep < targetLen):
-                curTarget = questionTargets[decoderStep]
-            else:
-                break
-            # fetch most recent decoder pred for next step input
-            _, topi = decoderOut.topk(1)
-            decoderInput = topi.squeeze().detach()
             # update loss and check if decoder has ouput END char
-            loss += self.custom_loss(decoderOut, targets[decoderStep])
-            numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
-            if decoderInput.item() == (self.batcher.openCharNum + 2):
+            loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
+            numCorrect += self.eval_accurapcy(decoderOut, questionTargets[decoderStep])
+            if decoderInput.item() == (self.endId):
                 break
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
         self.encoderOptim.step()
         self.decoderOptim.step()
-        print('-'*80)
+        print("")
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
     def train(self, epochs, plot=False):
@@ -207,7 +194,8 @@ class LongShot(object):
         print(colored(f'Training for {epochs}', 'red'), end='\r')
         # train over data for epochs
         for epoch in trange(epochs):
-            for doc in self.searchTable.iter_docs():
+            for doc in tqdm(self.searchTable.iter_docs(),
+                            total=len(self.categoryIdx.values())):
                 wordIds = doc.text
                 # embed doc ids with GPT2 and add empty annotation dim
                 contextVecs = np.array(self.searchTable.word_embed(wordIds))
