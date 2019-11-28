@@ -124,7 +124,7 @@ class LongShot(object):
 
     def eval_accuracy(self, predVec, targetId, teacherForce=True):
         """ Evaluates accuracy of prediciton """
-        return 1 if (predVec.max(1)[1] == targetId.max()) else 0
+        return 1 if (predVec.max(1)[1] == targetId) else 0
 
     def train_step(self, contextVecs, questionTargets):
         '''
@@ -166,20 +166,20 @@ class LongShot(object):
             maxPred = self.searchTable.char_decode([preds.index(max(preds))])
             print(maxPred, end='')
             # find what the decoder is supposed to ouput
-            if (decoderStep <= targetLen):
+            if (decoderStep < targetLen):
                 curTarget = questionTargets[decoderStep]
-                print(questionTargets)
             else:
-                curTarget = None
+                # curTarget = None
+                break
             # update loss and check if decoder has ouput END char
             loss += self.categorical_loss(decoderOut, curTarget)
-            numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
+            numCorrect += self.eval_accuracy(decoderOut, curTarget)
             if decoderInput.item() == self.searchTable.endToken:
                 break
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
-        encoderOptim.step()
-        decoderOptim.step()
+        self.encoderOptim.step()
+        self.decoderOptim.step()
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
     def train(self, epochs, plot=False):
