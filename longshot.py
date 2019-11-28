@@ -164,16 +164,16 @@ class LongShot(object):
             decoderInput = topi.squeeze().detach()
             preds = decoderOut.tolist()
             maxPred = self.searchTable.char_decode([preds.index(max(preds))])
-            print(maxPred)
-            # print(self.searchTable.char_decode(decoderOut))
+            print(maxPred, end='')
             # find what the decoder is supposed to ouput
             if (decoderStep <= targetLen):
                 curTarget = questionTargets[decoderStep]
+                print(questionTargets)
             else:
                 curTarget = None
             # update loss and check if decoder has ouput END char
             loss += self.categorical_loss(decoderOut, curTarget)
-            # numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
+            numCorrect += self.eval_accuracy(decoderOut, targets[decoderStep])
             if decoderInput.item() == self.searchTable.endToken:
                 break
         # backprop loss, increment optimizers, and return loss across preds
