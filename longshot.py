@@ -70,6 +70,7 @@ class Decoder(nn.Module):
         # PARAMS
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
+        self.outDim = outDim
         # LAYERS
         self.embedding = nn.Embedding(outDim, hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
@@ -125,9 +126,9 @@ class LongShot(object):
 
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
-        predCorrect = predVec[0, targetId] + ZERO_BOOSTER
+        predCorrect = predVec[targetId] + ZERO_BOOSTER
         predLog = torch.log(predCorrect)
-        return (predLog)
+        return -(predLog)
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -162,28 +163,32 @@ class LongShot(object):
         decoderInput = self.startId
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
+        print('Target: ', self.searchTable.char_decode(questionTargets))
+        print('Generated: ', end='\n')
+        genList = []
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
+            decoderOut = decoderOut[0]
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
-            print(self.searchTable.char_decode([decoderInput.item()]), end='')
+            print(decoderOut)
+            genList.append(self.searchTable.char_decode([decoderInput.item()]))
             decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
             # update loss and check if decoder has ouput END char
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
-            y = torch.zeros((self.searchTable.charEmbeddingSize, ))
-            y[questionTargets[decoderStep]] = 1
-            numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
+            # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
             if (decoderInput.item() == (self.endId)):
                 print('DONE')
                 break
+        print(''.join(genList))
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
         self.encoderOptim.step()
         self.decoderOptim.step()
-        print('')
+        print(f'\nLoss: {loss}\n{"-"*80}')
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
 
     def train(self, epochs, plot=False):

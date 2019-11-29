@@ -153,7 +153,7 @@ class SearchTable(object):
                         span = (loc, loc)
             # character-tokenize question text
             # qTokens = self.char_tokenize(q['question'] + self.endToken)
-            qTokens = self.char_tokenize('thethethethethe')
+            qTokens = self.char_tokenize('the')
             qTokenIds = self.char_encode(qTokens)
             yield Question(q['id'], qTokenIds, span)
 
