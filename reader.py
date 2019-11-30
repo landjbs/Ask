@@ -14,6 +14,8 @@ from longshot import LongShot
 
 SQUAD_PATH = 'data/inData/dev-v2.0.json'
 
-x = SearchTable(loadPath='SearchTable')
+x = SearchTable(SQUAD_PATH)
+# x = SearchTable(loadPath='SearchTable')
+x.save('SearchTable')
 z = LongShot(x)
-z.train(10)
+z.train(100)

@@ -92,9 +92,11 @@ class Decoder(nn.Module):
         # embedOut[prevId] = 1
         # embedOut = embedOut.view(1, 1, -1)
         embedOut = F.relu(embedOut)
-        print(embedOut)
+        # print(f'{"EMBEDDING "*10}\n{embedOut}\n{"EMBEDDING "*10}')
         rnnOut, hidden = self.rnn(embedOut, hidden)
+        # print(f'{"RNN "*30}\n{rnnOut}\n{"RNN "*30}')
         denseOut = self.dense(rnnOut[0])
+        # print(f'{"DENSE "*30}\n{denseOut}\n{"DENSE "*30}')
         outSeq = self.softmax(denseOut)
         return outSeq, hidden
 
@@ -117,8 +119,8 @@ class LongShot(object):
         outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum=1)
         self.decoder = Decoder(hiddenDim, outDim, layerNum=1)
-        self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=1)
-        self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=1)
+        self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=0.5)
+        self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=0.01)
         # define vars
         self.decoderMax = decoderMax
         self.startId = searchTable.char_encode([searchTable.startToken])
@@ -170,20 +172,17 @@ class LongShot(object):
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
         print('Target: ', self.searchTable.word_decode(questionTargets))
-        print('Generated: ', end='\n')
         genList = []
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
             decoderOut = decoderOut[0]
-            print(decoderOut)
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
             genList.append(self.searchTable.word_decode([decoderInput.item()]))
             decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
-            print(decoderInput)
             # update loss and check if decoder has ouput END char
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
             # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
@@ -215,15 +214,18 @@ class LongShot(object):
         print(colored(f'Training for {epochs}', 'red'))
         # train over data for epochs
         for epoch in trange(epochs):
-            for doc in self.searchTable.iter_docs():
+            for i, doc in enumerate(self.searchTable.iter_docs()):
                 wordIds = doc.text
                 # embed doc ids with GPT2 and add empty annotation dim
                 contextVecs = np.array(self.searchTable.word_embed(wordIds))
                 spanDim = np.zeros(shape=(contextVecs.shape[0], 1))
                 contextVecs = np.concatenate((contextVecs, spanDim), axis=1)
+                if i > 0:
+                    break
                 for question, span in doc.iter_questions():
                     if not span:
                         break
+                    print(f'Context: {self.searchTable.word_decode(wordIds)}')
                     # edit span dimension for current question
                     contextVecs[span[0] : span[1]+1, -1] = 1
                     # train for one step on context vecs

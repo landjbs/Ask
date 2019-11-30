@@ -125,7 +125,7 @@ class SearchTable(object):
         return ''.join(map(self.id_to_char, idList))
 
     # DATA ANALYSIS
-    def _question_extractor(self, questions, textTokens):
+    def _question_extractor(self, questions, textTokens, curNoun):
         ''' Helper to find question in table building '''
         for q in questions:
             if q['is_impossible']:
@@ -163,7 +163,8 @@ class SearchTable(object):
             # qTokenIds = self.char_encode(qTokens)
             # word-tokenize question text
             # qTokens = self.word_tokenize(q['question'])
-            qTokens = self.word_tokenize('how are you?')
+            qTokens = self.word_tokenize(f'who is {curNoun}?')
+            span = (0,0)
             qTokenIds = self.word_encode(qTokens)
             yield Question(q['id'], qTokenIds, span)
 
@@ -171,12 +172,16 @@ class SearchTable(object):
         ''' Helper to find documents in table building '''
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
-            text = document['context']
+            nounList = ['landon', 'derek', 'ben', 'lorna', 'lucy']
+            curNoun = np.random.choice(nounList)
+            text = f'{curNoun} is a member of the family.'
+            # text = document['context']
             textTokens = self.word_tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj
                            in enumerate(self._question_extractor(questions,
-                                                                 textTokens))}
+                                                                 textTokens,
+                                                                 curNoun))}
             textIds = self.word_encode(textTokens)
             yield Document(docId, title, textIds, questionIdx)
 
