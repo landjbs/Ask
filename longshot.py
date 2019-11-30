@@ -127,12 +127,12 @@ class LongShot(object):
 
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
-        targetVec = np.zeros(self.outDim)
-        targetVec[targetVec] = 1
-        return nn.LogSoftmax()(predVec)(targetVec)
-        # predCorrect = predVec[targetId] + ZERO_BOOSTER
-        # predLog = torch.log(predCorrect)
-        # return -(predLog)
+        # targetVec = np.zeros(self.decoder.outDim)
+        # targetVec[targetId] = 1
+        # return nn.LogSoftmax()(predVec)(targetVec)
+        predCorrect = predVec[targetId] + ZERO_BOOSTER
+        predLog = torch.log(predCorrect)
+        return -(predLog)
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """

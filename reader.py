@@ -12,6 +12,8 @@ To read datasets into structs
 from structs import SearchTable
 from longshot import LongShot
 
-x = SearchTable('data/inData/dev-v2.0.json')
+SQUAD_PATH = 'data/inData/dev-v2.0.json'
+
+x = SearchTable(loadPath='SearchTable')
 z = LongShot(x)
 z.train(10)
