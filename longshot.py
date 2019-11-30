@@ -171,10 +171,10 @@ class LongShot(object):
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
             decoderOut = decoderOut[0]
+            print(decoderOut)
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
-            print(decoderOut)
             genList.append(self.searchTable.char_decode([decoderInput.item()]))
             decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
             # update loss and check if decoder has ouput END char
