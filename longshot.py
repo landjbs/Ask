@@ -92,6 +92,7 @@ class Decoder(nn.Module):
         # embedOut[prevId] = 1
         # embedOut = embedOut.view(1, 1, -1)
         embedOut = F.relu(embedOut)
+        print(embedOut)
         rnnOut, hidden = self.rnn(embedOut, hidden)
         denseOut = self.dense(rnnOut[0])
         outSeq = self.softmax(denseOut)
