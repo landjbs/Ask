@@ -7,6 +7,7 @@ To read datasets into structs
 # t = GPT2Tokenizer.from_pretrained('gpt2')
 # m = GPT2LMHeadModel.from_pretrained('gpt2')
 # m.eval()
+# print(dir(t))
 
 from structs import SearchTable
 from longshot import LongShot

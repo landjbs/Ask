@@ -40,7 +40,8 @@ class Encoder(nn.Module):
     def initialize_hidden(self, device):
         """ Init hidden state passed to first RNN cell in time series """
         initTensor =  torch.zeros(1, 1, self.hiddenDim, device=device)
-        return nn.init.xavier_uniform_(initTensor).float()
+        return initTensor
+        # return nn.init.xavier_uniform_(initTensor).float()
 
     def forward(self, curVec, hidden):
         """
@@ -126,9 +127,12 @@ class LongShot(object):
 
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
-        predCorrect = predVec[targetId] + ZERO_BOOSTER
-        predLog = torch.log(predCorrect)
-        return -(predLog)
+        targetVec = np.zeros(self.outDim)
+        targetVec[targetVec] = 1
+        return nn.LogSoftmax()(predVec)(targetVec)
+        # predCorrect = predVec[targetId] + ZERO_BOOSTER
+        # predLog = torch.log(predCorrect)
+        # return -(predLog)
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -160,10 +164,11 @@ class LongShot(object):
             _ = encoderOut[0, 0]
         targetLen = len(questionTargets)
         # get id of start char to kick-off decoder
-        decoderInput = self.startId
+        # decoderInput = self.startId
+        decoderInput = self.searchTable.word_encode(['\t'])
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
-        print('Target: ', self.searchTable.char_decode(questionTargets))
+        print('Target: ', self.searchTable.word_decode(questionTargets))
         print('Generated: ', end='\n')
         genList = []
         # run decoder across encoderOuts, initializing with encoderHidden
@@ -175,12 +180,13 @@ class LongShot(object):
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
-            genList.append(self.searchTable.char_decode([decoderInput.item()]))
+            genList.append(self.searchTable.word_decode([decoderInput.item()]))
             decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
+            print(decoderInput)
             # update loss and check if decoder has ouput END char
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
             # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
-            if (decoderInput.item() == (self.endId)):
+            if (decoderInput.item() == (self.searchTable.gptTokenizer.all_special_ids)[0]):
                 print('DONE')
                 break
         print(''.join(genList))
@@ -223,3 +229,6 @@ class LongShot(object):
                     loss, acc = self.train_step(contextVecs, question)
                     # reset annotation dimension
                     contextVecs[:, -1] = 0
+                    lossVec.append(loss)
+                    accVec.append(acc)
+        return lossVec, accVec

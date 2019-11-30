@@ -55,7 +55,8 @@ class SearchTable(object):
         self.charMatcher = re.compile("|".join(charList))
         # define global vars
         self.wordEmbeddingSize = 768
-        self.charEmbeddingSize = len(charList)
+        # self.charEmbeddingSize = len(charList)
+        self.charEmbeddingSize = self.gptTokenizer.vocab_size
         # determine whether to load data
         if loadPath:
             self.load(loadPath)
@@ -100,6 +101,11 @@ class SearchTable(object):
     def word_encode(self, tokenList):
         ''' Returns id-encoded list from word-tokens using gptTokenizer '''
         return self.gptTokenizer.convert_tokens_to_ids(tokenList)
+
+    def word_decode(self, idList):
+        ''' Returns string of id-encoded list of word-tokens using gpt2 '''
+        tokenList = self.gptTokenizer.convert_ids_to_tokens(idList)
+        return self.gptTokenizer.convert_tokens_to_string(tokenList)
 
     def word_embed(self, idList):
         ''' Returns list of embedding vectors for ids !USES LOOKUP: BAD! '''
@@ -153,8 +159,12 @@ class SearchTable(object):
                         span = (loc, loc)
             # character-tokenize question text
             # qTokens = self.char_tokenize(q['question'] + self.endToken)
-            qTokens = self.char_tokenize('the')
-            qTokenIds = self.char_encode(qTokens)
+            # qTokens = self.char_tokenize('the.best')
+            # qTokenIds = self.char_encode(qTokens)
+            # word-tokenize question text
+            # qTokens = self.word_tokenize(q['question'])
+            qTokens = self.word_tokenize('how are you?')
+            qTokenIds = self.word_encode(qTokens)
             yield Question(q['id'], qTokenIds, span)
 
     def _document_extractor(self, category):
