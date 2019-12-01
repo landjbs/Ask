@@ -216,7 +216,6 @@ class LongShot(object):
                 print('DONE')
                 break
             decoderInput = teacherInput
-        print(f'LOSS: {loss}')
         print(''.join([self.searchTable.word_decode([x]) for x in genList]))
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
@@ -258,7 +257,6 @@ class LongShot(object):
         lossVec, accVec, testLossVec, testAccVec = [], [], [], []
         print(colored(f'Training for {epochs}', 'red'))
         # train over data for epochs
-        round = 1
         for epoch in trange(epochs):
             for doc in self.searchTable.iter_docs():
                 wordIds = doc.text
@@ -266,23 +264,21 @@ class LongShot(object):
                 contextVecs = np.array(self.searchTable.word_embed(wordIds))
                 spanDim = np.zeros(shape=(contextVecs.shape[0], 1))
                 contextVecs = np.concatenate((contextVecs, spanDim), axis=1)
-                i = 0
                 for question, span in doc.iter_questions():
                     if not span:
                         break
                     if i > 0:
                         break
-                    print(f'Context: {self.searchTable.word_decode(wordIds)}')
-                    # edit span dimension for current question
-                    contextVecs[span[0] : span[1]+1, -1] = 1
-                    # train for one step on context vecs
-                    loss, acc = self.train_step(contextVecs, question)
-                    # reset annotation dimension
-                    contextVecs[:, -1] = 0
-                    lossVec.append(loss)
-                    accVec.append(acc)
-                    i += 1
-                    # round += 1
-                    if (round % 50) == 0:
-                        self.manual_test()
+                    for _ in range(100):
+                        print(f'Context: {self.searchTable.word_decode(wordIds)}')
+                        # edit span dimension for current question
+                        contextVecs[span[0] : span[1]+1, -1] = 1
+                        # train for one step on context vecs
+                        loss, acc = self.train_step(contextVecs, question)
+                        # reset annotation dimension
+                        contextVecs[:, -1] = 0
+                        lossVec.append(loss)
+                        accVec.append(acc)
+                        if (round % 50) == 0:
+                            self.manual_test()
         return lossVec, accVec
