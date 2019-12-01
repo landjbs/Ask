@@ -157,7 +157,6 @@ class LongShot(object):
         questionTargets = set(questionTargets)
         for prev in prevIds:
             if prev in questionTargets:
-                print(self.searchTable.word_decode(prev))
                 questionTargets.remove(prev)
         for target in questionTargets:
             predStrength = predVec[target] + ZERO_BOOSTER
