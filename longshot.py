@@ -119,8 +119,8 @@ class LongShot(object):
         outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum=1)
         self.decoder = Decoder(hiddenDim, outDim, layerNum=1)
-        self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=0.01)
-        self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=0.01)
+        self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=0.0005)
+        self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=0.0005)
         # define vars
         self.decoderMax = decoderMax
         self.startId = searchTable.char_encode([searchTable.startToken])
@@ -136,6 +136,14 @@ class LongShot(object):
         predCorrect = predVec[targetId] + ZERO_BOOSTER
         predLog = torch.log(predCorrect)
         return -(predLog)
+
+    def total_loss(self, predVec, trueList):
+        curLoss = 0
+        for trueElt in trueList:
+            predCorrect = predVec[trueElt] + ZERO_BOOSTER
+            predLog = torch.log(predCorrect)
+            curLoss -= predLog
+        return loss
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -172,30 +180,29 @@ class LongShot(object):
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
         print('Target: ', self.searchTable.word_decode(questionTargets))
-        genList = []
-        repList = []
+        genList, trueList = [], []
+        outVec = torch.zeros(self.decoder.outDim)
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
             decoderOut = decoderOut[0]
+            outVec += decoderOut
             # fetch most recent decoder pred for next step input
-            # _, topi = decoderOut.topk(1)
-            # decoderInput = topi.squeeze().detach()
-            outList = decoderOut.tolist()
-            maxElt = outList.index(max(outList))
-            decoderInput = torch.tensor(maxElt)
-            print(decoderInput)
-            # decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
+            _, topi = decoderOut.topk(1)
+            decoderInput = topi.squeeze().detach()
+            genList.append(decoderInput.item())
+            teacherInput = torch.Tensor([questionTargets[decoderStep]]).float()
+            trueList.append(teacherInput)
             # update loss and check if decoder has ouput END char
-            loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
+            # loss += self.custom_loss(decoderOut, teacherInput)
             # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
-            genList.append(self.searchTable.word_decode([decoderInput.item()]))
-            repList.append(decoderInput.item())
             if (decoderInput.item() == (self.searchTable.gptTokenizer.all_special_ids)[0]):
                 print('DONE')
                 break
-        print(''.join(genList))
+            decoderInput = teacherInput
+        loss += self.total_loss(outVec, trueList)
+        print(''.join([self.searchTable.word_decode([x]) for x in genList]))
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
         self.encoderOptim.step()
