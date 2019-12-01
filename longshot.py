@@ -132,15 +132,25 @@ class LongShot(object):
         """ Custom loss function to play with """
         predCorrect = predVec[targetId] + ZERO_BOOSTER
         predLog = torch.log(predCorrect)
-        return -(predLog)
+        loss = -(predLog)
+        return loss
 
-    def total_loss(self, outVec, trueList):
+    def total_loss(self, outVec, trueList, decoderOut):
         numC = 0
+        r = decoderOut[0] * 0
+        print(r)
+        print(outVec)
         for trueElt in set(trueList):
-            trueElt = trueElt[0]
+            trueElt = trueElt[0].item()
+            print(trueElt)
             if trueElt in outVec:
                 numC += 1
-        return 10 * (1 - (numC / len(outVec)))
+                print(self.searchTable.word_decode(trueElt))
+        rawLoss = r + torch.tensor((numC / len(outVec)) + ZERO_BOOSTER)
+        print(f'RAW: {rawLoss}')
+        loss = -(torch.log(rawLoss))
+        print(f'Log: {loss}')
+        return loss
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -196,7 +206,8 @@ class LongShot(object):
                 print('DONE')
                 break
             decoderInput = teacherInput
-        loss += self.total_loss(genList, trueList)
+        loss += self.total_loss(genList, trueList, decoderOut)
+        print(loss)
         print(''.join([self.searchTable.word_decode([x]) for x in genList]))
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
