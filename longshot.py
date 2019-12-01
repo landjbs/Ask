@@ -152,11 +152,15 @@ class LongShot(object):
         print(f'Log: {loss}')
         return loss
 
-    def general_loss(self, predVec, questionTargets):
+    def general_loss(self, predVec, questionTargets, prevIds):
         curLoss = 0
-        for target in questionTargets:
-            print(target)
-            curLoss -= torch.log(predVec[target] + ZERO_BOOSTER)
+        questionTargets = set(questionTargets)
+        for prev in questionTargets:
+            if prev in questionTargets:
+                questionTargets.remove(prev)
+        for target in set(questionTargets):
+            predStrength = predVec[target] + ZERO_BOOSTER
+            curLoss -= torch.log(predStrength)
         return curLoss
 
     def eval_accuracy(self, predVec, targetId):
@@ -203,12 +207,12 @@ class LongShot(object):
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
-            genList.append(decoderInput.item())
             teacherInput = torch.Tensor([questionTargets[decoderStep]]).long()
             trueList.append(teacherInput)
             # update loss and check if decoder has ouput END char
             # loss += self.categorical_loss(decoderOut, teacherInput)
-            loss += self.general_loss(decoderOut, questionTargets)
+            loss += self.general_loss(decoderOut, questionTargets, genList)
+            genList.append(decoderInput.item())
             # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
             if (decoderInput.item() == (self.searchTable.gptTokenizer.all_special_ids)[0]):
                 print('DONE')
