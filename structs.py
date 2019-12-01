@@ -162,9 +162,9 @@ class SearchTable(object):
             # qTokens = self.char_tokenize('the.best')
             # qTokenIds = self.char_encode(qTokens)
             # word-tokenize question text
-            # qTokens = self.word_tokenize(q['question'])
-            qTokens = self.word_tokenize(f'who is {curNoun}?')
-            span = (0,0)
+            qTokens = self.word_tokenize(q['question'])
+            # qTokens = self.word_tokenize(f'who is {curNoun}?')
+            # span = (0,0)
             qTokenIds = self.word_encode(qTokens)
             yield Question(q['id'], qTokenIds, span)
 
@@ -172,10 +172,10 @@ class SearchTable(object):
         ''' Helper to find documents in table building '''
         title = category['title']
         for docId, document in enumerate(category['paragraphs']):
-            nounList = ['landon', 'derek', 'ben', 'lorna', 'lucy']
+            nounList = [c for c in 'abcdefghijklmnoqrstuvwxyz']
             curNoun = np.random.choice(nounList)
             text = f'{curNoun} is a member of the family.'
-            # text = document['context']
+            text = document['context']
             textTokens = self.word_tokenize(text)
             questions = document['qas']
             questionIdx = {i : qObj for i, qObj

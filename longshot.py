@@ -119,7 +119,7 @@ class LongShot(object):
         outDim = searchTable.charEmbeddingSize
         self.encoder = Encoder(hiddenDim, layerNum=1)
         self.decoder = Decoder(hiddenDim, outDim, layerNum=1)
-        self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=0.5)
+        self.encoderOptim = torch.optim.Adam(self.encoder.parameters(), lr=0.01)
         self.decoderOptim = torch.optim.Adam(self.decoder.parameters(), lr=0.01)
         # define vars
         self.decoderMax = decoderMax
@@ -213,17 +213,19 @@ class LongShot(object):
         lossVec, accVec, testLossVec, testAccVec = [], [], [], []
         print(colored(f'Training for {epochs}', 'red'))
         # train over data for epochs
+        round = 1
         for epoch in trange(epochs):
-            for i, doc in enumerate(self.searchTable.iter_docs()):
+            for doc in self.searchTable.iter_docs():
                 wordIds = doc.text
                 # embed doc ids with GPT2 and add empty annotation dim
                 contextVecs = np.array(self.searchTable.word_embed(wordIds))
                 spanDim = np.zeros(shape=(contextVecs.shape[0], 1))
                 contextVecs = np.concatenate((contextVecs, spanDim), axis=1)
-                if i > 0:
-                    break
+                i = 0
                 for question, span in doc.iter_questions():
                     if not span:
+                        break
+                    if i > 0:
                         break
                     print(f'Context: {self.searchTable.word_decode(wordIds)}')
                     # edit span dimension for current question
@@ -234,4 +236,22 @@ class LongShot(object):
                     contextVecs[:, -1] = 0
                     lossVec.append(loss)
                     accVec.append(acc)
+                    i += 1
+                    # round += 1
+                    if (round % 50) == 0:
+                        print(f'{"-"*80}')
+                        while True:
+                            t = input('text: ')
+                            if t == 'break':
+                                break
+                            span = (0,0)
+                            tTokens = self.searchTable.word_tokenize(t)
+                            tIds = self.searchTable.word_encode(tTokens)
+                            tVecs = np.array(self.searchTable.word_embed(tIds))
+                            spanDim = np.zeros(shape=(tVecs.shape[0], 1))
+                            tVecs = np.concatenate((tVecs, spanDim), axis=1)
+                            q = input('question: ')
+                            qTokens = self.searchTable.word_tokenize(q)
+                            qIds = self.searchTable.word_encode(qTokens)
+                            self.train_step(tVecs, qIds)
         return lossVec, accVec
