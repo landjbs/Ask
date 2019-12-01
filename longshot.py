@@ -130,12 +130,12 @@ class LongShot(object):
 
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
-        targetVec = torch.zeros(self.decoder.outDim)
-        targetVec[targetId] = 1
-        return nn.LogSoftmax()(predVec, targetId)
-        # predCorrect = predVec[targetId] + ZERO_BOOSTER
-        # predLog = torch.log(predCorrect)
-        # return -(predLog)
+        # targetVec = torch.zeros(self.decoder.outDim)
+        # targetVec[targetId] = 1
+        # return nn.LogSoftmax()(predVec, targetId)
+        predCorrect = predVec[targetId] + ZERO_BOOSTER
+        predLog = torch.log(predCorrect)
+        return -(predLog)
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -180,11 +180,14 @@ class LongShot(object):
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
             decoderOut = decoderOut[0]
             # fetch most recent decoder pred for next step input
-            _, topi = decoderOut.topk(1)
-            decoderInput = topi.squeeze().detach()
+            # _, topi = decoderOut.topk(1)
+            # decoderInput = topi.squeeze().detach()
+            outList = decoderOut.tolist()
+            maxElt = outList.index(max(outList))
+            decoderInput = torch.tensor(maxElt)
+            print(decoderInput)
             # decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
             # update loss and check if decoder has ouput END char
-            isIn = True if decoderInput in repList else False
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
             # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
             genList.append(self.searchTable.word_decode([decoderInput.item()]))
