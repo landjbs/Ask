@@ -210,7 +210,6 @@ class LongShot(object):
             teacherInput = torch.Tensor([questionTargets[decoderStep]]).long()
             # update loss and check if decoder has ouput END char
             loss += self.categorical_loss(decoderOut, teacherInput)
-            # loss += self.general_loss(decoderOut, questionTargets, genList)
             numCorrect += self.eval_accuracy(decoderInput, teacherInput)
             genList.append(decoderInput.item())
             if (decoderInput.item() == (self.searchTable.gptTokenizer.all_special_ids)[0]):
@@ -223,8 +222,25 @@ class LongShot(object):
         loss.backward()
         self.encoderOptim.step()
         self.decoderOptim.step()
-        print(f'\nLoss: {loss}\n{"-"*80}')
+        print(f'\nLoss: {loss} Acc: {numCorrect}\n{"-"*80}')
         return (loss.item() / decoderStep), (numCorrect / decoderStep)
+
+    def manual_test(self):
+        print(f'{"-"*80}')
+        while True:
+            t = input('text: ')
+            if t == 'break':
+                break
+            span = (0,0)
+            tTokens = self.searchTable.word_tokenize(t)
+            tIds = self.searchTable.word_encode(tTokens)
+            tVecs = np.array(self.searchTable.word_embed(tIds))
+            spanDim = np.zeros(shape=(tVecs.shape[0], 1))
+            tVecs = np.concatenate((tVecs, spanDim), axis=1)
+            q = input('question: ')
+            qTokens = self.searchTable.word_tokenize(q)
+            qIds = self.searchTable.word_encode(qTokens)
+            self.train_step(tVecs, qIds)
 
     def train(self, epochs, plot=False):
         '''
@@ -268,19 +284,5 @@ class LongShot(object):
                     i += 1
                     # round += 1
                     if (round % 50) == 0:
-                        print(f'{"-"*80}')
-                        while True:
-                            t = input('text: ')
-                            if t == 'break':
-                                break
-                            span = (0,0)
-                            tTokens = self.searchTable.word_tokenize(t)
-                            tIds = self.searchTable.word_encode(tTokens)
-                            tVecs = np.array(self.searchTable.word_embed(tIds))
-                            spanDim = np.zeros(shape=(tVecs.shape[0], 1))
-                            tVecs = np.concatenate((tVecs, spanDim), axis=1)
-                            q = input('question: ')
-                            qTokens = self.searchTable.word_tokenize(q)
-                            qIds = self.searchTable.word_encode(qTokens)
-                            self.train_step(tVecs, qIds)
+                        self.manual_test()
         return lossVec, accVec
