@@ -130,12 +130,12 @@ class LongShot(object):
 
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
-        # targetVec = np.zeros(self.decoder.outDim)
-        # targetVec[targetId] = 1
-        # return nn.LogSoftmax()(predVec)(targetVec)
-        predCorrect = predVec[targetId] + ZERO_BOOSTER
-        predLog = torch.log(predCorrect)
-        return -(predLog)
+        targetVec = torch.zeros(self.decoder.outDim)
+        targetVec[targetId] = 1
+        return nn.LogSoftmax()(predVec, targetId)
+        # predCorrect = predVec[targetId] + ZERO_BOOSTER
+        # predLog = torch.log(predCorrect)
+        # return -(predLog)
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -173,6 +173,7 @@ class LongShot(object):
         decoderHidden = encoderHidden
         print('Target: ', self.searchTable.word_decode(questionTargets))
         genList = []
+        repList = []
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
             (decoderOut,
@@ -181,11 +182,13 @@ class LongShot(object):
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
-            genList.append(self.searchTable.word_decode([decoderInput.item()]))
-            decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
+            # decoderInput = torch.Tensor([questionTargets[decoderStep]]).float()
             # update loss and check if decoder has ouput END char
+            isIn = True if decoderInput in repList else False
             loss += self.custom_loss(decoderOut, questionTargets[decoderStep])
             # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
+            genList.append(self.searchTable.word_decode([decoderInput.item()]))
+            repList.append(decoderInput.item())
             if (decoderInput.item() == (self.searchTable.gptTokenizer.all_special_ids)[0]):
                 print('DONE')
                 break
