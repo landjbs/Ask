@@ -155,10 +155,11 @@ class LongShot(object):
     def general_loss(self, predVec, questionTargets, prevIds):
         curLoss = 0
         questionTargets = set(questionTargets)
-        for prev in questionTargets:
+        for prev in prevIds:
             if prev in questionTargets:
+                print(self.searchTable.word_decode(prev))
                 questionTargets.remove(prev)
-        for target in set(questionTargets):
+        for target in questionTargets:
             predStrength = predVec[target] + ZERO_BOOSTER
             curLoss -= torch.log(predStrength)
         return curLoss
@@ -198,7 +199,7 @@ class LongShot(object):
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
         print('Target: ', self.searchTable.word_decode(questionTargets))
-        genList, trueList = [], []
+        genList = []
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
             (decoderOut,
@@ -208,7 +209,6 @@ class LongShot(object):
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
             teacherInput = torch.Tensor([questionTargets[decoderStep]]).long()
-            trueList.append(teacherInput)
             # update loss and check if decoder has ouput END char
             # loss += self.categorical_loss(decoderOut, teacherInput)
             loss += self.general_loss(decoderOut, questionTargets, genList)
