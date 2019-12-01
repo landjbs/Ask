@@ -134,14 +134,13 @@ class LongShot(object):
         predLog = torch.log(predCorrect)
         return -(predLog)
 
-    def total_loss(self, genList, trueList):
-        curLoss = 0
-        for trueElt in trueList:
+    def total_loss(self, outVec, trueList):
+        numC = 0
+        for trueElt in set(trueList):
             trueElt = trueElt[0]
-            predCorrect = min(torch.tensor([0.001]), predVec[trueElt] + ZERO_BOOSTER)
-            predLog = -(torch.log(predCorrect))
-            curLoss += predLog
-        return curLoss
+            if trueElt in outVec:
+                numC += 1
+        return 10 * (1 - (numC / len(outVec)))
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
