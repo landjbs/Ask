@@ -140,10 +140,12 @@ class LongShot(object):
     def total_loss(self, predVec, trueList):
         curLoss = 0
         for trueElt in trueList:
-            predCorrect = predVec[trueElt] + ZERO_BOOSTER
+            trueElt = trueElt[0]
+            predCorrect = min(torch.tensor([0.8]), predVec[trueElt] + ZERO_BOOSTER)
             predLog = torch.log(predCorrect)
             curLoss -= predLog
-        return loss
+        print(curLoss)
+        return curLoss
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -192,7 +194,7 @@ class LongShot(object):
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
             genList.append(decoderInput.item())
-            teacherInput = torch.Tensor([questionTargets[decoderStep]]).float()
+            teacherInput = torch.Tensor([questionTargets[decoderStep]]).long()
             trueList.append(teacherInput)
             # update loss and check if decoder has ouput END char
             # loss += self.custom_loss(decoderOut, teacherInput)
