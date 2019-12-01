@@ -163,9 +163,9 @@ class LongShot(object):
             curLoss -= torch.log(predStrength)
         return curLoss
 
-    def eval_accuracy(self, predVec, targetId):
+    def eval_accuracy(self, prediction, target):
         """ Evaluates accuracy of prediciton """
-        return 1 if (predVec.max(1)[1] == targetId) else 0
+        return 1 if (prediction == target) else 0
 
     def train_step(self, contextVecs, questionTargets):
         '''
@@ -209,10 +209,10 @@ class LongShot(object):
             decoderInput = topi.squeeze().detach()
             teacherInput = torch.Tensor([questionTargets[decoderStep]]).long()
             # update loss and check if decoder has ouput END char
-            # loss += self.categorical_loss(decoderOut, teacherInput)
-            loss += self.general_loss(decoderOut, questionTargets, genList)
+            loss += self.categorical_loss(decoderOut, teacherInput)
+            # loss += self.general_loss(decoderOut, questionTargets, genList)
+            numCorrect += self.eval_accuracy(decoderInput, teacherInput)
             genList.append(decoderInput.item())
-            # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
             if (decoderInput.item() == (self.searchTable.gptTokenizer.all_special_ids)[0]):
                 print('DONE')
                 break
