@@ -128,14 +128,14 @@ class LongShot(object):
         self.searchTable = searchTable
         self.device = torch.device("cuda" if gpu_available() else "cpu")
 
-    def custom_loss(self, predVec, targetId):
+    def categorical_loss(self, predVec, targetId):
         """ Custom loss function to play with """
         predCorrect = predVec[targetId] + ZERO_BOOSTER
         predLog = torch.log(predCorrect)
         loss = -(predLog)
         return loss
 
-    def total_loss(self, outVec, trueList, decoderOut):
+    def inclusion_loss(self, outVec, trueList, decoderOut):
         numC = 0
         r = decoderOut[0] * 0
         print(r)
@@ -151,6 +151,13 @@ class LongShot(object):
         loss = -(torch.log(rawLoss))
         print(f'Log: {loss}')
         return loss
+
+    def general_loss(self, predVec, questionTargets):
+        curLoss = 0
+        for target in questionTargets:
+            print(target)
+            curLoss -= torch.log(predVec[target] + ZERO_BOOSTER)
+        return curLoss
 
     def eval_accuracy(self, predVec, targetId):
         """ Evaluates accuracy of prediciton """
@@ -200,14 +207,14 @@ class LongShot(object):
             teacherInput = torch.Tensor([questionTargets[decoderStep]]).long()
             trueList.append(teacherInput)
             # update loss and check if decoder has ouput END char
-            # loss += self.custom_loss(decoderOut, teacherInput)
+            # loss += self.categorical_loss(decoderOut, teacherInput)
+            loss += self.general_loss(decoderOut, questionTargets)
             # numCorrect += self.eval_accuracy(decoderOut, questionTargets[decoderStep])
             if (decoderInput.item() == (self.searchTable.gptTokenizer.all_special_ids)[0]):
                 print('DONE')
                 break
             decoderInput = teacherInput
-        loss += self.total_loss(genList, trueList, decoderOut)
-        print(loss)
+        print(f'LOSS: {loss}')
         print(''.join([self.searchTable.word_decode([x]) for x in genList]))
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
