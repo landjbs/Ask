@@ -130,21 +130,17 @@ class LongShot(object):
 
     def custom_loss(self, predVec, targetId):
         """ Custom loss function to play with """
-        # targetVec = torch.zeros(self.decoder.outDim)
-        # targetVec[targetId] = 1
-        # return nn.LogSoftmax()(predVec, targetId)
         predCorrect = predVec[targetId] + ZERO_BOOSTER
         predLog = torch.log(predCorrect)
         return -(predLog)
 
-    def total_loss(self, predVec, trueList):
+    def total_loss(self, genList, trueList):
         curLoss = 0
         for trueElt in trueList:
             trueElt = trueElt[0]
-            predCorrect = min(torch.tensor([0.8]), predVec[trueElt] + ZERO_BOOSTER)
-            predLog = torch.log(predCorrect)
-            curLoss -= predLog
-        print(curLoss)
+            predCorrect = min(torch.tensor([0.001]), predVec[trueElt] + ZERO_BOOSTER)
+            predLog = -(torch.log(predCorrect))
+            curLoss += predLog
         return curLoss
 
     def eval_accuracy(self, predVec, targetId):
@@ -183,13 +179,11 @@ class LongShot(object):
         decoderHidden = encoderHidden
         print('Target: ', self.searchTable.word_decode(questionTargets))
         genList, trueList = [], []
-        outVec = torch.zeros(self.decoder.outDim)
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
             (decoderOut,
              decoderHidden) = self.decoder(decoderInput, decoderHidden)
             decoderOut = decoderOut[0]
-            outVec += decoderOut
             # fetch most recent decoder pred for next step input
             _, topi = decoderOut.topk(1)
             decoderInput = topi.squeeze().detach()
@@ -203,7 +197,7 @@ class LongShot(object):
                 print('DONE')
                 break
             decoderInput = teacherInput
-        loss += self.total_loss(outVec, trueList)
+        loss += self.total_loss(genList, trueList)
         print(''.join([self.searchTable.word_decode([x]) for x in genList]))
         # backprop loss, increment optimizers, and return loss across preds
         loss.backward()
