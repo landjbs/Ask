@@ -23,7 +23,34 @@ import utils as u
 
 ZERO_BOOSTER = 0.000000001
 
-class AnswerEncoder(nn.Module:
+class QuestionEncoder(nn.Module):
+    '''
+    The QuestionEncoder reads over GPT2 vecs of question tokens to encode
+    cell state representing pertinent question. Also used in LongShot
+    for CLS vector of question approx.
+    '''
+    super(AnswerModel, self).__init__()
+    self.hiddenDim = hiddenDim
+    self.layerNum = layerNum
+    self.rnn = nn.GRU(input_size=hiddenDim,
+                      hidden_size=hiddenDim,
+                      num_layers=layerNum,
+                      batch_first=True)
+    def initialize_hidden(self, device):
+        """ Init hidden state passed to first RNN cell in time series """
+        initTensor =  torch.zeros(1, 1, self.hiddenDim, device=device)
+        return initTensor
+        # return nn.init.xavier_uniform_(initTensor).float()
+
+    def forward(self, curVec, hidden):
+        """
+        Forward pass over GPT2 embedding vectors updates rnn cell state for
+        later decoding
+        """
+        curVec = torch.tensor(curVec).float()
+        curVec = curVec.view(1, 1, -1)
+        outSeq, hidden = self.rnn(curVec, hidden)
+        return outSeq, hidden              
 
 
 class AnswerRNN(nn.Module):
