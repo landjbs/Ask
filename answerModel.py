@@ -29,7 +29,7 @@ class QuestionEncoder(nn.Module):
     cell state representing pertinent question. Also used in LongShot
     for CLS vector of question approx.
     '''
-    super(AnswerModel, self).__init__()
+    super(QuestionEncoder, self).__init__()
     self.hiddenDim = hiddenDim
     self.layerNum = layerNum
     self.rnn = nn.GRU(input_size=hiddenDim,
@@ -50,27 +50,21 @@ class QuestionEncoder(nn.Module):
         curVec = torch.tensor(curVec).float()
         curVec = curVec.view(1, 1, -1)
         outSeq, hidden = self.rnn(curVec, hidden)
-        return outSeq, hidden              
-
+        return outSeq, hidden
 
 class AnswerRNN(nn.Module):
     def __init__(self, hiddenDim, layerNum):
         '''
-        The Answer RNN reads over GPT2 encdoded context questions
+        The Answer RNN reads over GPT2 encdoded context questions after being
+        initialized by cell state of QuesitonEncoder
         '''
-        super(AnswerModel, self).__init__()
+        super(AnswerRNN, self).__init__()
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
                           batch_first=True)
-
-    def initialize_hidden(self, device):
-        """ Init hidden state passed to first RNN cell in time series """
-        initTensor =  torch.zeros(1, 1, self.hiddenDim, device=device)
-        return initTensor
-        # return nn.init.xavier_uniform_(initTensor).float()
 
     def forward(self, curVec, hidden):
         """
