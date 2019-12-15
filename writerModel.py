@@ -69,11 +69,12 @@ def generate(model, length, context, num_samples=1, temperature=0.7, top_k=0,
     return generated
 
 while True:
-    preText = 'It was a cold winter in Russia, and the consumption hung low in the air. He buttoned his coat and disappeared into the snow.\n'
+    preText = ('Gender and Fashion: An Exploration of Post Modernist Theory '
+               'Through the Lens of  ')
     initText = input('text: ')
     text = preText + initText
     context_tokens = tokenizer.encode(text, add_special_tokens=False)
-    out = (generate(model, 100, context_tokens))
+    out = (generate(model, 500, context_tokens))
     out = out[:, len(context_tokens):].tolist()
     outText = initText.strip() + ' '.join(tokenizer.decode(o, clean_up_tokenization_spaces=True) for o in out)
     print(f'{outText}\n{"-"*80}')
