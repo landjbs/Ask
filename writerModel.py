@@ -69,9 +69,10 @@ def generate(model, length, context, num_samples=1, temperature=0.7, top_k=0,
     return generated
 
 while True:
-    preText = ('Gender and Fashion: An Exploration of Post Modernist Theory '
+    preText = ''
+    # initText = input('text: ')
+    initTest = ('Gender and Fashion: An Exploration of Post Modernist Theory '
                'Through the Lens of  ')
-    initText = input('text: ')
     text = preText + initText
     context_tokens = tokenizer.encode(text, add_special_tokens=False)
     out = (generate(model, 500, context_tokens))
