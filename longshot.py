@@ -267,9 +267,9 @@ class LongShot(object):
                 for question, span in doc.iter_questions():
                     if not span:
                         break
-                    if i > 0:
-                        break
-                    for _ in range(100):
+                    # if i > 0:
+                    #     break
+                    for _ in range(5):
                         print(f'Context: {self.searchTable.word_decode(wordIds)}')
                         # edit span dimension for current question
                         contextVecs[span[0] : span[1]+1, -1] = 1
@@ -279,6 +279,6 @@ class LongShot(object):
                         contextVecs[:, -1] = 0
                         lossVec.append(loss)
                         accVec.append(acc)
-                        if (round % 50) == 0:
-                            self.manual_test()
+                        # if (round % 50) == 0:
+                        #     self.manual_test()
         return lossVec, accVec

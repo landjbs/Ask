@@ -71,10 +71,19 @@ def generate(model, length, context, num_samples=1, temperature=0.7, top_k=0,
 while True:
     preText = ''
     # initText = input('text: ')
-    initTest = ('Gender and Fashion: An Exploration of Post Modernist Theory '
-               'Through the Lens of  ')
+    initText = ('Gender and Fashion: An Exploration of Post Modernist Theory '
+                'Through the Lens of Design\n\tIn 1932, Freda Parks pioneered '
+                'a groundbreaking dress called the Short Skirt. By 1945, the '
+                'piece had earned a place in the annals of fashion history, '
+                'with over ten million skirts sold. This rise to prominence '
+                'heralded a shift in the societal expectation placed upon '
+                'women. The Short Skirt empowered women to wear more revealing '
+                'clothing and to subvert the patriarchial culture that '
+                'had designed their oppression. This shift had several '
+                'implications in the realm of social philosophy.  ')
     text = preText + initText
     context_tokens = tokenizer.encode(text, add_special_tokens=False)
+    print('Encoded')
     out = (generate(model, 500, context_tokens))
     out = out[:, len(context_tokens):].tolist()
     outText = initText.strip() + ' '.join(tokenizer.decode(o, clean_up_tokenization_spaces=True) for o in out)
