@@ -30,9 +30,15 @@ class Lang(object):
         selects = np.random.randint(0, self.voxLen, size=inLen)
         inWords = [self.inIdx[id] for id in selects]
         outWords = [self.transIdx[w] for w in inWords]
-        inStr = ' '.join(inWords)
-        outStr = ' '.join(outWords)
         return (inStr, outStr)
+
+    def str_seq(self, seq, n):
+        if n==0:
+            return ' '.join((self.inIdx[id] for id in seq))
+        elif n==1:
+            return ' '.join((self.outIdx[id] for id in seq))
+        else:
+            raise ValueError('n must be in {0, 1}')
 
 
 # inVocab = ['hi', 'you', 'are', 'cool']
