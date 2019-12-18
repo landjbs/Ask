@@ -27,10 +27,15 @@ class Lang(object):
 
     def gen_seqPair(self, inLen):
         ''' gen pair of context, question tuple '''
-        selects = np.random.randint(0, self.voxLen, size=inLen)
+        inIds = np.random.randint(0, self.voxLen, size=inLen)
         inWords = [self.inIdx[id] for id in selects]
         outWords = [self.transIdx[w] for w in inWords]
-        return (inStr, outStr)
+        outIds = [self.outIdx[w] for w in outWords]
+        inTensor = torch.tensor(inIds, dtype=torch.long,
+                                device=device).view(-1, 1)
+        outTensor = torch.tensor(outIds, dtype=torch.long,
+                                device=device).view(-1, 1)
+        return (inTensor, outTensor)
 
     def str_seq(self, seq, n):
         if n==0:
