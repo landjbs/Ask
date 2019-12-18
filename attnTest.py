@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 from torch.cuda import is_available as gpu_available
 
+device = torch.device("cuda" if gpu_available() else "cpu")
 
 class Lang(object):
     def __init__(self, inVocab, outVocab):
@@ -28,9 +29,9 @@ class Lang(object):
     def gen_seqPair(self, inLen):
         ''' gen pair of context, question tuple '''
         inIds = np.random.randint(0, self.voxLen, size=inLen)
-        inWords = [self.inIdx[id] for id in selects]
+        inWords = [self.inIdx[id] for id in inIds]
         outWords = [self.transIdx[w] for w in inWords]
-        outIds = [self.outIdx[w] for w in outWords]
+        outIds = [self.outRev[w] for w in outWords]
         inTensor = torch.tensor(inIds, dtype=torch.long,
                                 device=device).view(-1, 1)
         outTensor = torch.tensor(outIds, dtype=torch.long,
