@@ -162,10 +162,8 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     return loss.item() / target_length
 
 
-
 import time
 import math
-
 
 def asMinutes(s):
     m = math.floor(s / 60)
