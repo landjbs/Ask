@@ -77,8 +77,15 @@ class Q_Decoder(nn.Module):
         self.hiddenDim = hiddenDim
         self.outDim = outDim
         # layers
+        self.embedding = nn.Embedding(outDim, hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
-                          hidden_size=hiddenDim,)
+                          hidden_size=hiddenDim)
+        self.out = nn.Linear(in_features=hiddenDim, out_features=outDim)
+        self.softmax = nn.LogSoftmax(dim=1)
+
+    def forward(self, inputId, hidden):
+        out = self.embedding(inputId).view(1, 1, -1)
+        out = F.relu(out)
 
 
 
