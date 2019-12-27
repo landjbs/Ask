@@ -71,26 +71,29 @@ class C_Encoder(nn.Module):
 
 
 class Q_Decoder(nn.Module):
-    def __init__(self, hiddenDim, outDim, maxLen, dropout):
+    def __init__(self, hiddenDim, outDim, maxLen, dropoutPercent):
         super(Q_Decoder, self).__init__()
         # attributes
         self.hiddenDim = hiddenDim
         self.outDim = outDim
         self.maxLen = maxLen
-        self.dropout = dropout
+        self.dropoutPercent = dropoutPercent
         # layers
         self.embedding = nn.Embedding(outDim, hiddenDim)
         self.attn = nn.Linear(in_features=(2*hiddenDim),
                               out_features=maxLen)
         self.attn_combine = nn.Linear(in_features=(2*hiddenDim),
                                       out_features=hiddenDim)
+        self.dropout = nn.Dropout(p=dropoutPercent)
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim)
         self.out = nn.Linear(in_features=hiddenDim, out_features=outDim)
         self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, inputId, hidden):
+        # embed idea and dropout
         out = self.embedding(inputId).view(1, 1, -1)
+        out = self.dropout()
         out = F.relu(out)
         out, hidden = self.rnn(out)
 
