@@ -19,11 +19,20 @@ ZERO_BOOSTER = 0.000000001
 
 
 class Q_Encoder(nn.Module):
-    def __init__(self, hiddenSize, layerNum):
+    def __init__(self, inputSize, hiddenSize, layerNum):
         super(Q_Encocer, self).__init__()
+        # attributes
+        self.inputSize = inputSize
         self.hiddenSize = hiddenSize
         self.layerNum = layerNum
-
+        # layers
+        self.embedding = nn.Embedding(inputSize, hiddenSize)
+        self.rnn = nn.GRU(input_size=hiddenDim,
+                          hidden_size=hiddenDim,
+                          num_layers=layerNum,
+                          batch_first=True,
+                          bidirectional=True)
+        self.sig = nn.Sigmoid()
 
 
 
