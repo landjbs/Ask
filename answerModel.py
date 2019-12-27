@@ -17,6 +17,19 @@ import utils as u
 
 ZERO_BOOSTER = 0.000000001
 
+
+class Q_Encoder(nn.Module):
+    def __init__(self, hiddenSize, layerNum):
+        super(Q_Encocer, self).__init__()
+        self.hiddenSize = hiddenSize
+        self.layerNum = layerNum
+
+
+
+
+
+
+
 class QuestionEncoder(nn.Module):
     '''
     The QuestionEncoder reads over GPT2 vecs of question tokens to encode

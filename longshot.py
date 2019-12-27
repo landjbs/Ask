@@ -34,7 +34,7 @@ class Encoder(nn.Module):
         self.layerNum = layerNum
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
-                          num_layers=layerNum,
+                          num_layers=layerNum,˜
                           batch_first=True)
 
     def initialize_hidden(self, device):
