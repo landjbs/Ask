@@ -19,8 +19,12 @@ ZERO_BOOSTER = 0.000000001
 
 
 class Q_Encoder(nn.Module):
+    '''
+    Encodes just the question to generate hidden state for ASK approximation
+    and attention matrix to concat with attention matrix of C_Encoder
+    '''
     def __init__(self, inDim, hiddenDim, layerNum):
-        super(Q_Encocer, self).__init__()
+        super(Q_Encoder, self).__init__()
         # attributes
         self.inDim = inDim
         self.hiddenDim = hiddenDim
@@ -40,6 +44,15 @@ class Q_Encoder(nn.Module):
         out, hidden = self.rnn(out, hidden)
         return out
 
+class C_Encoder(nn.Module):
+    '''
+    Encodes just the context to generate hidden state for Q_Decoder and
+    attention matrxi to concat with attention matrix of Q_Encoder. Hidden
+    state is initialized with output hidden state of Q_Enocder.
+    Is bidirectional.
+    '''
+    def __init__(self, inDim, hiddenDim, layerNum):
+        super(C_Encoder, self).__init__()
 
 class Q_Decoder(nn.Module):
     def __init__(self, hiddenDim, outDim):
@@ -49,7 +62,7 @@ class Q_Decoder(nn.Module):
         self.outDim = outDim
         # layers
         self.rnn = nn.GRU(input_size=hiddenDim,
-                          hidden_size=hiddenDim)
+                          hidden_size=hiddenDim,)
 
 
 
