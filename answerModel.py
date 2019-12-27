@@ -82,7 +82,7 @@ class Q_Decoder(nn.Module):
         self.embedding = nn.Embedding(outDim, hiddenDim)
         self.attn = nn.Linear(in_features=hiddenDim,
                               out_features=hiddenDim)
-        self.attn_combine = nn.Linear(in_features=hiddenDim,
+        self.attn_combine = nn.Linear(in_features=(2*hiddenDim),
                                       out_features=hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim)
@@ -94,6 +94,12 @@ class Q_Decoder(nn.Module):
         out = F.relu(out)
         out, hidden = self.rnn(out)
 
+
+
+class Answer_Model(object):
+    def __init__(self, searchTable, maxLen):
+        assert searchTable.initialized, 'SearchTable must be initialized.'
+        
 
 
 
