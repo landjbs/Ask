@@ -3,12 +3,6 @@ Answer model uses GRU over GPT2 embeddings followed by convo and dense layers
 to employ span selection.
 '''
 
-'''
-Longshot is a model that generates task-specific CLS vectors by running
-RNN over GPT-encoded text annotated by span binary dim and attempts to generate
-latent dense vector that can be decoded by another LSTM to produce the text
-of the question to which the spanned text pertains
-'''
 
 import torch
 import numpy as np
