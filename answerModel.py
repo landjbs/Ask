@@ -19,20 +19,27 @@ ZERO_BOOSTER = 0.000000001
 
 
 class Q_Encoder(nn.Module):
-    def __init__(self, inputSize, hiddenSize, layerNum):
+    def __init__(self, inputSize, hiddenDim, layerNum):
         super(Q_Encocer, self).__init__()
         # attributes
         self.inputSize = inputSize
-        self.hiddenSize = hiddenSize
+        self.hiddenDim = hiddenDim
         self.layerNum = layerNum
         # layers
-        self.embedding = nn.Embedding(inputSize, hiddenSize)
+        self.embedding = nn.Embedding(inputSize, hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
-                          batch_first=True,
                           bidirectional=True)
-        self.sig = nn.Sigmoid()
+
+    def init_hidden(self, device):
+        return torch.zeros(1, 1, self.hiddenDim, device=device)
+
+    def forward(self, inputId, hidden):
+        out = self.embedding(inputId).view(-1, 1, 1)
+        out, hidden = self.rnn(out, hidden)
+        return out
+
 
 
 
