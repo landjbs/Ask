@@ -80,8 +80,8 @@ class Q_Decoder(nn.Module):
         self.dropout = dropout
         # layers
         self.embedding = nn.Embedding(outDim, hiddenDim)
-        self.attn = nn.Linear(in_features=hiddenDim,
-                              out_features=hiddenDim)
+        self.attn = nn.Linear(in_features=(2*hiddenDim),
+                              out_features=maxLen)
         self.attn_combine = nn.Linear(in_features=(2*hiddenDim),
                                       out_features=hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
@@ -99,7 +99,17 @@ class Q_Decoder(nn.Module):
 class Answer_Model(object):
     def __init__(self, searchTable, maxLen):
         assert searchTable.initialized, 'SearchTable must be initialized.'
-        
+        # attributes
+        # TODO: fix sizes
+        self.hiddenDim = 1000
+        self.inDim = 1000
+        self.outDim = 1000
+        # models
+        self.qEncoder(self.inDim, self.hiddenDim, layerNum=1)
+        self.cEncoder(self.inDim, self.hiddenDim, layerNum=1)
+        self.cDecoder(self.hiddenDim, self.outDim, self.maxLen, dropout=0.1)
+        self.qEncoderOptim = torch.optim.Adam(self.qEncoder.params(),
+                                              lr=0.000001)
 
 
 
