@@ -71,11 +71,13 @@ class C_Encoder(nn.Module):
 
 
 class Q_Decoder(nn.Module):
-    def __init__(self, hiddenDim, outDim):
+    def __init__(self, hiddenDim, outDim, maxLen, dropout):
         super(Q_Decoder, self).__init__()
         # attributes
         self.hiddenDim = hiddenDim
         self.outDim = outDim
+        self.maxLen = maxLen
+        self.dropout = dropout
         # layers
         self.embedding = nn.Embedding(outDim, hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
@@ -86,6 +88,7 @@ class Q_Decoder(nn.Module):
     def forward(self, inputId, hidden):
         out = self.embedding(inputId).view(1, 1, -1)
         out = F.relu(out)
+        out, hidden = self.rnn(out)
 
 
 
