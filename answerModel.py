@@ -117,6 +117,7 @@ class Answer_Model(object):
         self.searchTable = searchTable
         self.qMax = qMax
         self.cMax = cMax
+        self.startId = searchTable.word_encode(searchTable.startToken)
         self.device = torch.device("cuda" if gpu_available() else "cpu")
         # models
         self.qEncoder = self.qEncoder(self.inDim, self.hiddenDim, layerNum=1)
@@ -201,8 +202,11 @@ class Answer_Model(object):
         self.qEncoderOptim.step()
         self.cEncoderOptim.step()
         self.cDecoderOptim.step()
-        return loss
+        return (loss.item() / len(targets))
 
+    def train(self, epochs):
+        ''' Number of epochs for which to train on searchTable '''
+        pass
 
 
 class QuestionEncoder(nn.Module):
