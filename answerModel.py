@@ -154,6 +154,13 @@ class Answer_Model(object):
         hidden, cOuts = self.encode_context(cIds, hidden)
         eOuts = torch.cat((qOuts, cOuts), axis=1)
         dIn = self.startId
+        decoded = torch.zeros(len(self.cIds))
+        for step in range(len(cIds)):
+            dOut, hidden = self.cDecoder(dIn, hidden, eOuts)
+            _, predLoc = dOut[0].topk(1)
+            dIn = predLoc.squeeze().detach()
+            decoded[step] = dIn
+        return decoded
 
     def train_step(self, qIds, cIds, targets, force):
         '''
