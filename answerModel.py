@@ -150,7 +150,7 @@ class Answer_Model(object):
 
     def decode(self, qIds, cIds, hidden):
         ''' Decodes with no training or loss '''
-        pass
+        hidden,
 
     def train_step(self, qIds, cIds, targets, force):
         '''
@@ -179,12 +179,19 @@ class Answer_Model(object):
             for step in range(len(targets)):
                 dOut, hidden = self.cDecoder(dIn, hidden, eOuts)
                 _, predLoc = dOut[0].topk(1)
+                dIn = targets[step]
+                loss += self.criterion(dOut, targets[step])
         else:
             for step in range(len(targets)):
                 dOut, hidden = self.cDecoder(dIn, hidden, eOuts)
                 _, predLoc = dOut[0].topk(1)
                 dIn = predLoc.squeeze().detach()
                 loss += self.criterion(dOut, targets[step])
+        loss.backward()
+        self.qEncoderOptim.step()
+        self.cEncoderOptim.step()
+        self.cDecoderOptim.step()
+        return loss
 
 
 
