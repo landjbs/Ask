@@ -44,6 +44,7 @@ class Q_Encoder(nn.Module):
         out, hidden = self.rnn(out, hidden)
         return out, hidden
 
+
 class C_Encoder(nn.Module):
     '''
     Encodes just the context to generate hidden state for Q_Decoder and
@@ -107,22 +108,20 @@ class Q_Decoder(nn.Module):
         return out, hidden, attnWeights
 
 
-
-
 class Answer_Model(object):
-    def __init__(self, searchTable, maxLen):
+    def __init__(self, searchTable, maxLen, hiddenDim, lr):
         assert searchTable.initialized, 'SearchTable must be initialized.'
         # attributes
         # TODO: fix sizes
-        self.hiddenDim = 1000
-        self.inDim = 1000
-        self.outDim = 1000
+        self.inDim = searchTable.wordEmbeddingSize
+        self.hiddenDim = hiddenDim
         # models
         self.qEncoder(self.inDim, self.hiddenDim, layerNum=1)
         self.cEncoder(self.inDim, self.hiddenDim, layerNum=1)
         self.cDecoder(self.hiddenDim, self.outDim, self.maxLen, dropout=0.1)
-        self.qEncoderOptim = torch.optim.Adam(self.qEncoder.params(),
-                                              lr=0.000001)
+        self.qEncoderOptim = torch.optim.Adam(self.qEncoder.params(), lr=lr)
+        self.cEncoderOptim = torch.optim.Adam(self.cEncoder.params(), lr=lr)
+        self.cDecoderOptim = torch.optim.Adam(self.cDecoder.params(), lr=lr)
 
 
 
