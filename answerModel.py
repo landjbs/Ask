@@ -150,7 +150,10 @@ class Answer_Model(object):
 
     def decode(self, qIds, cIds, hidden):
         ''' Decodes with no training or loss '''
-        hidden,
+        hidden, qOuts = self.encode_question(qIds)
+        hidden, cOuts = self.encode_context(cIds, hidden)
+        eOuts = torch.cat((qOuts, cOuts), axis=1)
+        dIn = self.startId
 
     def train_step(self, qIds, cIds, targets, force):
         '''
@@ -174,7 +177,7 @@ class Answer_Model(object):
         hidden, cOuts = self.encode_context(cIds, hidden)
         # concatenate encoder outs
         eOuts = torch.cat((qOuts, cOuts), axis=1)
-        dIn = self.searchTable.startToken
+        dIn = self.startId
         if force:
             for step in range(len(targets)):
                 dOut, hidden = self.cDecoder(dIn, hidden, eOuts)
