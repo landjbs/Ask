@@ -152,7 +152,7 @@ class Answer_Model(object):
         ''' Decodes with no training or loss '''
         pass
 
-    def train_step(self, qIds, cIds, targets):
+    def train_step(self, qIds, cIds, targets, force):
         '''
         Trains Answer_Model on text-question pair using binary target vector
         to prop loss through qEncoder, cEncoder, cDecoder.
@@ -160,6 +160,7 @@ class Answer_Model(object):
             qIds:       Tensor of question ids.
             cIds:       Tensor of context ids.
             targets:    Binary tensor of targets with lenth equal to cIds.
+            force:      Whether or not to using teacher forcing.
         Returns:
             Loss of model at currents step.
         '''
@@ -174,11 +175,17 @@ class Answer_Model(object):
         # concatenate encoder outs
         eOuts = torch.cat((qOuts, cOuts), axis=1)
         dIn = self.searchTable.startToken
-        for step in range(len(targets)):
-            dOut, hidden = self.cDecoder(dIn, hidden, eOuts)
-            _, predLoc = dOut[0].topk(1)
-            dIn = predLoc.squeeze().detach()
-            loss = self.criterion
+        if force:
+            for step in range(len(targets)):
+                dOut, hidden = self.cDecoder(dIn, hidden, eOuts)
+                _, predLoc = dOut[0].topk(1)
+        else:
+            for step in range(len(targets)):
+                dOut, hidden = self.cDecoder(dIn, hidden, eOuts)
+                _, predLoc = dOut[0].topk(1)
+                dIn = predLoc.squeeze().detach()
+                loss += self.criterion(dOut, targets[step])
+
 
 
 class QuestionEncoder(nn.Module):
