@@ -109,18 +109,20 @@ class Q_Decoder(nn.Module):
 
 
 class Answer_Model(object):
-    def __init__(self, searchTable, maxLen, hiddenDim, lr):
+    def __init__(self, searchTable, qMax, cMax, hiddenDim, lr):
         assert searchTable.initialized, 'SearchTable must be initialized.'
         # attributes
         self.inDim = searchTable.wordEmbeddingSize
         self.hiddenDim = hiddenDim
         self.searchTable = searchTable
+        self.qMax = qMax
+        self.cMax = cMax
         self.device = torch.device("cuda" if gpu_available() else "cpu")
         # models
         self.qEncoder = self.qEncoder(self.inDim, self.hiddenDim, layerNum=1)
         self.cEncoder = self.cEncoder(self.inDim, self.hiddenDim, layerNum=1)
         self.cDecoder = self.cDecoder(self.hiddenDim, self.outDim,
-                                      self.maxLen, dropout=0.1)
+                                      self.cMax, dropout=0.1)
         self.qEncoderOptim = torch.optim.Adam(self.qEncoder.params(), lr=lr)
         self.cEncoderOptim = torch.optim.Adam(self.cEncoder.params(), lr=lr)
         self.cDecoderOptim = torch.optim.Adam(self.cDecoder.params(), lr=lr)
@@ -134,7 +136,12 @@ class Answer_Model(object):
             out, hidden = self.encoder(id, hidden)
             outs[step] = out[0, 0]
 
-
+    def encode_context(self, cIds, hidden):
+        '''
+        Uses cEncoder and qEncoder hidden out to encode cIds into bidirectional
+        (out, hidden, attn)
+        '''
+        outs = torch.zeros(self.inMax)
 
 
 class QuestionEncoder(nn.Module):
