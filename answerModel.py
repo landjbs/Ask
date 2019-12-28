@@ -124,9 +124,11 @@ class Answer_Model(object):
         self.qEncoderOptim = torch.optim.Adam(self.qEncoder.params(), lr=lr)
         self.cEncoderOptim = torch.optim.Adam(self.cEncoder.params(), lr=lr)
         self.cDecoderOptim = torch.optim.Adam(self.cDecoder.params(), lr=lr)
+        self.cDecoderCriterion = torch.nn.BCELoss()
 
-
-
+    def encode_question(self, qIds):
+        ''' Uses qEncoder to encode qIds into (out, hidden, attn) '''
+        hidden = self.qEncoder.init_hidden(self.device)
 
 
 
