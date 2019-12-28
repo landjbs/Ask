@@ -131,9 +131,9 @@ class Answer_Model(object):
     def encode_question(self, qIds):
         ''' Uses qEncoder to encode qIds into (out, hidden, attn) '''
         hidden = self.qEncoder.init_hidden(self.device)
-        outs = torch.zeros(self.inMax, self.hiddenDim, device=self.device)
+        outs = torch.zeros(self.qMax, self.hiddenDim, device=self.device)
         for step, id in enumerate(qIds):
-            out, hidden = self.encoder(id, hidden)
+            out, hidden = self.qEncoder(id, hidden)
             outs[step] = out[0, 0]
 
     def encode_context(self, cIds, hidden):
@@ -141,7 +141,10 @@ class Answer_Model(object):
         Uses cEncoder and qEncoder hidden out to encode cIds into bidirectional
         (out, hidden, attn)
         '''
-        outs = torch.zeros(self.inMax)
+        outs = torch.zeros(self.cMax, self.hiddenDim, device=self.device)
+        for step, id in enumerate(cIds):
+            out, hidden = self.cEncoder(id, hidden)
+            outs[step] = out[0, 0]
 
 
 class QuestionEncoder(nn.Module):
