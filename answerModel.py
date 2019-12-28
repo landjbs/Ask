@@ -126,7 +126,7 @@ class Answer_Model(object):
         self.qEncoderOptim = torch.optim.Adam(self.qEncoder.params(), lr=lr)
         self.cEncoderOptim = torch.optim.Adam(self.cEncoder.params(), lr=lr)
         self.cDecoderOptim = torch.optim.Adam(self.cDecoder.params(), lr=lr)
-        self.cDecoderCriterion = torch.nn.BCELoss()
+        self.criterion = torch.nn.BCELoss()
 
     def encode_question(self, qIds):
         ''' Uses qEncoder to encode qIds into tuple (hidden, attn) '''
@@ -155,7 +155,7 @@ class Answer_Model(object):
     def train_step(self, qIds, cIds, targets):
         '''
         Trains Answer_Model on text-question pair using binary target vector
-        to prop loss through qEncoder, cEncoder, qDecoder.
+        to prop loss through qEncoder, cEncoder, cDecoder.
         Args:
             qIds:       Tensor of question ids.
             cIds:       Tensor of context ids.
@@ -163,15 +163,23 @@ class Answer_Model(object):
         Returns:
             Loss of model at currents step.
         '''
+        # clear optimizers
         self.qEncoderOptim.zero_grad()
         self.cEncoderOptim.zero_grad()
-        self.qDecoderOptim.zero_grad()
+        self.cDecoderOptim.zero_grad()
         loss, numCorrect = 0, 0
+        # get encodings
         hidden, qOuts = self.encode_question(qIds)
         hidden, cOuts = self.encode_context(cIds, hidden)
         # concatenate encoder outs
         eOuts = torch.cat((qOuts, cOuts), axis=1)
-        
+        dIn = self.searchTable.startToken
+        for step in range(len(targets)):
+            dOut, hidden = self.cDecoder(dIn, hidden, eOuts)
+            _, predLoc = dOut[0].topk(1)
+            dIn = predLoc.squeeze().detach()
+            loss = self.criterion
+
 
 class QuestionEncoder(nn.Module):
     '''
