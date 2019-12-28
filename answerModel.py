@@ -170,7 +170,8 @@ class Answer_Model(object):
         hidden, qOuts = self.encode_question(qIds)
         hidden, cOuts = self.encode_context(cIds, hidden)
         # concatenate encoder outs
-
+        eOuts = torch.cat((qOuts, cOuts), axis=1)
+        
 
 class QuestionEncoder(nn.Module):
     '''
