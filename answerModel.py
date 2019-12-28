@@ -112,13 +112,15 @@ class Answer_Model(object):
     def __init__(self, searchTable, maxLen, hiddenDim, lr):
         assert searchTable.initialized, 'SearchTable must be initialized.'
         # attributes
-        # TODO: fix sizes
         self.inDim = searchTable.wordEmbeddingSize
         self.hiddenDim = hiddenDim
+        self.searchTable = searchTable
+        self.device = torch.device("cuda" if gpu_available() else "cpu")
         # models
-        self.qEncoder(self.inDim, self.hiddenDim, layerNum=1)
-        self.cEncoder(self.inDim, self.hiddenDim, layerNum=1)
-        self.cDecoder(self.hiddenDim, self.outDim, self.maxLen, dropout=0.1)
+        self.qEncoder = self.qEncoder(self.inDim, self.hiddenDim, layerNum=1)
+        self.cEncoder = self.cEncoder(self.inDim, self.hiddenDim, layerNum=1)
+        self.cDecoder = self.cDecoder(self.hiddenDim, self.outDim,
+                                      self.maxLen, dropout=0.1)
         self.qEncoderOptim = torch.optim.Adam(self.qEncoder.params(), lr=lr)
         self.cEncoderOptim = torch.optim.Adam(self.cEncoder.params(), lr=lr)
         self.cDecoderOptim = torch.optim.Adam(self.cDecoder.params(), lr=lr)
