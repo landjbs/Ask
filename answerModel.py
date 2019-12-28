@@ -96,13 +96,15 @@ class Q_Decoder(nn.Module):
         # attention
         attnWeights = self.attn(torch.cat((embed[0], hidden[0]), axis=1))
         attnWeights = F.softmax(attnWeights, dim=1)
-        attnApplied = torch.bmm(attnWeights.unsqueeze(0), )
-
-
+        attnApplied = torch.bmm(attnWeights.unsqueeze(0),
+                                encoderOuts.unsqueeze(0))
+        out = torch.cat((embed[0], attnApplied[0]), 1)
+        out = self.attn_combine(out).unsqueeze(0)
+        # recurrent
         out = F.relu(out)
         out, hidden = self.rnn(out)
         out = self.sigmoid(out)
-        return out, hidden, attn
+        return out, hidden, attnWeights
 
 
 
