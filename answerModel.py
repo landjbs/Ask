@@ -71,11 +71,10 @@ class C_Encoder(nn.Module):
 
 
 class Q_Decoder(nn.Module):
-    def __init__(self, hiddenDim, outDim, maxLen, dropoutPercent):
+    def __init__(self, hiddenDim, maxLen, dropoutPercent):
         super(Q_Decoder, self).__init__()
         # attributes
         self.hiddenDim = hiddenDim
-        self.outDim = outDim
         self.maxLen = maxLen
         self.dropoutPercent = dropoutPercent
         # layers
@@ -87,15 +86,24 @@ class Q_Decoder(nn.Module):
         self.dropout = nn.Dropout(p=dropoutPercent)
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim)
-        self.out = nn.Linear(in_features=hiddenDim, out_features=outDim)
-        self.softmax = nn.LogSoftmax(dim=1)
+        self.out = nn.Linear(in_features=hiddenDim, out_features=1)
+        self.sigmoid = nn.Sigmoid()
 
-    def forward(self, inputId, hidden):
-        # embed idea and dropout
-        out = self.embedding(inputId).view(1, 1, -1)
-        out = self.dropout()
+    def forward(self, inputId, hidden, encoderOuts):
+        # embedding
+        embed = self.embedding(inputId).view(1, 1, -1)
+        embed = self.dropout()
+        # attention
+        attnWeights = self.attn(torch.cat((embed[0], hidden[0]), axis=1))
+        attnWeights = F.softmax(attnWeights, dim=1)
+        attnApplied = torch.bmm(attnWeights.unsqueeze(0), )
+
+
         out = F.relu(out)
         out, hidden = self.rnn(out)
+        out = self.sigmoid(out)
+        return out, hidden, attn
+
 
 
 
