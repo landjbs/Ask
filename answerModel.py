@@ -163,6 +163,13 @@ class Answer_Model(object):
         Returns:
             Loss of model at currents step.
         '''
+        self.qEncoderOptim.zero_grad()
+        self.cEncoderOptim.zero_grad()
+        self.qDecoderOptim.zero_grad()
+        loss, numCorrect = 0, 0
+        hidden, qOuts = self.encode_question(qIds)
+        hidden, cOuts = self.encode_context(cIds, hidden)
+        # concatenate encoder outs
 
 
 class QuestionEncoder(nn.Module):
