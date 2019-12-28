@@ -148,6 +148,22 @@ class Answer_Model(object):
             outs[step] = out[0, 0]
         return (hidden, outs)
 
+    def decode(self, qIds, cIds, hidden):
+        ''' Decodes with no training or loss '''
+        pass
+
+    def train_step(self, qIds, cIds, targets):
+        '''
+        Trains Answer_Model on text-question pair using binary target vector
+        to prop loss through qEncoder, cEncoder, qDecoder.
+        Args:
+            qIds:       Tensor of question ids.
+            cIds:       Tensor of context ids.
+            targets:    Binary tensor of targets with lenth equal to cIds.
+        Returns:
+            Loss of model at currents step.
+        '''
+
 
 class QuestionEncoder(nn.Module):
     '''
