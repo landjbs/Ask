@@ -31,7 +31,7 @@ class Encoder(nn.Module):
     Encodes just the question to generate hidden state for ASK approximation
     and attention matrix to concat with attention matrix of C_Encoder
     '''
-    def __init__(self, inDim, hiddenDim, layerNum, dropoutPercent):
+    def __init__(self, inDim, hiddenDim, layerNum=1, dropoutPercent=0.1):
         super(Q_Encoder, self).__init__()
         # attributes
         self.inDim = inDim
@@ -44,10 +44,11 @@ class Encoder(nn.Module):
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
+                          batch_first=True,
+                          dropout=dropoutPercent,
                           bidirectional=False)
         self.drop = nn.Dropout(p=dropoutPercent)
         self.nonLinearity = nn.ReLU()
-
 
     def init_hidden(self, device):
         return torch.zeros(1, 1, self.hiddenDim, device=device)
