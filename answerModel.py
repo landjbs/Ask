@@ -9,6 +9,7 @@ Highway Maxout Ensemble Model with random initializations allows colaboration
 to raise final performance. Mean final hidden state of encoder ensemble across
 novel question can be estimated by encoder in Ask longshot question generation
 to expediate training.
+https://arxiv.org/pdf/1611.01604.pdf
 '''
 
 import torch
