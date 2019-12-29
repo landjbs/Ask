@@ -19,6 +19,7 @@ from tqdm import tqdm, trange
 from termcolor import colored
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
+from torch.nn.utils.rnn import pack_padded_sequence
 from torch.cuda import is_available as gpu_available
 
 import utils as u
@@ -60,7 +61,9 @@ class Encoder(nn.Module):
         _, iAscending = torch.sort(iSort, dim=0, descending=False)
         seq_ = torch.index_select(input=seq, dim=0, iSort)
         embed = self.embedding(seq_)
-
+        # use util to pack embeddings for batch encoding
+        packedSeq = pack_padded_sequence(embed, valSort, batch_first=True)
+        
         out = self.embedding(inputId).view(-1, 1, 1)
         out, hidden = self.rnn(out, hidden)
         return out, hidden
