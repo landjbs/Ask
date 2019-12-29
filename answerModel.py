@@ -29,6 +29,8 @@ class Q_Encoder(nn.Module):
         self.inDim = inDim
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
+        # sentinel vector is random noise to allow attenuation to non-answers
+        self.sentinel = nn.Parameter(torch.rand(hiddenDim))
         # layers
         self.embedding = nn.Embedding(inDim, hiddenDim)
         self.rnn = nn.GRU(input_size=hiddenDim,
