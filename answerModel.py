@@ -48,7 +48,7 @@ class Encoder(nn.Module):
                           batch_first=True,
                           dropout=dropoutPercent,
                           bidirectional=False)
-        self.drop = nn.Dropout(p=dropoutPercent)
+        self.dropout = nn.Dropout(p=dropoutPercent)
         # self.nonLinearity = nn.ReLU()
 
     def init_hidden(self, device):
@@ -65,7 +65,10 @@ class Encoder(nn.Module):
         packedSeq = pack_padded_sequence(embed, valSort, batch_first=True)
         out, _ = self.rnn(packedSeq)
         e, _ = pad_packed_sequence(out, batch_first=True)
-
+        e = e.contiguous()
+        e = torch.index_select(e, dim=0, index=iAscending)
+        e = self.dropout(e)
+        b, _ = list(mask.size())
 
 
         out = self.embedding(inputId).view(-1, 1, 1)
