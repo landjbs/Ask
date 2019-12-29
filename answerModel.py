@@ -54,9 +54,12 @@ class Encoder(nn.Module):
         return torch.zeros(1, 1, self.hiddenDim, device=device)
 
     def forward(self, seq, mask):
+        # take sum of the mask matrix
         lens = torch.sum(mask, 1)
-
-
+        valSort, iSort = torch.sort(lens, dim=0, descending=True)
+        _, iAscending = torch.sort(iSort, dim=0, descending=False)
+        seq_ = torch.index_select(input=seq, dim=0, iSort)
+        
 
         out = self.embedding(inputId).view(-1, 1, 1)
         out, hidden = self.rnn(out, hidden)
