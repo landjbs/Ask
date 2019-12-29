@@ -59,7 +59,7 @@ class Encoder(nn.Module):
         valSort, iSort = torch.sort(lens, dim=0, descending=True)
         _, iAscending = torch.sort(iSort, dim=0, descending=False)
         seq_ = torch.index_select(input=seq, dim=0, iSort)
-        
+        embed = self.embedding(seq_)
 
         out = self.embedding(inputId).view(-1, 1, 1)
         out, hidden = self.rnn(out, hidden)
