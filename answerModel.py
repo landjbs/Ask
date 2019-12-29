@@ -26,12 +26,12 @@ import utils as u
 ZERO_BOOSTER = 0.000000001
 
 
-class Q_Encoder(nn.Module):
+class Dynamcic_Encoder(nn.Module):
     '''
     Encodes just the question to generate hidden state for ASK approximation
     and attention matrix to concat with attention matrix of C_Encoder
     '''
-    def __init__(self, inDim, hiddenDim, layerNum):
+    def __init__(self, inDim, hiddenDim, layerNum, dropoutPercent):
         super(Q_Encoder, self).__init__()
         # attributes
         self.inDim = inDim
@@ -45,6 +45,7 @@ class Q_Encoder(nn.Module):
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
                           bidirectional=False)
+        self.drop = nn.Dropout(p=dropoutPercent)
 
     def init_hidden(self, device):
         return torch.zeros(1, 1, self.hiddenDim, device=device)
