@@ -55,30 +55,30 @@ class Q_Encoder(nn.Module):
         return out, hidden
 
 
-class C_Encoder(nn.Module):
-    '''
-    Encodes just the context to generate hidden state for Q_Decoder and
-    attention matrxi to concat with attention matrix of Q_Encoder. Hidden
-    state is initialized with output hidden state of Q_Enocder.
-    Is bidirectional.
-    '''
-    def __init__(self, inDim, hiddenDim, layerNum):
-        super(C_Encoder, self).__init__()
-        # attributes
-        self.inDim = inDim
-        self.hiddenDim = hiddenDim
-        self.layerNum = layerNum
-        # layers
-        self.embedding = nn.Embedding(inDim, hiddenDim)
-        self.rnn = nn.GRU(input_size=hiddenDim,
-                          hidden_size=hiddenDim,
-                          num_layers=layerNum,
-                          bidirectional=True)
-
-    def forward(self, inputId, hidden):
-        out = self.embedding(inputId)
-        out, hidden = self.rnn(out, hidden)
-        return out, hidden
+# class C_Encoder(nn.Module):
+#     '''
+#     Encodes just the context to generate hidden state for Q_Decoder and
+#     attention matrxi to concat with attention matrix of Q_Encoder. Hidden
+#     state is initialized with output hidden state of Q_Enocder.
+#     Is bidirectional.
+#     '''
+#     def __init__(self, inDim, hiddenDim, layerNum):
+#         super(C_Encoder, self).__init__()
+#         # attributes
+#         self.inDim = inDim
+#         self.hiddenDim = hiddenDim
+#         self.layerNum = layerNum
+#         # layers
+#         self.embedding = nn.Embedding(inDim, hiddenDim)
+#         self.rnn = nn.GRU(input_size=hiddenDim,
+#                           hidden_size=hiddenDim,
+#                           num_layers=layerNum,
+#                           bidirectional=True)
+#
+#     def forward(self, inputId, hidden):
+#         out = self.embedding(inputId)
+#         out, hidden = self.rnn(out, hidden)
+#         return out, hidden
 
 
 class Q_Decoder(nn.Module):
