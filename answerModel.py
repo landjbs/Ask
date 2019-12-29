@@ -37,7 +37,7 @@ class Encoder(nn.Module):
         self.inDim = inDim
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
-        # sentinel vector is random noise to allow attenuation to non-answers
+        # sentinel vector is random noise to allow attenuation to impossibles
         self.sentinel = nn.Parameter(torch.rand(hiddenDim))
         # layers
         self.embedding = nn.Embedding(inDim, hiddenDim)
@@ -48,12 +48,16 @@ class Encoder(nn.Module):
                           dropout=dropoutPercent,
                           bidirectional=False)
         self.drop = nn.Dropout(p=dropoutPercent)
-        self.nonLinearity = nn.ReLU()
+        # self.nonLinearity = nn.ReLU()
 
     def init_hidden(self, device):
         return torch.zeros(1, 1, self.hiddenDim, device=device)
 
-    def forward(self, inputId, hidden):
+    def forward(self, seq, mask):
+        lens = torch.sum(mask, 1)
+
+
+
         out = self.embedding(inputId).view(-1, 1, 1)
         out, hidden = self.rnn(out, hidden)
         return out, hidden
