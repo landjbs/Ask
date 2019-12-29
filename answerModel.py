@@ -1,8 +1,15 @@
 '''
 Answer model uses GRU over GPT2 embeddings followed by convo and dense layers
 to employ span selection.
-'''
 
+Uses multi-layer Gated Recurrent Unit to separately encode quesiton
+and context. Dynamic Co-Attention Mechanism allows bidirectional attentuation
+to elements of Q and C for each decode step.
+Highway Maxout Ensemble Model with random initializations allows colaboration
+to raise final performance. Mean final hidden state of encoder ensemble across
+novel question can be estimated by encoder in Ask longshot question generation
+to expediate training.
+'''
 
 import torch
 import numpy as np
