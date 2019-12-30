@@ -119,10 +119,10 @@ class Encoder(nn.Module):
         self.nonLinearity = nonLinearity
 
     def init_hidden(self, device):
-        return torch.zeros(1, 1, self.hiddenDim, device=device)
+        return torch.zeros(self.layerNum, 1, self.hiddenDim, device=device)
 
     def forward(self, inputId, hidden):
-        out = self.embedding(inputId)
+        out = self.embedding(inputId).view(1, 1, -1)
         out, hidden = self.rnn(out, hidden)
         out = self.nonLinearity(out)
         return out, hidden
@@ -133,11 +133,20 @@ e = Encoder(d, 10, 100, 2)
 
 h = e.init_hidden(device)
 
-t = torch.tensor([1,2,3])
-for i in t:
-    o, h = e(i, h)
-    print(o)
+encoderOptim = torch.optim.Adam(e.parameters(), lr=0.0005)
+c = torch.zeros(100, dtype=torch.float)
 
+for _ in range(100):
+    t = torch.tensor([1,2,3])
+    encoderOptim.zero_grad()
+    loss = 0
+    for i in t:
+        o, h = e(i, h)
+        loss += torch.log(torch.dist(o.float(), c)) ** 2
+        print(loss)
+        print(o)
+    loss.backward()
+    encoderOptim.step()
 
 # class Q_Decoder(nn.Module):
 #     def __init__(self, hiddenDim, maxLen, dropoutPercent):
