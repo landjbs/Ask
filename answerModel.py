@@ -81,6 +81,19 @@ class Encoder(nn.Module):
         return e
 
 
+class Dense(nn.Module):
+    '''
+    Non-linearity to allow unique encoding for questions and context.
+    '''
+    def __init__(self, hiddenDim):
+        super(Dense, self).__init__()
+        self.dense = nn.Linear(in_features=hiddenDim, out_features=hiddenDim)
+        self.tan = nn.Tanh()
+
+    def forward(self, encoderOut):
+        return self.tan(self.dense(encoderOut))
+
+
 class Encoder(nn.Module):
     '''
     Encodes text ids to generate attention matrix to concatenate between
@@ -88,7 +101,8 @@ class Encoder(nn.Module):
     Ask approximation. Hidden state of context encoding is initialized with
     output hidden state of question encoding.
     '''
-    def __init__(self, inDim, hiddenDim, layerNum):
+    def __init__(self, nonLinearity, inDim, hiddenDim, layerNum):
+        assert isinstance(nonLinearity, Dense), 'nonLinearity should be Dense.'
         super(Encoder, self).__init__()
         # attributes
         self.inDim = inDim
@@ -102,6 +116,7 @@ class Encoder(nn.Module):
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
                           bidirectional=False)
+        self.nonLinearity = nonLinearity
 
     def init_hidden(self, device):
         return torch.zeros(1, 1, self.hiddenDim, device=device)
@@ -109,27 +124,19 @@ class Encoder(nn.Module):
     def forward(self, inputId, hidden):
         out = self.embedding(inputId)
         out, hidden = self.rnn(out, hidden)
+        out = self.nonLinearity(out)
         return out, hidden
 
 
-class Dense(nn.Module):
-    '''
-    Non-linearity to allow unique encoding for questions and context.
-    '''
-    def __init__(self, hiddenDim):
-        super(Q_Dense, self).__init__()
-        # attributes
-        self.dense = nn.Linear(in_features=hiddenDim, out_features=hiddenDim)
-        self.nonLinearity = nn.Tanh()
+d = Dense(100)
+e = Encoder(d, 10, 100, 2)
 
-    def forward(self, encoderOut):
-        return self.nonLinearity(self.dense(encoderOut))
+h = e.init_hidden(device)
 
-x = Encoder(10, 10, 2)
-t = torch.tensor([[1,1],[2,2],[3,3]])
-m = torch.tensor([[0,1],[1,1],[0,1]])
-print(x.forward(t, m))
-
+t = torch.tensor([1,2,3])
+for i in t:
+    o, h = e(i, h)
+    print(o)
 
 
 # class Q_Decoder(nn.Module):
