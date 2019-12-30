@@ -26,6 +26,8 @@ import utils as u
 
 ZERO_BOOSTER = 0.000000001
 
+device = torch.device("cuda" if gpu_available() else "cpu")
+
 
 class Encoder(nn.Module):
     '''
@@ -33,7 +35,7 @@ class Encoder(nn.Module):
     and attention matrix to concat with attention matrix of C_Encoder
     '''
     def __init__(self, inDim, hiddenDim, layerNum=1, dropoutPercent=0.1):
-        super(Q_Encoder, self).__init__()
+        super(Encoder, self).__init__()
         # attributes
         self.inDim = inDim
         self.hiddenDim = hiddenDim
@@ -57,9 +59,10 @@ class Encoder(nn.Module):
     def forward(self, seq, mask):
         # take sum of the mask matrix
         lens = torch.sum(mask, 1)
+        print(lens)
         valSort, iSort = torch.sort(lens, dim=0, descending=True)
         _, iAscending = torch.sort(iSort, dim=0, descending=False)
-        seq_ = torch.index_select(input=seq, dim=0, iSort)
+        seq_ = torch.index_select(input=seq, dim=0, index=iSort)
         embed = self.embedding(seq_)
         # use util to pack embeddings for batch encoding
         packedSeq = pack_padded_sequence(embed, valSort, batch_first=True)
@@ -69,37 +72,53 @@ class Encoder(nn.Module):
         e = torch.index_select(e, dim=0, index=iAscending)
         e = self.dropout(e)
         b, _ = list(mask.size())
+        # add the sentinel vector
+        sentinelExp = self.sentinel.squeeze().expand(b, self.hiddenDim).unsqueeze(1).contiguous()
+        lens = lens.unsqueeze(1).expand(b, self.hiddenDim).unsqueeze(1)
+        sentinelZero = torch.zeros(b, self.hiddenDim).unsqueeze(1)
+        e = torch.cat((e, sentinelZero), dim=1)
+        e = e.scatter_(1, lens, sentinelExp)
+        return e
 
 
-        out = self.embedding(inputId).view(-1, 1, 1)
+
+class Encoder(nn.Module):
+    '''
+    Encodes text ids to generate attention matrix to concatenate between
+    encoded question and context and hidden state for dynamic decoder and
+    Ask approximation. Hidden state of context encoding is initialized with
+    output hidden state of question encoding.
+    '''
+    def __init__(self, inDim, hiddenDim, layerNum):
+        super(C_Encoder, self).__init__()
+        # attributes
+        self.inDim = inDim
+        self.hiddenDim = hiddenDim
+        self.layerNum = layerNum
+        # sentinel vector is random noise to allow attenuation to impossibles
+        self.sentinel = nn.Parameter(torch.rand(hiddenDim))
+        # layers
+        self.embedding = nn.Embedding(inDim, hiddenDim)
+        self.rnn = nn.GRU(input_size=hiddenDim,
+                          hidden_size=hiddenDim,
+                          num_layers=layerNum,
+                          bidirectional=False)
+        self.dense = nn.Linear(in_features=hiddenDim, out_features=hiddenDim)
+        self.nonLinearity = nn.Tanh()
+
+    def forward(self, inputId, hidden):
+        out = self.embedding(inputId)
         out, hidden = self.rnn(out, hidden)
+        out = self.dense(out)
+        out = self.nonLinearity(out)
         return out, hidden
 
 
-# class C_Encoder(nn.Module):
-#     '''
-#     Encodes just the context to generate hidden state for Q_Decoder and
-#     attention matrxi to concat with attention matrix of Q_Encoder. Hidden
-#     state is initialized with output hidden state of Q_Enocder.
-#     Is bidirectional.
-#     '''
-#     def __init__(self, inDim, hiddenDim, layerNum):
-#         super(C_Encoder, self).__init__()
-#         # attributes
-#         self.inDim = inDim
-#         self.hiddenDim = hiddenDim
-#         self.layerNum = layerNum
-#         # layers
-#         self.embedding = nn.Embedding(inDim, hiddenDim)
-#         self.rnn = nn.GRU(input_size=hiddenDim,
-#                           hidden_size=hiddenDim,
-#                           num_layers=layerNum,
-#                           bidirectional=True)
-#
-#     def forward(self, inputId, hidden):
-#         out = self.embedding(inputId)
-#         out, hidden = self.rnn(out, hidden)
-#         return out, hidden
+x = Encoder(10, 10, 2)
+t = torch.tensor([[1,1],[2,2],[3,3]])
+m = torch.tensor([[0,1],[1,1],[0,1]])
+print(x.forward(t, m))
+
 
 
 # class Q_Decoder(nn.Module):
