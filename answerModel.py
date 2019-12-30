@@ -148,6 +148,13 @@ class Encoder(nn.Module):
 # plt.show()
 
 
+class Dynamic_Decoder(nn.Module):
+    def __init__(self, hiddenDim, maxLen, dropoutPercent):
+        super(Dynamic_Decoder, self).__init__()
+        
+
+
+
 
 
 # class Q_Decoder(nn.Module):
