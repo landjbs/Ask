@@ -151,11 +151,20 @@ def encode_coattention(Q, D):
     C_D_t = torch.transpose(C_D, 1, 2)
     return C_D_t
 
+
+def _encode(t, h, encoder):
+
+
+
 h = 100
 d_Q = Dense(h)
 d_D = Dense(h)
-e_Q = Encoder(10, h, 1, 0.1)
-e_D = Encoder(10, h, 1, 0.1)
+e_Q = Encoder(d_Q, 10, h, 1)
+e_D = Encoder(e_Q, 10, h, 1)
+
+t_Q = torch.tensor([1,2,3])
+t_D = torch.tensor([4,5,6,7,8,9])
+
 
 
 # class Fusion_BiLSTM(nn.Module):
