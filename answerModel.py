@@ -163,16 +163,15 @@ class Fusion_BiLSTM(nn.Module):
         self.rnn = nn.GRU(input_size=(3*hiddenDim),
                           hidden_size=hiddenDim,
                           num_layers=1,
-                          bidirectional=True,
+                          bidirectional=False,
                           dropout=dropP)
         self.drop = nn.Dropout(p=dropP)
 
     def forward(self, attn, hidden):
+        attn = attn.unsqueeze(0)
         out, hidden = self.rnn(attn, hidden)
         out = self.drop(out)
         return out, hidden
-
-
 
 
 hD = 100
@@ -204,9 +203,11 @@ print(f'Q: {Q.shape}')
 
 attn = encode_coattention(Q, D)
 
-print(f'C_D_t: {C_D_t.shape}')
+print(f'attn: {attn.shape}')
 
 fusion = Fusion_BiLSTM(hD, 0.1)
+
+hV = hV.unsqueeze(0)
 
 for vec in attn:
     fO, hV = fusion(vec, hV)
