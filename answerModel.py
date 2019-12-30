@@ -140,23 +140,27 @@ class Fusion_BiLSTM(nn.Module):
 
 
 def encode_coattention(Q, D):
-    D_t = torch.transpose(dE, 1, 2)
+    '''
+    Coattention encoder follows the methods described by Dynamic Coattention
+    to compute bidirectional coattention between the question encoding and the
+    document encoding.
+    '''
+    D_t = torch.transpose(D, 1, 2)
+    Q_t = torch.transpose(Q, 1, 2)
     # compute affinity matrix
     L = torch.bmm(qE, dE_t)
     # compute scores for question
     A_Q = F.softmax(L, dim=1)
     A_Q = torch.transpose(A_Q, 1, 2)
     C_Q = torch.bmm(D_t, A_Q)
-
+    # compute scores for document
     A_D = F.softmax(L, dim=2)
-
+    Q_C_Q = torch.cat((Q_t, C_Q), dim=1)
+    C_D = torch.bmm(Q_C_Q, A_D)
+    C_D_t = torch.transpose(C_D, 1, 2)
+    return C_D_t
 
 class Coattention_Encoder(nn.Module):
-    '''
-    Coattention encoder follows the methods described by Dynamic Coattention
-    to compute bidirectional coattention between the question encoding and the
-    document encoding.
-    '''
     def __init__(self, hiddenDim, layerNum, dropP):
         super(Coattention_Encoder, self).__init__()
         # attributes
