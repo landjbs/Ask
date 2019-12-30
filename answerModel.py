@@ -31,56 +31,56 @@ ZERO_BOOSTER = 0.000000001
 device = torch.device("cuda" if gpu_available() else "cpu")
 
 
-class Encoder(nn.Module):
-    '''
-    Encodes just the question to generate hidden state for ASK approximation
-    and attention matrix to concat with attention matrix of C_Encoder
-    '''
-    def __init__(self, inDim, hiddenDim, layerNum=1, dropoutPercent=0.1):
-        super(Encoder, self).__init__()
-        # attributes
-        self.inDim = inDim
-        self.hiddenDim = hiddenDim
-        self.layerNum = layerNum
-        # sentinel vector is random noise to allow attenuation to impossibles
-        self.sentinel = nn.Parameter(torch.rand(hiddenDim))
-        # layers
-        self.embedding = nn.Embedding(inDim, hiddenDim)
-        self.rnn = nn.GRU(input_size=hiddenDim,
-                          hidden_size=hiddenDim,
-                          num_layers=layerNum,
-                          batch_first=True,
-                          dropout=dropoutPercent,
-                          bidirectional=False)
-        self.dropout = nn.Dropout(p=dropoutPercent)
-        # self.nonLinearity = nn.ReLU()
-
-    def init_hidden(self, device):
-        return torch.zeros(1, 1, self.hiddenDim, device=device)
-
-    def forward(self, seq, mask):
-        # take sum of the mask matrix
-        lens = torch.sum(mask, 1)
-        print(lens)
-        valSort, iSort = torch.sort(lens, dim=0, descending=True)
-        _, iAscending = torch.sort(iSort, dim=0, descending=False)
-        seq_ = torch.index_select(input=seq, dim=0, index=iSort)
-        embed = self.embedding(seq_)
-        # use util to pack embeddings for batch encoding
-        packedSeq = pack_padded_sequence(embed, valSort, batch_first=True)
-        out, _ = self.rnn(packedSeq)
-        e, _ = pad_packed_sequence(out, batch_first=True)
-        e = e.contiguous()
-        e = torch.index_select(e, dim=0, index=iAscending)
-        e = self.dropout(e)
-        b, _ = list(mask.size())
-        # add the sentinel vector
-        sentinelExp = self.sentinel.squeeze().expand(b, self.hiddenDim).unsqueeze(1).contiguous()
-        lens = lens.unsqueeze(1).expand(b, self.hiddenDim).unsqueeze(1)
-        sentinelZero = torch.zeros(b, self.hiddenDim).unsqueeze(1)
-        e = torch.cat((e, sentinelZero), dim=1)
-        e = e.scatter_(1, lens, sentinelExp)
-        return e
+# class Encoder(nn.Module):
+#     '''
+#     Encodes just the question to generate hidden state for ASK approximation
+#     and attention matrix to concat with attention matrix of C_Encoder
+#     '''
+#     def __init__(self, inDim, hiddenDim, layerNum=1, dropoutPercent=0.1):
+#         super(Encoder, self).__init__()
+#         # attributes
+#         self.inDim = inDim
+#         self.hiddenDim = hiddenDim
+#         self.layerNum = layerNum
+#         # sentinel vector is random noise to allow attenuation to impossibles
+#         self.sentinel = nn.Parameter(torch.rand(hiddenDim))
+#         # layers
+#         self.embedding = nn.Embedding(inDim, hiddenDim)
+#         self.rnn = nn.GRU(input_size=hiddenDim,
+#                           hidden_size=hiddenDim,
+#                           num_layers=layerNum,
+#                           batch_first=True,
+#                           dropout=dropoutPercent,
+#                           bidirectional=False)
+#         self.dropout = nn.Dropout(p=dropoutPercent)
+#         # self.nonLinearity = nn.ReLU()
+#
+#     def init_hidden(self, device):
+#         return torch.zeros(1, 1, self.hiddenDim, device=device)
+#
+#     def forward(self, seq, mask):
+#         # take sum of the mask matrix
+#         lens = torch.sum(mask, 1)
+#         print(lens)
+#         valSort, iSort = torch.sort(lens, dim=0, descending=True)
+#         _, iAscending = torch.sort(iSort, dim=0, descending=False)
+#         seq_ = torch.index_select(input=seq, dim=0, index=iSort)
+#         embed = self.embedding(seq_)
+#         # use util to pack embeddings for batch encoding
+#         packedSeq = pack_padded_sequence(embed, valSort, batch_first=True)
+#         out, _ = self.rnn(packedSeq)
+#         e, _ = pad_packed_sequence(out, batch_first=True)
+#         e = e.contiguous()
+#         e = torch.index_select(e, dim=0, index=iAscending)
+#         e = self.dropout(e)
+#         b, _ = list(mask.size())
+#         # add the sentinel vector
+#         sentinelExp = self.sentinel.squeeze().expand(b, self.hiddenDim).unsqueeze(1).contiguous()
+#         lens = lens.unsqueeze(1).expand(b, self.hiddenDim).unsqueeze(1)
+#         sentinelZero = torch.zeros(b, self.hiddenDim).unsqueeze(1)
+#         e = torch.cat((e, sentinelZero), dim=1)
+#         e = e.scatter_(1, lens, sentinelExp)
+#         return e
 
 
 class Dense(nn.Module):
@@ -151,20 +151,28 @@ def encode_coattention(Q, D):
     C_D_t = torch.transpose(C_D, 1, 2)
     return C_D_t
 
+h = 100
+d_Q = Dense(h)
+d_D = Dense(h)
+e_Q = Encoder(10, h, 1, 0.1)
+e_D = Encoder(10, h, 1, 0.1)
 
-class Fusion_BiLSTM(nn.Module):
-    '''
-    Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
-    temporal sensitivity in embeddings.
-    '''
-    def __init__(self, hiddenDim):
-        super(Fusion_BiLSTM, self).__init__()
-        self.rnn = nn.GRU(input_size=(3*hiddenDim),
-                          hidden_size=hiddenDim,
-                          num_layers=1,
-                          bidirectional=True)
 
-    def forward(self, C_D_t, D):
+# class Fusion_BiLSTM(nn.Module):
+#     '''
+#     Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
+#     temporal sensitivity in embeddings.
+#     '''
+#     def __init__(self, hiddenDim, dropP):
+#         super(Fusion_BiLSTM, self).__init__()
+#         self.rnn = nn.GRU(input_size=(3*hiddenDim),
+#                           hidden_size=hiddenDim,
+#                           num_layers=1,
+#                           bidirectional=True,
+#                           dropout=dropP)
+#         self.drop = nn.Dropout(p=dropP)
+#
+#     def forward(self, C_D_t, D):
 
 
 
