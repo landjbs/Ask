@@ -10,6 +10,8 @@ to raise final performance. Mean final hidden state of encoder ensemble across
 novel question can be estimated by encoder in Ask longshot question generation
 to expediate training.
 https://arxiv.org/pdf/1611.01604.pdf
+
+Copyright (c) 2018 Copyright Holder All Rights Reserved.
 '''
 
 import torch
@@ -128,13 +130,15 @@ class Encoder(nn.Module):
         return out, hidden
 
 
-class BiFusion_LSTM(nn.Module):
+class Fusion_BiLSTM(nn.Module):
     '''
-    BiFusion LSTM runs recurrent encoding over coattention matrix to establish
+    Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
     temporal sensitivity in embeddings.
     '''
     def __init__(self, hiddenDim):
-        super(BiFusion_LSTM, self).__init__()
+        super(Fusion_BiLSTM, self).__init__()
+
+
 
 class Coattention_Encoder(nn.Module):
     '''
@@ -147,8 +151,9 @@ class Coattention_Encoder(nn.Module):
         # attributes
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
-        # layers
-        self.
+
+    def forward(self, qE, dE):
+
 
 # d = Dense(100)
 # e = Encoder(d, 10, 100, 2)
