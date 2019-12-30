@@ -8,4 +8,4 @@ import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torch.cuda import is_available as gpu_available
 
-from answer import 
+from answer import Encoder
