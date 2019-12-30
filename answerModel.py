@@ -112,8 +112,17 @@ class Encoder(nn.Module):
         return out, hidden
 
 
-class
+class Q_Dense(nn.Module):
+    '''
+    Non-linearity to allow unique encoding for question.
+    '''
+    def __init__(self, hiddenDim):
+        super(Q_Dense, self).__init__()
+        # attributes
+        self.dense = nn.Linear(in_features=hiddenDim, out_features=hiddenDim)
+        self.nonLinearity = nn.Tanh()
 
+    def forward(self, )
 
 x = Encoder(10, 10, 2)
 t = torch.tensor([[1,1],[2,2],[3,3]])
