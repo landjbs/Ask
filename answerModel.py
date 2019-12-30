@@ -103,10 +103,16 @@ class Encoder(nn.Module):
                           num_layers=layerNum,
                           bidirectional=False)
 
+    def init_hidden(self, device):
+        return torch.zeros(1, 1, self.hiddenDim, device=device)
+
     def forward(self, inputId, hidden):
         out = self.embedding(inputId)
         out, hidden = self.rnn(out, hidden)
         return out, hidden
+
+
+class
 
 
 x = Encoder(10, 10, 2)
