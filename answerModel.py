@@ -153,21 +153,22 @@ def encode_coattention(Q, D):
     return attn
 
 
-# class Fusion_BiLSTM(nn.Module):
-#     '''
-#     Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
-#     temporal sensitivity in embeddings.
-#     '''
-#     def __init__(self, hiddenDim, dropP):
-#         super(Fusion_BiLSTM, self).__init__()
-#         self.rnn = nn.GRU(input_size=(3*hiddenDim),
-#                           hidden_size=hiddenDim,
-#                           num_layers=1,
-#                           bidirectional=True,
-#                           dropout=dropP)
-#         self.drop = nn.Dropout(p=dropP)
-#
-#     def forward(self, C_D_t, D):
+class Fusion_BiLSTM(nn.Module):
+    '''
+    Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
+    temporal sensitivity in embeddings.
+    '''
+    def __init__(self, hiddenDim, dropP):
+        super(Fusion_BiLSTM, self).__init__()
+        self.rnn = nn.GRU(input_size=(3*hiddenDim),
+                          hidden_size=hiddenDim,
+                          num_layers=1,
+                          bidirectional=True,
+                          dropout=dropP)
+        self.drop = nn.Dropout(p=dropP)
+
+    def forward(self, C_D_t, D):
+        
 
 
 
@@ -200,6 +201,7 @@ print(f'Q: {Q.shape}')
 
 C_D_t = encode_coattention(Q, D)
 
+print(f'C_D_t: {C_D_t.shape}')
 
 
 # d = Dense(100)
