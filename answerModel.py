@@ -139,6 +139,10 @@ class Fusion_BiLSTM(nn.Module):
         super(Fusion_BiLSTM, self).__init__()
 
 
+def encode_coattention(qE, dE):
+    dE_t = torch.transpose(dE, 1, 2)
+    # compute affinity matrix
+
 
 class Coattention_Encoder(nn.Module):
     '''
