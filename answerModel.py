@@ -128,6 +128,14 @@ class Encoder(nn.Module):
         return out, hidden
 
 
+class BiFusion_LSTM(nn.Module):
+    '''
+    BiFusion LSTM runs recurrent encoding over coattention matrix to establish
+    temporal sensitivity in embeddings.
+    '''
+    def __init__(self, hiddenDim):
+        super(BiFusion_LSTM, self).__init__()
+
 class Coattention_Encoder(nn.Module):
     '''
     Coattention encoder follows the methods described by Dynamic Coattention
