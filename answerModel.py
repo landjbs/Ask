@@ -112,9 +112,9 @@ class Encoder(nn.Module):
         return out, hidden
 
 
-class Q_Dense(nn.Module):
+class Dense(nn.Module):
     '''
-    Non-linearity to allow unique encoding for question.
+    Non-linearity to allow unique encoding for questions and context.
     '''
     def __init__(self, hiddenDim):
         super(Q_Dense, self).__init__()
@@ -122,7 +122,8 @@ class Q_Dense(nn.Module):
         self.dense = nn.Linear(in_features=hiddenDim, out_features=hiddenDim)
         self.nonLinearity = nn.Tanh()
 
-    def forward(self, )
+    def forward(self, encoderOut):
+        return self.nonLinearity(self.dense(encoderOut))
 
 x = Encoder(10, 10, 2)
 t = torch.tensor([[1,1],[2,2],[3,3]])
