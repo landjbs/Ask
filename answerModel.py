@@ -130,15 +130,6 @@ class Encoder(nn.Module):
         return out, hidden
 
 
-class Fusion_BiLSTM(nn.Module):
-    '''
-    Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
-    temporal sensitivity in embeddings.
-    '''
-    def __init__(self, hiddenDim):
-        super(Fusion_BiLSTM, self).__init__()
-
-
 def encode_coattention(Q, D):
     '''
     Coattention encoder follows the methods described by Dynamic Coattention
@@ -160,14 +151,21 @@ def encode_coattention(Q, D):
     C_D_t = torch.transpose(C_D, 1, 2)
     return C_D_t
 
-class Coattention_Encoder(nn.Module):
-    def __init__(self, hiddenDim, layerNum, dropP):
-        super(Coattention_Encoder, self).__init__()
-        # attributes
-        self.hiddenDim = hiddenDim
-        self.layerNum = layerNum
 
-    def forward(self, qE, dE):
+class Fusion_BiLSTM(nn.Module):
+    '''
+    Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
+    temporal sensitivity in embeddings.
+    '''
+    def __init__(self, hiddenDim):
+        super(Fusion_BiLSTM, self).__init__()
+        self.rnn = nn.GRU(input_size=(3*hiddenDim),
+                          hidden_size=hiddenDim,
+                          num_layers=1,
+                          bidirectional=True)
+
+    def forward(self, C_D_t, D):
+
 
 
 # d = Dense(100)
