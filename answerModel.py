@@ -148,8 +148,8 @@ def encode_coattention(Q, D):
     A_D = F.softmax(L, dim=2)
     Q_C_Q = torch.cat((Q_t, C_Q), dim=1)
     C_D = torch.bmm(Q_C_Q, A_D)
-    C_D_t = torch.transpose(C_D, 1, 2)
-    attn = torch.cat((C_D_t, D), dim=2)
+    C_D = torch.transpose(C_D, 1, 2)
+    attn = torch.cat((C_D, D), dim=2)
     return attn
 
 
@@ -167,8 +167,11 @@ class Fusion_BiLSTM(nn.Module):
                           dropout=dropP)
         self.drop = nn.Dropout(p=dropP)
 
-    def forward(self, C_D_t, D):
-        
+    def forward(self, attn, hidden):
+        out, hidden = self.rnn(attn, hidden)
+        out = self.drop(out)
+        return out, hidden
+
 
 
 
@@ -199,9 +202,16 @@ Q = Q.unsqueeze(0)
 print(f'D: {D.shape}')
 print(f'Q: {Q.shape}')
 
-C_D_t = encode_coattention(Q, D)
+attn = encode_coattention(Q, D)
 
 print(f'C_D_t: {C_D_t.shape}')
+
+fusion = Fusion_BiLSTM(hD, 0.1)
+
+for vec in attn:
+    fO, hV = fusion(vec, hV)
+    print(fO)
+
 
 
 # d = Dense(100)
