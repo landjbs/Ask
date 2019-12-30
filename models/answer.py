@@ -5,10 +5,9 @@ to employ span selection.
 Uses multi-layer Gated Recurrent Unit to separately encode quesiton
 and context. Dynamic Co-Attention Mechanism allows bidirectional attentuation
 to elements of Q and C for each decode step.
-Highway Maxout Ensemble Model with random initializations allows colaboration
-to raise final performance. Mean final hidden state of encoder ensemble across
-novel question can be estimated by encoder in Ask longshot question generation
-to expediate training.
+Highway Maxout Ensemble Model allows colaboration to raise final performance.
+Mean final hidden state of encoder ensemble across novel question can be
+estimated by encoder in Ask longshot question generation to expediate training.
 https://arxiv.org/pdf/1611.01604.pdf
 
 Copyright (c) 2018 Copyright Holder All Rights Reserved.
