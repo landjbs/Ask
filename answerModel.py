@@ -89,7 +89,7 @@ class Encoder(nn.Module):
     output hidden state of question encoding.
     '''
     def __init__(self, inDim, hiddenDim, layerNum):
-        super(C_Encoder, self).__init__()
+        super(Encoder, self).__init__()
         # attributes
         self.inDim = inDim
         self.hiddenDim = hiddenDim
