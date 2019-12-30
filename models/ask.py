@@ -2,6 +2,6 @@ from base import *
 
 
 class Ask(object):
-    def __init__(self, hiddenDim, maxLen):
+    def __init__(self, searchTable, maxLen):
         ''' '''
-        pass
+        self.encoder = Encoder()
