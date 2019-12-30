@@ -139,10 +139,16 @@ class Fusion_BiLSTM(nn.Module):
         super(Fusion_BiLSTM, self).__init__()
 
 
-def encode_coattention(qE, dE):
-    dE_t = torch.transpose(dE, 1, 2)
+def encode_coattention(Q, D):
+    D_t = torch.transpose(dE, 1, 2)
     # compute affinity matrix
-    l = torch.bmm(qE, dE_t)
+    L = torch.bmm(qE, dE_t)
+    # compute scores for question
+    A_Q = F.softmax(L, dim=1)
+    A_Q = torch.transpose(A_Q, 1, 2)
+    C_Q = torch.bmm(D_t, A_Q)
+
+    A_D = F.softmax(L, dim=2)
 
 
 class Coattention_Encoder(nn.Module):
