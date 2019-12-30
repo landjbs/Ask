@@ -15,7 +15,7 @@ class Document(object):
         self.questions = questions
         self.vec = vec
         self.path = path
-        self.text = self.fetch_text(path)
+        self.text = self.fetch_text()
 
     def __str__(self):
         return f'<DocumentObj | id={self.docId}>'
@@ -24,3 +24,10 @@ class Document(object):
         ''' Iterates over questions in doc, yielding tuple (text, span) '''
         for question in self.questions.values():
             yield (question.text, question.span)
+
+    def fetch_text(self):
+        if self.path:
+            with open(path, 'r') as text:
+                return text.read()
+        else:
+            raise Error(f'{self} cannot fetch text because it has no path.')
