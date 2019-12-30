@@ -139,7 +139,7 @@ def encode_coattention(Q, D):
     D_t = torch.transpose(D, 1, 2)
     Q_t = torch.transpose(Q, 1, 2)
     # compute affinity matrix
-    L = torch.bmm(qE, dE_t)
+    L = torch.bmm(Q, D_t)
     # compute scores for question
     A_Q = F.softmax(L, dim=1)
     A_Q = torch.transpose(A_Q, 1, 2)
@@ -152,19 +152,34 @@ def encode_coattention(Q, D):
     return C_D_t
 
 
-def _encode(t, h, encoder):
-
-
-
-h = 100
-d_Q = Dense(h)
-d_D = Dense(h)
-e_Q = Encoder(d_Q, 10, h, 1)
-e_D = Encoder(e_Q, 10, h, 1)
+hD = 100
+d_Q = Dense(hD)
+d_D = Dense(hD)
+e_Q = Encoder(d_Q, 10, hD, 1)
+e_D = Encoder(d_D, 10, hD, 1)
 
 t_Q = torch.tensor([1,2,3])
 t_D = torch.tensor([4,5,6,7,8,9])
 
+hV = e_Q.init_hidden(device)
+Q = torch.zeros(5, hD, device=device)
+D = torch.zeros(10, hD, device=device)
+
+for i, qI in enumerate(t_Q):
+    qO, hV = e_Q(qI, hV)
+    Q[i] = qO[0, 0]
+
+for i, dI in enumerate(t_D):
+    dO, hV = e_D(dI, hV)
+    D[i] = dO[0, 0]
+
+D = D.unsqueeze(0)
+Q = Q.unsqueeze(0)
+
+print(f'D: {D.shape}')
+print(f'Q: {Q.shape}')
+
+C_D_t = encode_coattention(Q, D)
 
 
 # class Fusion_BiLSTM(nn.Module):
