@@ -81,7 +81,6 @@ class Encoder(nn.Module):
         return e
 
 
-
 class Encoder(nn.Module):
     '''
     Encodes text ids to generate attention matrix to concatenate between
@@ -103,14 +102,10 @@ class Encoder(nn.Module):
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
                           bidirectional=False)
-        self.dense = nn.Linear(in_features=hiddenDim, out_features=hiddenDim)
-        self.nonLinearity = nn.Tanh()
 
     def forward(self, inputId, hidden):
         out = self.embedding(inputId)
         out, hidden = self.rnn(out, hidden)
-        out = self.dense(out)
-        out = self.nonLinearity(out)
         return out, hidden
 
 
