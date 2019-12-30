@@ -149,7 +149,26 @@ def encode_coattention(Q, D):
     Q_C_Q = torch.cat((Q_t, C_Q), dim=1)
     C_D = torch.bmm(Q_C_Q, A_D)
     C_D_t = torch.transpose(C_D, 1, 2)
-    return C_D_t
+    attn = torch.cat((C_D_t, D), dim=2)
+    return attn
+
+
+# class Fusion_BiLSTM(nn.Module):
+#     '''
+#     Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
+#     temporal sensitivity in embeddings.
+#     '''
+#     def __init__(self, hiddenDim, dropP):
+#         super(Fusion_BiLSTM, self).__init__()
+#         self.rnn = nn.GRU(input_size=(3*hiddenDim),
+#                           hidden_size=hiddenDim,
+#                           num_layers=1,
+#                           bidirectional=True,
+#                           dropout=dropP)
+#         self.drop = nn.Dropout(p=dropP)
+#
+#     def forward(self, C_D_t, D):
+
 
 
 hD = 100
@@ -180,23 +199,6 @@ print(f'D: {D.shape}')
 print(f'Q: {Q.shape}')
 
 C_D_t = encode_coattention(Q, D)
-
-
-# class Fusion_BiLSTM(nn.Module):
-#     '''
-#     Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
-#     temporal sensitivity in embeddings.
-#     '''
-#     def __init__(self, hiddenDim, dropP):
-#         super(Fusion_BiLSTM, self).__init__()
-#         self.rnn = nn.GRU(input_size=(3*hiddenDim),
-#                           hidden_size=hiddenDim,
-#                           num_layers=1,
-#                           bidirectional=True,
-#                           dropout=dropP)
-#         self.drop = nn.Dropout(p=dropP)
-#
-#     def forward(self, C_D_t, D):
 
 
 
