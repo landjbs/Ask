@@ -142,6 +142,7 @@ class Fusion_BiLSTM(nn.Module):
 def encode_coattention(qE, dE):
     dE_t = torch.transpose(dE, 1, 2)
     # compute affinity matrix
+    l = torch.bmm(qE, dE_t)
 
 
 class Coattention_Encoder(nn.Module):
