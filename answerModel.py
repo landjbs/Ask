@@ -128,25 +128,27 @@ class Encoder(nn.Module):
         return out, hidden
 
 
-d = Dense(100)
-e = Encoder(d, 10, 100, 2)
+# d = Dense(100)
+# e = Encoder(d, 10, 100, 2)
+# h = e.init_hidden(device)
+# encoderOptim = torch.optim.Adam(e.parameters(), lr=0.0005)
+# c = torch.zeros(100, dtype=torch.float)
+# t = torch.tensor([1,2,3])
+# l = []
+# for _ in range(100):
+#     encoderOptim.zero_grad()
+#     loss = 0
+#     for i in t:
+#         o, h = e(i, h)
+#         loss += (torch.dist(o.float(), c)) ** 2
+#         l.append(loss.item())
+#     loss.backward(retain_graph=True)
+#     encoderOptim.step()
+# plt.plot(l)
+# plt.show()
 
-h = e.init_hidden(device)
 
-encoderOptim = torch.optim.Adam(e.parameters(), lr=0.0005)
-c = torch.zeros(100, dtype=torch.float)
 
-for _ in range(100):
-    t = torch.tensor([1,2,3])
-    encoderOptim.zero_grad()
-    loss = 0
-    for i in t:
-        o, h = e(i, h)
-        loss += torch.log(torch.dist(o.float(), c)) ** 2
-        print(loss)
-        print(o)
-    loss.backward()
-    encoderOptim.step()
 
 # class Q_Decoder(nn.Module):
 #     def __init__(self, hiddenDim, maxLen, dropoutPercent):
