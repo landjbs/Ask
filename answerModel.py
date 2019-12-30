@@ -128,6 +128,20 @@ class Encoder(nn.Module):
         return out, hidden
 
 
+class Coattention_Encoder(nn.Module):
+    '''
+    Coattention encoder follows the methods described by Dynamic Coattention
+    to compute bidirectional coattention between the question encoding and the
+    document encoding.
+    '''
+    def __init__(self, hiddenDim, layerNum, dropP):
+        super(Coattention_Encoder, self).__init__()
+        # attributes
+        self.hiddenDim = hiddenDim
+        self.layerNum = layerNum
+        # layers
+        self.
+
 # d = Dense(100)
 # e = Encoder(d, 10, 100, 2)
 # h = e.init_hidden(device)
@@ -148,10 +162,10 @@ class Encoder(nn.Module):
 # plt.show()
 
 
-class Dynamic_Decoder(nn.Module):
-    def __init__(self, hiddenDim, maxLen, dropoutPercent):
-        super(Dynamic_Decoder, self).__init__()
-        
+# class Dynamic_Decoder(nn.Module):
+#     def __init__(self, hiddenDim, maxLen, dropoutPercent):
+#         super(Dynamic_Decoder, self).__init__()
+
 
 
 
