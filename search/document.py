@@ -40,4 +40,7 @@ class Document(object):
         If text is currently loaded in RAM and path is given, saves text to
         path and sets self.text to None.
         '''
-        if self.text:
+        # TODO: imp
+        pass
+        # if (self.text and self.path):
+        #     self.text = self.fetch_text(None)
