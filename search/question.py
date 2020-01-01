@@ -16,3 +16,8 @@ class Question(object):
 
     def __str__(self):
         return f'<Question | {self.text}>'
+
+    def answer(self, doc, model):
+        ''' Answers unanswered question using model '''
+        # TODO: imp
+        pass

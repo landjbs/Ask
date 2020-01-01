@@ -23,7 +23,7 @@ import torch.nn.functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from torch.cuda import is_available as gpu_available
 
-import utils as u
+# import utils as u
 
 ZERO_BOOSTER = 0.000000001
 
@@ -157,17 +157,24 @@ class Fusion_BiLSTM(nn.Module):
     Fusion BiLSTM runs recurrent encoding over coattention matrix to establish
     temporal sensitivity in embeddings.
     '''
-    def __init__(self, hiddenDim, dropP):
+    def __init__(self, hiddenDim, layerNum, dropP):
         super(Fusion_BiLSTM, self).__init__()
-        self.rnn = nn.GRU(input_size=(3*hiddenDim),
+        self.layerNum = layerNum
+        self.hiddenDim = hiddenDim
+        self.rnn = nn.LSTM(input_size=(3*hiddenDim),
                           hidden_size=hiddenDim,
-                          num_layers=1,
-                          bidirectional=False,
+                          num_layers=layerNum,
+                          batch_first=True,
+                          bidirectional=True,
                           dropout=dropP)
         self.drop = nn.Dropout(p=dropP)
 
+    def init_hidden(self, device):
+        return torch.zeros(2 * self.layerNum, 1, self.hiddenDim, device=device)
+
     def forward(self, attn, hidden):
-        attn = attn.unsqueeze(0)
+        # attn = attn.unsqueeze(0)
+        attn = attn.view(10, 1, -1)
         out, hidden = self.rnn(attn, hidden)
         out = self.drop(out)
         return out, hidden
@@ -204,13 +211,12 @@ attn = encode_coattention(Q, D)
 
 print(f'attn: {attn.shape}')
 
-fusion = Fusion_BiLSTM(hD, 0.1)
 
-hV = hV.unsqueeze(0)
+fusion = Fusion_BiLSTM(hD, 1, 0.1)
 
-for vec in attn:
-    fO, hV = fusion(vec, hV)
-    print(fO)
+hV = fusion.init_hidden(device)
+
+aF, hV = fusion(attn, hV)
 
 
 
