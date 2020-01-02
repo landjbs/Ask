@@ -21,7 +21,7 @@ class SearchTable(object):
     def add_cluster_doc(self, document):
         pass
 
-    def add_id_doc(self, document):
-        pass
+    def add_id_doc(self, i, document):
+        self.idIdx.update({i : document})
 
-    def load_squad(self, )
+    # loading data
