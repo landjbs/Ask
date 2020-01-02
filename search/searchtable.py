@@ -16,6 +16,12 @@ class SearchTable(object):
         self.add_id_doc(document)
 
     def add_keyword_doc(self, document):
-        tokenScores = document.
+        pass
+
+    def add_cluster_doc(self, document):
+        pass
+
+    def add_id_doc(self, document):
+        pass
 
     def load_squad(self, )
