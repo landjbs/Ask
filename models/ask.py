@@ -10,12 +10,18 @@ class Ask_Decoder(nn.Module):
         self.hiddenDim = hiddenDim
         self.layerNum = layerNum
         # layers
+        self.relu = F.relu()
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
                           batch_first=True)
         self.dense = nn.Linear(in_features=hiddenDim,
                                out_features=outDim)
+        self.softmax = nn.Softmax(dim=1)
+
+    def forward(self, prevEmbedding, hidden):
+        prevEmbedding = self.relu(prevEmbedding.view(1, 1, -1))
+
 
 class Ask(object):
     def __init__(self, searchTable, maxLen):

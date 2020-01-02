@@ -249,41 +249,41 @@ aF, hV = fusion(attn, hV)
 
 
 
-# class Q_Decoder(nn.Module):
-#     def __init__(self, hiddenDim, maxLen, dropoutPercent):
-#         super(Q_Decoder, self).__init__()
-#         # attributes
-#         self.hiddenDim = hiddenDim
-#         self.maxLen = maxLen
-#         self.dropoutPercent = dropoutPercent
-#         # layers
-#         self.embedding = nn.Embedding(outDim, hiddenDim)
-#         self.attn = nn.Linear(in_features=(2*hiddenDim),
-#                               out_features=maxLen)
-#         self.attn_combine = nn.Linear(in_features=(2*hiddenDim),
-#                                       out_features=hiddenDim)
-#         self.dropout = nn.Dropout(p=dropoutPercent)
-#         self.rnn = nn.GRU(input_size=hiddenDim,
-#                           hidden_size=hiddenDim)
-#         self.out = nn.Linear(in_features=hiddenDim, out_features=1)
-#         self.sigmoid = nn.Sigmoid()
-#
-#     def forward(self, inputId, hidden, encoderOuts):
-#         # embedding
-#         embed = self.embedding(inputId).view(1, 1, -1)
-#         embed = self.dropout()
-#         # attention
-#         attnWeights = self.attn(torch.cat((embed[0], hidden[0]), axis=1))
-#         attnWeights = F.softmax(attnWeights, dim=1)
-#         attnApplied = torch.bmm(attnWeights.unsqueeze(0),
-#                                 encoderOuts.unsqueeze(0))
-#         out = torch.cat((embed[0], attnApplied[0]), 1)
-#         out = self.attn_combine(out).unsqueeze(0)
-#         # recurrent
-#         out = F.relu(out)
-#         out, hidden = self.rnn(out)
-#         out = self.sigmoid(out)
-#         return out, hidden, attnWeights
+class Q_Decoder(nn.Module):
+    def __init__(self, hiddenDim, maxLen, dropoutPercent):
+        super(Q_Decoder, self).__init__()
+        # attributes
+        self.hiddenDim = hiddenDim
+        self.maxLen = maxLen
+        self.dropoutPercent = dropoutPercent
+        # layers
+        self.embedding = nn.Embedding(outDim, hiddenDim)
+        self.attn = nn.Linear(in_features=(2*hiddenDim),
+                              out_features=maxLen)
+        self.attn_combine = nn.Linear(in_features=(2*hiddenDim),
+                                      out_features=hiddenDim)
+        self.dropout = nn.Dropout(p=dropoutPercent)
+        self.rnn = nn.GRU(input_size=hiddenDim,
+                          hidden_size=hiddenDim)
+        self.out = nn.Linear(in_features=hiddenDim, out_features=1)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, inputId, hidden, encoderOuts):
+        # embedding
+        embed = self.embedding(inputId).view(1, 1, -1)
+        embed = self.dropout()
+        # attention
+        attnWeights = self.attn(torch.cat((embed[0], hidden[0]), axis=1))
+        attnWeights = F.softmax(attnWeights, dim=1)
+        attnApplied = torch.bmm(attnWeights.unsqueeze(0),
+                                encoderOuts.unsqueeze(0))
+        out = torch.cat((embed[0], attnApplied[0]), 1)
+        out = self.attn_combine(out).unsqueeze(0)
+        # recurrent
+        out = F.relu(out)
+        out, hidden = self.rnn(out)
+        out = self.sigmoid(out)
+        return out, hidden, attnWeights
 #
 #
 # class Answer_Model(object):
