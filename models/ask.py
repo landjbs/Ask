@@ -22,13 +22,22 @@ class Ask_Decoder(nn.Module):
                           batch_first=True)
         self.dense = nn.Linear(in_features=hiddenDim,
                                out_features=outDim)
-        self.catSoft = nn.Softmax(dim=1)
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, prevEmbedding, hidden, encoderOuts):
-        embed = self.relu(prevEmbedding.view(1, 1, -1))
+        embed = prevEmbedding.view(1, 1, -1)
+        # attention
         C = torch.cat((embed[0], hidden[0]), axis=1)
         W = self.attn(torch)
-        W = self.
+        W = self.softmax(W, dim=1)
+        A = torch.bmm(W.unsqueeze(0), encoderOuts.unsqueeze(0))
+        out = torch.cat((embed[0], A[0]), dim=1)
+        out = self.attn_combine(out).unsqueeze(0)
+        # recurrent
+        out = self.relu(out)
+        out, hidden = self.rnn(out, hidden)
+        out = self.sigmoid(out)
+        return out, hidden, W
 
 
 class Ask(object):
