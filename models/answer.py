@@ -161,11 +161,11 @@ class Fusion_BiLSTM(nn.Module):
         super(Fusion_BiLSTM, self).__init__()
         self.layerNum = layerNum
         self.hiddenDim = hiddenDim
-        self.rnn = nn.LSTM(input_size=(3*hiddenDim),
+        self.rnn = nn.GRU(input_size=(3*hiddenDim),
                           hidden_size=hiddenDim,
                           num_layers=layerNum,
-                          batch_first=True,
-                          bidirectional=True,
+                          batch_first=False,
+                          bidirectional=False,
                           dropout=dropP)
         self.drop = nn.Dropout(p=dropP)
 
@@ -180,45 +180,86 @@ class Fusion_BiLSTM(nn.Module):
         return out, hidden
 
 
+class Highway_Maxout_Network(nn.Module):
+    def __init__(self, hiddenDim, poolSize, dropP):
+        super(Maxout_Highway, self).__init__()
+        self.criterion = nn.CrossEntropyLoss()
+        # layers
+        self.r = nn.Linear(in_features=(5*hiddenDim),
+                           out_features=hiddenDim,
+                           bias=False)
+        self.m_t_1 = nn.Linear(in_features=(3*hiddenDim),
+                               out_features=(hiddenDim*poolSize))
+        self.m_t_2 = nn.Linear(in_features=(3*hiddenDim),
+                               out_features=(hiddenDim*poolSize))
+        self.m_t_3 = nn.Linear(in_features=(2*hiddenDim),
+                               out_features=poolSize)
+
+
 hD = 100
+# models
 d_Q = Dense(hD)
 d_D = Dense(hD)
 e_Q = Encoder(d_Q, 10, hD, 1)
 e_D = Encoder(d_D, 10, hD, 1)
+fusion = Fusion_BiLSTM(hD, 1, 0.1)
+
+e_Q_optim = torch.optim.Adam(e_Q.parameters())
+e_D_optim = torch.optim.Adam(e_D.parameters())
+f_optim = torch.optim.Adam(fusion.parameters())
+
+optims = [e_Q_optim, e_D_optim, f_optim]
+
+def map_optims(f):
+    for o in optims:
+        if f=='zero':
+            o.zero_grad()
+        elif (f=='step'):
+            o.step()
+        else:
+            raise ValueError('out of range')
+
+lL = []
 
 t_Q = torch.tensor([1,2,3])
 t_D = torch.tensor([4,5,6,7,8,9])
+target = torch.tensor([])
 
-hV = e_Q.init_hidden(device)
-Q = torch.zeros(5, hD, device=device)
-D = torch.zeros(10, hD, device=device)
+# train loop
+for _ in range(1000):
+    map_optims('zero')
 
-for i, qI in enumerate(t_Q):
-    qO, hV = e_Q(qI, hV)
-    Q[i] = qO[0, 0]
+    hV = e_Q.init_hidden(device)
+    Q = torch.zeros(5, hD, device=device)
+    D = torch.zeros(10, hD, device=device)
 
-for i, dI in enumerate(t_D):
-    dO, hV = e_D(dI, hV)
-    D[i] = dO[0, 0]
+    for i, qI in enumerate(t_Q):
+        qO, hV = e_Q(qI, hV)
+        Q[i] = qO[0, 0]
 
-D = D.unsqueeze(0)
-Q = Q.unsqueeze(0)
+    for i, dI in enumerate(t_D):
+        dO, hV = e_D(dI, hV)
+        D[i] = dO[0, 0]
 
-print(f'D: {D.shape}')
-print(f'Q: {Q.shape}')
+    D = D.unsqueeze(0)
+    Q = Q.unsqueeze(0)
 
-attn = encode_coattention(Q, D)
+    attn = encode_coattention(Q, D)
 
-print(f'attn: {attn.shape}')
+    F_O = torch.zeros(10, 100)
 
+    for step, a in enumerate(attn):
+        aO, hV = fusion(a, hV)
+        F_O[step] = aO[0, 0]
 
-fusion = Fusion_BiLSTM(hD, 1, 0.1)
+    tO = -torch.mean(F_O)
+    loss = tO**4
+    loss.backward()
+    lL.append(tO.detach().numpy())
+    map_optims('step')
 
-hV = fusion.init_hidden(device)
-
-aF, hV = fusion(attn, hV)
-
-
+plt.plot(lL)
+plt.show()
 
 # d = Dense(100)
 # e = Encoder(d, 10, 100, 2)
