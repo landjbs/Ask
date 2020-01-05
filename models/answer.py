@@ -195,6 +195,7 @@ class Highway_Maxout_Network(nn.Module):
         self.m_t_3 = nn.Linear(in_features=(2*hiddenDim),
                                out_features=poolSize)
 
+    def forward(self ):
 
 hD = 100
 # models
