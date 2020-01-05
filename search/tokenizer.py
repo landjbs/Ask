@@ -10,4 +10,8 @@ class Tokenizer(object):
 
     def encode_tokens(self, tokens):
         ''' Returns id-encoded list from word-tokens using gptTokenizer '''
-        return self.gptTokenizer.convert_tokens_to_ids(tokenList)
+        return self.tokenzier.convert_tokens_to_ids(tokenList)
+
+    def decode_ids(self, tokens):
+        ''' Returns list of str tokens from list of id encodings '''
+        return self.tokenzier.convert_tokens_to_ids()
