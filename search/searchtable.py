@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 from search.document import Document
 from search.question import Question
 
@@ -35,7 +37,11 @@ class SearchTable(object):
 
     def load_squad_file(self, path):
         ''' Loads squad file from path into various idxs '''
-        with open()
+        with open(path, 'r') as squadFile:
+            data = json.load(squadFile)['data']
+            for category in tqdm(data, leave=False):
+                title = category['title']
+                
 
 
     # DATA YIELDING
@@ -43,3 +49,4 @@ class SearchTable(object):
         '''
         Genereates batch tensor of size n with form (n, maxLen, )
         '''
+        pass
