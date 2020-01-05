@@ -1,8 +1,12 @@
 import json
 from tqdm import tqdm
+import numpy as np
+from scipy.spatial.distance import euclidean
 
 from search.document import Document
 from search.question import Question
+from search.tokenizer import Tokenizer
+from search.embedder import Embedder
 
 class SearchTable(object):
     def __init__(self):
@@ -12,9 +16,9 @@ class SearchTable(object):
         self.pageNum = 0
 
         # processing modules
-        self.tokenizer = None
+        self.tokenizer = Tokenizer()
         self.keyworder = None
-        self.embedder = None
+        self.embedder = Embedder()
 
     def __str__(self):
         return f'<SearchTable | pageNum={self.pageNum}>'
@@ -42,8 +46,18 @@ class SearchTable(object):
             for category in tqdm(data, leave=False):
                 title = category['title']
                 for id, doc in enumerate(category['paragraphs']):
-                    tokens = self.tokenizer(doc['context'])
-                    
+                    # tokens = self.tokenizer.string_to_ids(doc['context'])
+                    embedding = self.embedder.vectorize(doc['context'])
+                    self.clusterIdx.update({id : (embedding, doc['context'])})
+                    if id > 0:
+                        break
+
+    def search(self, text):
+        embedding = self.embedder.vectorize(text)
+        print(f'LEN: {len(self.clusterIdx)}')
+        scores = [(euclidean(e, embedding), t) for e, t in self.clusterIdx.values()]
+        for _ in range(3):
+            print(scores.pop(scores.index(max(scores)))[1], end=f'\n{"-"*80}\n')
 
 
     # DATA YIELDING
