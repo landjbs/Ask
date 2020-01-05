@@ -1,11 +1,11 @@
+import json
 from tqdm import tqdm
 
 from search.document import Document
 from search.question import Question
 
 class SearchTable(object):
-    def __init__(self, tokenizer):
-        self.tokenizer = tokenizer
+    def __init__(self):
         self.keywordIdx = {}
         self.clusterIdx = {}
         self.idIdx = {}
@@ -41,7 +41,9 @@ class SearchTable(object):
             data = json.load(squadFile)['data']
             for category in tqdm(data, leave=False):
                 title = category['title']
-                
+                for id, doc in enumerate(category['paragraphs']):
+                    tokens = self.tokenizer(doc['context'])
+                    
 
 
     # DATA YIELDING
