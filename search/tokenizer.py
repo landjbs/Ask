@@ -4,6 +4,11 @@ class Tokenizer(object):
     def __init__(self):
         self.tokenzier = GPT2Tokenizer.from_pretrained('gpt2')
 
+    # cleaning
+    def clean_text(self, s):
+        ''' Returns cleaned text '''
+        return s.strip().lower()
+
     # tokenization
     def get_tokens(self, text):
         ''' Returns word-tokenized text using gptTokenizer '''
