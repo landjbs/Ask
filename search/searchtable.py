@@ -1,3 +1,6 @@
+from search.document import Document
+from search.question import Question
+
 class SearchTable(object):
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
@@ -6,9 +9,15 @@ class SearchTable(object):
         self.idIdx = {}
         self.pageNum = 0
 
+        # processing modules
+        self.tokenizer = None
+        self.keyworder = None
+        self.embedder = None
+
     def __str__(self):
         return f'<SearchTable | pageNum={self.pageNum}>'
 
+    # DATA LOADING
     def add_document(self, document):
         ''' Adds single document to kewordIdx, clusterIdx, and idIdx '''
         self.add_keyword_doc(document)
@@ -24,4 +33,13 @@ class SearchTable(object):
     def add_id_doc(self, i, document):
         self.idIdx.update({i : document})
 
-    # loading data
+    def load_squad_file(self, path):
+        ''' Loads squad file from path into various idxs '''
+        with open()
+
+
+    # DATA YIELDING
+    def gen_qa_batch(self, n, maxLen):
+        '''
+        Genereates batch tensor of size n with form (n, maxLen, )
+        '''
