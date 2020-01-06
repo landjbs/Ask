@@ -39,6 +39,22 @@ class SearchTable(object):
     def add_id_doc(self, i, document):
         self.idIdx.update({i : document})
 
+    # SQUAD LOADING
+    def extract_squad_questions(self, questions, tokens):
+        ''' Helper to find questions while building table '''
+        for q in questions:
+            if q['is_impossible']:
+                yield Question(q['id'], q['question'], None)
+                continue
+            try:
+                answerList = q['answers']
+            except KeyError:
+                answerList = []
+            if (answerList == []):
+                answerList = q['plausible_answers']
+                if (answerList == []):
+                    continue
+
     def load_squad_file(self, path):
         ''' Loads squad file from path into various idxs '''
         with open(path, 'r') as squadFile:
@@ -47,6 +63,7 @@ class SearchTable(object):
                 title = category['title']
                 for id, doc in enumerate(category['paragraphs']):
                     tokens = self.tokenizer.string_to_ids(doc['context'])
+
 
 
     def search(self, text):
