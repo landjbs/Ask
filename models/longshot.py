@@ -19,6 +19,9 @@ import utils as u
 
 ZERO_BOOSTER = 0.000000001
 
+EMBEDDER = Embedder()
+
+
 class Encoder(nn.Module):
     def __init__(self, hiddenDim, layerNum):
         '''
@@ -135,6 +138,10 @@ class LongShot(object):
         predLog = torch.log(predCorrect)
         loss = -(predLog)
         return loss
+
+    def norm_loss(self, v1, v2):
+        ''' Loss of p-norm between two vectors '''
+        pass
 
     def eval_accuracy(self, prediction, target):
         """ Evaluates accuracy of prediciton """
