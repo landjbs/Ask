@@ -177,7 +177,9 @@ class LongShot(object):
         decoderInput = self.searchTable.word_encode(['\t'])
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
-        print('Target: ', self.searchTable.word_decode(questionTargets))
+        qText = EMBEDDER.vectorize(self.searchTable.word_decode(questionTargets))
+        print('Target: ', qText)
+        targetVec = qText
         genList = []
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
