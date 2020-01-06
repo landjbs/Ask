@@ -39,12 +39,18 @@ class SearchTable(object):
     def add_id_doc(self, i, document):
         self.idIdx.update({i : document})
 
+    # ABSTRACT TEXT MANIPULATION
+    def make_question(self, id, text, span, asker):
+        ''' Generates Question after encoding text '''
+        textIds = self.tokenizer.string_to_ids(text)
+        return Question(id, text, span, asker)
+
     # SQUAD LOADING
     def extract_squad_questions(self, questions, tokens):
         ''' Helper to find questions while building table '''
         for q in questions:
             if q['is_impossible']:
-                yield Question(q['id'], q['question'], None)
+                yield self.make_question(q['id'], q['question'], None, 'squad')
                 continue
             try:
                 answerList = q['answers']
