@@ -44,3 +44,7 @@ class Document(object):
         pass
         # if (self.text and self.path):
         #     self.text = self.fetch_text(None)
+
+    def pretty_print(self, qId):
+        ''' Pretty prints question of qId and annotated doc/answer '''
+        
