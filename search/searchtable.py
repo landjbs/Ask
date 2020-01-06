@@ -45,6 +45,9 @@ class SearchTable(object):
         textIds = self.tokenizer.string_to_ids(text)
         return Question(id, text, span, asker)
 
+    def make_document(self):
+        pass
+
     # SQUAD LOADING
     def extract_squad_questions(self, questions, tokens):
         ''' Helper to find questions while building table '''
