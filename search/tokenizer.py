@@ -1,8 +1,11 @@
 from transformers import GPT2Tokenizer
 
 class Tokenizer(object):
-    def __init__(self):
-        self.tokenzier = GPT2Tokenizer.from_pretrained('gpt2')
+    def __init__(self, build):
+        if build == 'gpt':
+            self.tokenzier = GPT2Tokenizer.from_pretrained('gpt2')
+        else:
+            raise ValueError(f'Build {build} not yet supported.')
 
     # cleaning
     def clean_text(self, s):

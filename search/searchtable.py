@@ -16,7 +16,7 @@ class SearchTable(object):
         self.pageNum = 0
 
         # processing modules
-        self.tokenizer = Tokenizer()
+        self.tokenizer = Tokenizer(build='gpt')
         self.keyworder = None
         self.embedder = Embedder()
 
@@ -46,11 +46,8 @@ class SearchTable(object):
             for category in tqdm(data, leave=False):
                 title = category['title']
                 for id, doc in enumerate(category['paragraphs']):
-                    # tokens = self.tokenizer.string_to_ids(doc['context'])
-                    embedding = self.embedder.vectorize(doc['context'])
-                    self.clusterIdx.update({id : (embedding, doc['context'])})
-                    if id > 0:
-                        break
+                    tokens = self.tokenizer.string_to_ids(doc['context'])
+
 
     def search(self, text):
         embedding = self.embedder.vectorize(text)
