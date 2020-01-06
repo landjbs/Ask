@@ -45,8 +45,11 @@ class SearchTable(object):
         textIds = self.tokenizer.string_to_ids(text)
         return Question(id, text, span, asker)
 
-    def make_document(self):
-        pass
+    def make_document(self, id, questions, text, path):
+        textIds = self.tokenizer.string_to_ids(text)
+        vec = None
+        tokens = None
+        return Document(id, tokens, questions, vec, textIds, path)
 
     # SQUAD LOADING
     def extract_squad_questions(self, questions, tokens):
@@ -61,6 +64,7 @@ class SearchTable(object):
                 answerList = q['plausible_answers']
                 if (answerList == []):
                     continue
+
 
     def load_squad_file(self, path):
         ''' Loads squad file from path into various idxs '''
