@@ -49,8 +49,6 @@ class SearchTable(object):
             try:
                 answerList = q['answers']
             except KeyError:
-                answerList = []
-            if (answerList == []):
                 answerList = q['plausible_answers']
                 if (answerList == []):
                     continue
