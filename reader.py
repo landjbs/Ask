@@ -10,7 +10,8 @@ To read datasets into structs
 # print(dir(t))
 
 from structs import SearchTable
-from longshot import LongShot
+from models.longshot import LongShot
+from search.embedder import Embedder
 
 SQUAD_PATH = 'data/inData/dev-v2.0.json'
 

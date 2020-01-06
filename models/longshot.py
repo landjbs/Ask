@@ -12,6 +12,7 @@ from tqdm import tqdm, trange
 from termcolor import colored
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
+from search.embedder import Embedder
 from torch.cuda import is_available as gpu_available
 
 import utils as u
