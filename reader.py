@@ -11,7 +11,6 @@ To read datasets into structs
 
 from structs import SearchTable
 from models.longshot import LongShot
-from search.embedder import Embedder
 
 SQUAD_PATH = 'data/inData/dev-v2.0.json'
 

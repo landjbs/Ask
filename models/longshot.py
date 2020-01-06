@@ -35,7 +35,7 @@ class Encoder(nn.Module):
         self.layerNum = layerNum
         self.rnn = nn.GRU(input_size=hiddenDim,
                           hidden_size=hiddenDim,
-                          num_layers=layerNum,˜
+                          num_layers=layerNum,
                           batch_first=True)
 
     def initialize_hidden(self, device):
@@ -135,34 +135,6 @@ class LongShot(object):
         predLog = torch.log(predCorrect)
         loss = -(predLog)
         return loss
-
-    def inclusion_loss(self, outVec, trueList, decoderOut):
-        numC = 0
-        r = decoderOut[0] * 0
-        print(r)
-        print(outVec)
-        for trueElt in set(trueList):
-            trueElt = trueElt[0].item()
-            print(trueElt)
-            if trueElt in outVec:
-                numC += 1
-                print(self.searchTable.word_decode(trueElt))
-        rawLoss = r + torch.tensor((numC / len(outVec)) + ZERO_BOOSTER)
-        print(f'RAW: {rawLoss}')
-        loss = -(torch.log(rawLoss))
-        print(f'Log: {loss}')
-        return loss
-
-    def general_loss(self, predVec, questionTargets, prevIds):
-        curLoss = 0
-        questionTargets = set(questionTargets)
-        for prev in prevIds:
-            if prev in questionTargets:
-                questionTargets.remove(prev)
-        for target in questionTargets:
-            predStrength = predVec[target] + ZERO_BOOSTER
-            curLoss -= torch.log(predStrength)
-        return curLoss
 
     def eval_accuracy(self, prediction, target):
         """ Evaluates accuracy of prediciton """
