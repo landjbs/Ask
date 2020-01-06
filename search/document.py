@@ -1,3 +1,5 @@
+from termcolor import colored
+
 class Document(object):
     '''
     A document is a page of text from any source in SearchTable.
@@ -45,6 +47,11 @@ class Document(object):
         # if (self.text and self.path):
         #     self.text = self.fetch_text(None)
 
-    def pretty_print(self, qId):
+    def pretty_print(self, qId, tokenizer):
         ''' Pretty prints question of qId and annotated doc/answer '''
-        
+        q = self.questions[qId]
+        qText = q.ids_to_string(q.text)
+        span = q.span
+        print(f'Question: {qText}\n')
+        # TODO:  finish
+        return True
