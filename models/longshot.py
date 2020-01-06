@@ -141,7 +141,7 @@ class LongShot(object):
 
     def norm_loss(self, v1, v2):
         ''' Loss of p-norm between two vectors '''
-        pass
+        return torch.norm(v1-v2, p=2)
 
     def eval_accuracy(self, prediction, target):
         """ Evaluates accuracy of prediciton """
@@ -177,9 +177,14 @@ class LongShot(object):
         decoderInput = self.searchTable.word_encode(['\t'])
         # initial decoder hidden state is final encoder hidden state
         decoderHidden = encoderHidden
-        qText = EMBEDDER.vectorize(self.searchTable.word_decode(questionTargets))
+        qText = self.searchTable.word_decode(questionTargets)
         print('Target: ', qText)
-        targetVec = qText
+        targetVec = torch.tensor(EMBEDDER.vectorize(qText), dtype=torch.float)
+        testHidden = torch.cat((encoderHidden.squeeze(), torch.rand(255)))
+        loss += (100 * self.norm_loss(targetVec, testHidden)).clone().detach().requires_grad_(True)
+        print(f'Encoder Loss: {loss}')
+        loss.backward()
+        loss = 0
         genList = []
         # run decoder across encoderOuts, initializing with encoderHidden
         for decoderStep in range(targetLen):
@@ -251,7 +256,7 @@ class LongShot(object):
                         break
                     # if i > 0:
                     #     break
-                    for _ in range(5):
+                    for _ in range(1):
                         print(f'Context: {self.searchTable.word_decode(wordIds)}')
                         # edit span dimension for current question
                         contextVecs[span[0] : span[1]+1, -1] = 1
