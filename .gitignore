@@ -1,4 +1,4 @@
-*.json
+*.json*
 *.sav
 *.txt
 *.vocab

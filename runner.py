@@ -2,11 +2,6 @@ from search.searchtable import SearchTable
 
 x = SearchTable()
 
+print('setup')
 
-x.load_squad_file('data/inData/dev-v2.0.json')
-
-print(x.idIdx)
-
-x.load_squad_file('data/inData/dev-v2.0.json')
-
-print(x.idIdx)
+x.load_nq_file('data/inData/nq/simplified-nq-train.jsonl')
