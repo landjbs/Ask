@@ -80,24 +80,30 @@ class SearchTable(object):
                         break
             yield self.make_question(q['id'], q['question'], span, 'squad')
 
-    def load_squad_document(self, paragraphs):
+    def load_squad_document(self, paragraphs, inc):
         ''' Helper to load documents from list of paragraphs '''
-        for dId, doc in enumerate(category['paragraphs']):
+        for dId, doc in enumerate(paragraphs):
             tokens = self.tokenizer.string_to_ids(doc['context'])
-            qList = doc['qas']
             questions = {qId : qObj for qId, qObj
-                in enumerate(self.extract_squad_questions(qList,
-                                                          tokens))}
-            yield self.make_document(dId, questions, tokens, None)
-
+                         in enumerate(self.extract_squad_questions(doc['qas'],
+                                                                   tokens))}
+            yield self.make_document((dId+inc), questions, tokens, None)
 
     def load_squad_file(self, path):
         ''' Loads squad file from path into various idxs '''
         with open(path, 'r') as squadFile:
             data = json.load(squadFile)['data']
+            inc = 0 if (self.idIdx=={}) else max(self.idIdx)
             for category in tqdm(data, leave=False):
                 title = category['title']
-
+                paragraphs = category['paragraphs']
+                docs = {(id+inc) : doc for id, doc
+                        in enumerate(self.load_squad_document(paragraphs, inc))}
+            if (inc==0):
+                self.idIdx = docs
+            else:
+                self.idIdx.update(docs)
+            return True
 
     def search(self, text):
         embedding = self.embedder.vectorize(text)
