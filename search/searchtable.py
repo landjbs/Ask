@@ -6,7 +6,7 @@ from scipy.spatial.distance import euclidean
 from search.document import Document
 from search.question import Question
 from search.tokenizer import Tokenizer
-from search.embedder import Embedder
+# from search.embedder import Embedder
 
 class SearchTable(object):
     def __init__(self):
@@ -18,7 +18,7 @@ class SearchTable(object):
         # processing modules
         self.tokenizer = Tokenizer(build='gpt')
         self.keyworder = None
-        self.embedder = Embedder()
+        self.embedder = None
 
     def __str__(self):
         return f'<SearchTable | pageNum={self.pageNum}>'
