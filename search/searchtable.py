@@ -42,7 +42,8 @@ class SearchTable(object):
     # ABSTRACT TEXT MANIPULATION
     def make_question(self, id, text, span, asker):
         ''' Generates Question after encoding text '''
-        textIds = self.tokenizer.string_to_ids(text)
+        if isinstance(text, str):
+            text = self.tokenizer.string_to_ids(text)
         return Question(id, text, span, asker)
 
     def make_document(self, id, questions, text, path):
@@ -64,6 +65,20 @@ class SearchTable(object):
                 answerList = q['plausible_answers']
                 if (answerList == []):
                     continue
+            # focuses only on the first answer of answer list
+            answer = answerList[0]
+            answerTokens = self.word_tokenize(answer['text'])
+            answerStart = answerTokens[0]
+            answerLen = len(answerTokens)
+            span = None
+            for loc, word in enumerate(tokens):
+                if (word==answerStart):
+                    if ((tokens[loc:(loc+answerLen)]==answerTokens)
+                        and (answerLen>1)):
+                        span = (loc, loc+answerLen)
+                        break
+            qObj = self.make_question(q['id'], q['question'], span, 'squad')
+
 
 
     def load_squad_file(self, path):
