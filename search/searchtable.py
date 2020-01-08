@@ -80,6 +80,15 @@ class SearchTable(object):
                         break
             yield self.make_question(q['id'], q['question'], span, 'squad')
 
+    def load_squad_document(self, paragraphs):
+        ''' Helper to load documents from list of paragraphs '''
+        for dId, doc in enumerate(category['paragraphs']):
+            tokens = self.tokenizer.string_to_ids(doc['context'])
+            qList = doc['qas']
+            questions = {qId : qObj for qId, qObj
+                in enumerate(self.extract_squad_questions(qList,
+                                                          tokens))}
+            yield self.make_document(dId, questions, tokens, None)
 
 
     def load_squad_file(self, path):
@@ -88,14 +97,6 @@ class SearchTable(object):
             data = json.load(squadFile)['data']
             for category in tqdm(data, leave=False):
                 title = category['title']
-                for id, doc in enumerate(category['paragraphs']):
-                    tokens = self.tokenizer.string_to_ids(doc['context'])
-                    qList = doc['qas']
-                    questions = {id : qObj for id, qObj
-                        in enumerate(self.extract_squad_questions(qList,
-                                                                  tokens))}
-                    print(doc.keys())
-                    self.make_document(doc['id'], questions, tokens, None)
 
 
     def search(self, text):
