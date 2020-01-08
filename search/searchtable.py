@@ -47,10 +47,11 @@ class SearchTable(object):
         return Question(id, text, span, asker)
 
     def make_document(self, id, questions, text, path):
-        textIds = self.tokenizer.string_to_ids(text)
+        if isinstance(text, str):
+            text = self.tokenizer.string_to_ids(text)
         vec = None
         tokens = None
-        return Document(id, tokens, questions, vec, textIds, path)
+        return Document(id, tokens, questions, vec, text, path)
 
     # SQUAD LOADING
     def extract_squad_questions(self, questions, tokens):
@@ -77,8 +78,7 @@ class SearchTable(object):
                         and (answerLen>1)):
                         span = (loc, loc+answerLen)
                         break
-            yield (q['id'], self.make_question(q['id'], q['question'],
-                                              span, 'squad'))
+            yield self.make_question(q['id'], q['question'], span, 'squad')
 
 
 
@@ -91,10 +91,12 @@ class SearchTable(object):
                 for id, doc in enumerate(category['paragraphs']):
                     tokens = self.tokenizer.string_to_ids(doc['context'])
                     qList = doc['qas']
-                    # for i, x in self.extract_squad_questions(qList, tokens):
-                    #     print(i, x)
-                    questions = {id : qObj for (id, qObj) in self.extract_squad_questions(qList, tokens)}
-                    print(questions)
+                    questions = {id : qObj for id, qObj
+                        in enumerate(self.extract_squad_questions(qList,
+                                                                  tokens))}
+                    print(doc.keys())
+                    self.make_document(doc['id'], questions, tokens, None)
+
 
     def search(self, text):
         embedding = self.embedder.vectorize(text)
