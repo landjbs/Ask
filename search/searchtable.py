@@ -1,5 +1,5 @@
 import json
-import ijson
+import jsonlines
 from tqdm import tqdm
 import numpy as np
 from scipy.spatial.distance import euclidean
@@ -107,10 +107,10 @@ class SearchTable(object):
             return True
 
     def load_nq_file(self, path):
-        with open(path, 'r') as nqFile:
-            parser = ijson.parse(nqFile)
-            for prefix, event, value in parser:
-                print('prefix={}, event={}, value={}'.format(prefix, event, value))
+        with jsonlines(path, 'r') as nqReader:
+            for obj in nqReader:
+                print(obj)
+
 
     def search(self, text):
         embedding = self.embedder.vectorize(text)
