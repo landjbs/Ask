@@ -106,11 +106,15 @@ class SearchTable(object):
                 self.idIdx.update(docs)
             return True
 
-    def load_nq_file(self, path):
-        with jsonlines(path, 'r') as nqReader:
-            for obj in nqReader:
-                print(obj)
+    # NATURAL QUESTIONS LOADING
+    def process_nq_doc(self, inc):
+        pass
 
+    def load_nq_file(self, path):
+        with jsonlines.open(path, 'r') as nqReader:
+            for obj in nqReader:
+                print(len(obj['document_text'].split()))
+                break
 
     def search(self, text):
         embedding = self.embedder.vectorize(text)
