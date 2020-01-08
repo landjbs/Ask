@@ -23,7 +23,7 @@ class Tokenizer(object):
 
     def decode_ids(self, ids):
         ''' Returns list of str tokens from list of id encodings '''
-        return self.tokenzier.convert_tokens_to_ids(ids)
+        return self.tokenzier.convert_ids_to_tokens(ids)
 
     def string_to_ids(self, s):
         ''' Converts raw text string to list of ids '''

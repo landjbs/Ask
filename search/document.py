@@ -50,8 +50,9 @@ class Document(object):
     def pretty_print(self, qId, tokenizer):
         ''' Pretty prints question of qId and annotated doc/answer '''
         q = self.questions[qId]
-        qText = q.ids_to_string(q.text)
+        qText = tokenizer.ids_to_string(q.text)
+        dText = tokenizer.ids_to_string(self.text)
         span = q.span
         print(f'Question: {qText}\n')
-        # TODO:  finish
+        print(f'Doc: {dText}')
         return True

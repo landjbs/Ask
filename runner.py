@@ -5,7 +5,6 @@ x = SearchTable()
 
 x.load_squad_file('data/inData/dev-v2.0.json')
 
+print(x.idIdx)
 
-while True:
-    t = input('t: ')
-    x.search(t)
+print(x.idIdx[0].pretty_print(0, x.tokenizer))
