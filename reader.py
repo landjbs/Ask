@@ -10,12 +10,12 @@ To read datasets into structs
 # print(dir(t))
 
 from structs import SearchTable
-from models.longshot import LongShot
+# from models.longshot import LongShot
 
 SQUAD_PATH = 'data/inData/dev-v2.0.json'
 
-# x = SearchTable(SQUAD_PATH)
-x = SearchTable(loadPath='SearchTable')
+x = SearchTable(SQUAD_PATH)
+# x = SearchTable(loadPath='SearchTable')
 # x.save('SearchTable')
-z = LongShot(x)
-z.train(100)
+# z = LongShot(x)
+# z.train(100)

@@ -77,7 +77,7 @@ class SearchTable(object):
                         and (answerLen>1)):
                         span = (loc, loc+answerLen)
                         break
-            qObj = self.make_question(q['id'], q['question'], span, 'squad')
+            yield q['id'], self.make_question(q['id'], q['question'], span, 'squad')
 
 
 
@@ -89,8 +89,11 @@ class SearchTable(object):
                 title = category['title']
                 for id, doc in enumerate(category['paragraphs']):
                     tokens = self.tokenizer.string_to_ids(doc['context'])
-
-
+                    print(doc.keys())
+                    qDict = doc['questions']
+                    questions = {id : qObj for id, qObj
+                                 in self.extract_squad_questions(qDict, tokens)}
+                    print(questions)
 
     def search(self, text):
         embedding = self.embedder.vectorize(text)
