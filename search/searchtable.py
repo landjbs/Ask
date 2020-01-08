@@ -67,7 +67,7 @@ class SearchTable(object):
                     continue
             # focuses only on the first answer of answer list
             answer = answerList[0]
-            answerTokens = self.word_tokenize(answer['text'])
+            answerTokens = self.tokenizer.string_to_ids(answer['text'])
             answerStart = answerTokens[0]
             answerLen = len(answerTokens)
             span = None
@@ -77,7 +77,8 @@ class SearchTable(object):
                         and (answerLen>1)):
                         span = (loc, loc+answerLen)
                         break
-            yield q['id'], self.make_question(q['id'], q['question'], span, 'squad')
+            yield (q['id'], self.make_question(q['id'], q['question'],
+                                              span, 'squad'))
 
 
 
@@ -89,10 +90,10 @@ class SearchTable(object):
                 title = category['title']
                 for id, doc in enumerate(category['paragraphs']):
                     tokens = self.tokenizer.string_to_ids(doc['context'])
-                    qDict = doc['qas']
-                    print(qDict)
-                    questions = {id : qObj for id, qObj
-                                 in self.extract_squad_questions(qDict, tokens)}
+                    qList = doc['qas']
+                    # for i, x in self.extract_squad_questions(qList, tokens):
+                    #     print(i, x)
+                    questions = {id : qObj for (id, qObj) in self.extract_squad_questions(qList, tokens)}
                     print(questions)
 
     def search(self, text):
