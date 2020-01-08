@@ -89,8 +89,8 @@ class SearchTable(object):
                 title = category['title']
                 for id, doc in enumerate(category['paragraphs']):
                     tokens = self.tokenizer.string_to_ids(doc['context'])
-                    print(doc.keys())
-                    qDict = doc['questions']
+                    qDict = doc['qas']
+                    print(qDict)
                     questions = {id : qObj for id, qObj
                                  in self.extract_squad_questions(qDict, tokens)}
                     print(questions)
